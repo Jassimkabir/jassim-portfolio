@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jassim M Kabir — Portfolio
 
-## Getting Started
+A funky, premium, motion-driven developer portfolio built with **Next.js 16 (App Router)**,
+**TypeScript**, **Tailwind CSS v4**, **Lenis** smooth scroll and **GSAP** scroll animations.
 
-First, run the development server:
+## ✏️ Edit everything in one place
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+All text, links, projects, stats, SEO and labels live in a single file:
+
+```
+src/content/site.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Change a value there and the whole site updates. Inline accent tags you can use inside
+titles and statements:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Tag | Effect |
+| --- | --- |
+| `<em>word</em>` | serif italic accent |
+| `<i>word</i>` | lime colour |
+| `<strong>word</strong>` | emphasised cream (about paragraphs) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To recolour the whole theme, edit the palette variables at the top of `src/app/globals.css`
+(`--lime`, `--coral`, `--lilac`, `--ink`, etc.).
 
-## Learn More
+## Develop
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run dev      # start dev server  → http://localhost:3000
+npm run build    # production build
+npm run start    # serve the production build
+npm run lint     # eslint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## SEO
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Full metadata, Open Graph + Twitter cards in `src/app/layout.tsx` (driven by `site.ts`).
+- `Person` JSON-LD structured data injected in the layout.
+- Dynamically generated social share image at `src/app/opengraph-image.tsx`.
+- `robots.txt` and `sitemap.xml` generated from `src/app/robots.ts` / `sitemap.ts`.
 
-## Deploy on Vercel
+> Before deploying, set your real domain and social handle in `seo` inside
+> `src/content/site.ts` (`url`, `twitterHandle`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/
+    layout.tsx          fonts + SEO metadata + JSON-LD
+    page.tsx            page assembly
+    globals.css         design system (ported 1:1, theme variables on top)
+    opengraph-image.tsx dynamic OG image
+    robots.ts / sitemap.ts
+  components/
+    Chrome.tsx          grain, custom cursor, preloader, nav
+    Sections.tsx        hero, marquee, about, services, work, stats, contact, footer
+    Effects.tsx         "use client" — Lenis + GSAP + cursor + magnetic + counters
+  content/
+    site.ts             ← EDIT EVERYTHING HERE
+  lib/
+    text.tsx            inline-accent + word-wrap helpers
+```
+
+Animations and the custom cursor respect `prefers-reduced-motion` and touch devices.
