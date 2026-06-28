@@ -18,9 +18,9 @@ export default function EasterEggs() {
     const w = window as unknown as { __jkHello?: boolean };
     if (!w.__jkHello) {
       w.__jkHello = true;
-      const big = "font:700 26px monospace;color:#5eead4";
-      const p = "color:#a78bfa;font:14px/1.6 monospace";
-      const a = "color:#fbbf24;font:13px monospace";
+      const big = "font:700 26px monospace;color:#3b82f6";
+      const p = "color:#22d3ee;font:14px/1.6 monospace";
+      const a = "color:#7dd3fc;font:13px monospace";
       console.log(`%c${CONTENT.name} ✦`, big);
       console.log("%cYou opened the console — respect.\nTry the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A", p);
       console.log(`%cLike what you see? → ${CONTENT.contact.email}`, a);

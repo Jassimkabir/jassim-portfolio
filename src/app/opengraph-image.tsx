@@ -16,8 +16,8 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 80,
-          background: "#0b0f1a",
-          color: "#e6edf3",
+          background: "#060912",
+          color: "#eaf1ff",
           fontFamily: "sans-serif",
         }}
       >
@@ -29,10 +29,10 @@ export default function OgImage() {
             fontSize: 28,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "#7d8da5",
+            color: "#7e8aa6",
           }}
         >
-          <div style={{ width: 48, height: 2, background: "#fbbf24" }} />
+          <div style={{ width: 48, height: 2, background: "#3b82f6" }} />
           {CONTENT.role}
         </div>
 
@@ -47,14 +47,14 @@ export default function OgImage() {
           }}
         >
           <span>{CONTENT.name.split(" ").slice(0, -1).join(" ") || CONTENT.name}</span>
-          <span style={{ color: "#5eead4" }}>
+          <span style={{ color: "#3b82f6" }}>
             {CONTENT.name.split(" ").slice(-1).join(" ")}
           </span>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 30 }}>
-          <span style={{ color: "#a78bfa" }}>{CONTENT.contact.email}</span>
-          <span style={{ color: "#7d8da5" }}>Building digital experiences that move</span>
+          <span style={{ color: "#22d3ee" }}>{CONTENT.contact.email}</span>
+          <span style={{ color: "#7e8aa6" }}>Building digital experiences that move</span>
         </div>
       </div>
     ),

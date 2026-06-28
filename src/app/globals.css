@@ -19,31 +19,32 @@
 
 /* ── THEMES — names kept (--lime/--coral/--lilac) so every usage stays intact.
    --fg-rgb = text rgb (drives lines/strokes), --glow = primary-accent rgb (pulses). */
+/* ── ICE BLUE · cool azure + cyan on deep navy ── */
 [data-theme='dark'] {
   color-scheme: dark;
-  --ink: #05060a; /* near-black, faint cool          */
-  --surface: #0d0f16; /* raised panels                   */
-  --cream: #e6edf3; /* primary text (soft white)       */
-  --muted: #7a8aa3; /* secondary text                  */
-  --fg-rgb: 230, 237, 243;
+  --ink: #060912; /* deep navy base                  */
+  --surface: #0e1422; /* raised panels                   */
+  --cream: #eaf1ff; /* primary text (ice white)        */
+  --muted: #7e8aa6; /* secondary text                  */
+  --fg-rgb: 234, 241, 255;
 
-  --lime: #5eead4; /* PRIMARY  · teal                 */
-  --coral: #fbbf24; /* SECONDARY· amber (duotone)      */
-  --lilac: #a78bfa; /* TERTIARY · violet               */
-  --glow: 94, 234, 212;
+  --lime: #3b82f6; /* PRIMARY  · electric azure       */
+  --coral: #22d3ee; /* SECONDARY· cyan (duotone)       */
+  --lilac: #7dd3fc; /* TERTIARY · soft sky             */
+  --glow: 59, 130, 246;
 }
 [data-theme='light'] {
   color-scheme: light;
-  --ink: #f5f6f8; /* soft off-white base             */
+  --ink: #f3f6fc; /* cool off-white base             */
   --surface: #ffffff; /* raised panels                   */
-  --cream: #11151c; /* primary text (near-black)       */
-  --muted: #5a6473; /* secondary text                  */
-  --fg-rgb: 17, 21, 28;
+  --cream: #0a1424; /* primary text (deep navy)        */
+  --muted: #566077; /* secondary text                  */
+  --fg-rgb: 10, 20, 36;
 
-  --lime: #0d9488; /* PRIMARY  · deep teal            */
-  --coral: #c2410c; /* SECONDARY· burnt amber          */
-  --lilac: #6d28d9; /* TERTIARY · deep violet          */
-  --glow: 13, 148, 136;
+  --lime: #2563eb; /* PRIMARY  · royal blue           */
+  --coral: #0e7490; /* SECONDARY· deep cyan            */
+  --lilac: #0284c7; /* TERTIARY · sky                  */
+  --glow: 37, 99, 235;
 }
 
 * {
