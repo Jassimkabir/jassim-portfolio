@@ -12,10 +12,7 @@ export function Hero() {
       </div>
       <div className='wrap hero-inner'>
         <div className='standfirst reveal'>
-          <span
-            className='avail has-tip'
-            data-tip='yes, actually available — not just a green dot 🟢'
-          >
+          <span className='avail'>
             <span className='dot' />
             <span>{hero.available}</span>
           </span>
@@ -213,6 +210,46 @@ export function Work() {
   );
 }
 
+export function Experience() {
+  const { experience: xp } = CONTENT;
+  return (
+    <section className='pad' id='experience'>
+      <div className='wrap'>
+        <div className='sec-head'>
+          <Html as='h2' className='reveal' html={xp.heading} />
+          <span className='eyebrow reveal'>
+            <b>05</b> <span>{xp.label}</span>
+          </span>
+        </div>
+        <div className='xp-list'>
+          {xp.items.map((item) => (
+            <article className='xp-row reveal' key={`${item.company}-${item.period}`}>
+              <div className='xp-date'>
+                <span className='xp-period'>{item.period}</span>
+                {item.current ? <span className='xp-now'>● current</span> : null}
+                {item.location ? <span className='xp-loc'>{item.location}</span> : null}
+              </div>
+              <div className='xp-body'>
+                <h3 className='xp-role'>
+                  {item.role}
+                  <span className='xp-at'> @ </span>
+                  <span className='xp-company'>{item.company}</span>
+                </h3>
+                <p className='xp-blurb'>{item.blurb}</p>
+                <div className='xp-tags'>
+                  {item.tags.map((tg) => (
+                    <span key={tg}>{tg}</span>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Stats() {
   const { stats } = CONTENT;
   return (
@@ -222,7 +259,7 @@ export function Stats() {
           className='eyebrow reveal'
           style={{ marginBottom: 50, display: 'inline-flex' }}
         >
-          <b>05</b> <span>{stats.label}</span>
+          <b>06</b> <span>{stats.label}</span>
         </span>
         <div className='stats'>
           {stats.items.map((s) => (
@@ -248,7 +285,7 @@ export function Contact() {
     <section className='pad contact' id='contact'>
       <div className='wrap'>
         <span className='eyebrow reveal'>
-          <b>06</b> <span>{contact.label}</span>
+          <b>07</b> <span>{contact.label}</span>
         </span>
         <p className='pre reveal' style={{ marginTop: 24 }}>
           {contact.pre}

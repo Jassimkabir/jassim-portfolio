@@ -25,9 +25,10 @@ export default function Effects() {
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
     const hoverable = window.matchMedia("(hover:hover)").matches;
+    // touch / phones: skip the heaviest per-frame work and let native scroll run
+    const coarse = window.matchMedia("(pointer:coarse)").matches;
 
     const cleanups: Array<() => void> = [];
-    let rafId = 0;
     let lenis: Lenis | null = null;
 
     // shared, frame-read state
@@ -76,13 +77,14 @@ export default function Effects() {
         my = me.clientY;
         dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
       });
-      let cursorRaf = requestAnimationFrame(function loop() {
+      // share the single gsap.ticker loop instead of a separate rAF
+      const cursorTick = () => {
         rx += (mx - rx) * 0.18;
         ry += (my - ry) * 0.18;
         ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
-        cursorRaf = requestAnimationFrame(loop);
-      });
-      cleanups.push(() => cancelAnimationFrame(cursorRaf));
+      };
+      gsap.ticker.add(cursorTick);
+      cleanups.push(() => gsap.ticker.remove(cursorTick));
 
       $$("[data-cursor],[data-view],a,button").forEach((el) => {
         const view = el.hasAttribute("data-view");
@@ -197,43 +199,44 @@ export default function Effects() {
       marqueeSkewTarget = clamp(velocity * -0.12, -5, 5);
     };
 
-    /* ---- Lenis smooth scroll ---- */
+    /* ---- Lenis smooth scroll (desktop only) ----
+       Driven by gsap.ticker so Lenis + ScrollTrigger share ONE rAF loop — two
+       independent loops is a classic source of scroll jitter. On touch we use
+       native scrolling (smoother on phones) with a passive listener. */
     const anchorHandlers: Array<[HTMLAnchorElement, (e: Event) => void]> = [];
-    const initLenis = () => {
-      if (prefersReduced) return false;
-      lenis = new Lenis({
-        duration: 1.1,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      });
-      lenis.on(
-        "scroll",
-        (e: { scroll: number; progress: number; velocity: number }) => {
-          onScrollState(e.scroll, e.progress, e.velocity);
-          ScrollTrigger.update();
-        },
-      );
-      const raf = (t: number) => {
-        lenis?.raf(t);
-        rafId = requestAnimationFrame(raf);
-      };
-      rafId = requestAnimationFrame(raf);
+    let lenisTick: ((time: number) => void) | null = null;
+    const useSmooth = !prefersReduced && !coarse;
 
+    const bindAnchors = (scrollTo: (id: string) => void) => {
       $$<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
         const handler = (e: Event) => {
           const id = a.getAttribute("href") || "";
-          if (id.length > 1) {
+          if (id.length > 1 && document.querySelector(id)) {
             e.preventDefault();
-            lenis?.scrollTo(id, { offset: -10 });
+            scrollTo(id);
           }
         };
         a.addEventListener("click", handler);
         anchorHandlers.push([a, handler]);
       });
-      return true;
     };
 
-    if (!initLenis()) {
+    if (useSmooth) {
+      lenis = new Lenis({
+        lerp: 0.11, // frame-rate independent smoothing — snappy, not floaty
+        wheelMultiplier: 1,
+        smoothWheel: true,
+        syncTouch: false,
+      });
+      lenis.on("scroll", (e: { scroll: number; progress: number; velocity: number }) => {
+        onScrollState(e.scroll, e.progress, e.velocity);
+        ScrollTrigger.update();
+      });
+      lenisTick = (time: number) => lenis?.raf(time * 1000); // gsap time is seconds
+      gsap.ticker.add(lenisTick);
+      gsap.ticker.lagSmoothing(0);
+      bindAnchors((id) => lenis?.scrollTo(id, { offset: -10 }));
+    } else {
       const docProgress = () => {
         const max = document.documentElement.scrollHeight - innerHeight;
         const y = scrollY;
@@ -241,10 +244,18 @@ export default function Effects() {
       };
       on(window, "scroll", docProgress, { passive: true } as AddEventListenerOptions);
       docProgress();
+      bindAnchors((id) =>
+        document
+          .querySelector(id)
+          ?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "start" }),
+      );
     }
 
-    /* ---- shared ticker: floating glyphs + velocity marquee ---- */
-    if (!prefersReduced) {
+    /* ---- shared ticker: floating glyphs + velocity marquee ----
+       Desktop only. On touch the glyphs are static CSS and the marquee falls
+       back to its pure-CSS animation (js-marquee class is never added), so there
+       is NO continuous JavaScript on phones — the biggest win for smoothness. */
+    if (!prefersReduced && !coarse) {
       // glyphs flee from the cursor (force-field), drift on scroll & float idly.
       // current offset (ox/oy/scale) eases toward a per-frame target.
       type G = {
@@ -449,14 +460,17 @@ export default function Effects() {
           );
         });
 
-        // blobs parallax
-        $$<HTMLElement>(".blob").forEach((b) => {
-          gsap.to(b, {
-            yPercent: parseFloat(b.dataset.speed || "0") * 60,
-            ease: "none",
-            scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
+        // blobs parallax — skip on touch: translating a big blurred layer on
+        // every scroll frame is costly and the effect is barely visible there
+        if (!coarse) {
+          $$<HTMLElement>(".blob").forEach((b) => {
+            gsap.to(b, {
+              yPercent: parseFloat(b.dataset.speed || "0") * 60,
+              ease: "none",
+              scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
+            });
           });
-        });
+        }
 
         // stat counters
         $$<HTMLElement>(".count").forEach((el) => {
@@ -560,7 +574,10 @@ export default function Effects() {
     return () => {
       cleanups.forEach((fn) => fn());
       anchorHandlers.forEach(([a, h]) => a.removeEventListener("click", h));
-      if (rafId) cancelAnimationFrame(rafId);
+      if (lenisTick) {
+        gsap.ticker.remove(lenisTick);
+        gsap.ticker.lagSmoothing(500, 33); // restore GSAP default
+      }
       lenis?.destroy();
       ctx?.revert();
       ScrollTrigger.getAll().forEach((t) => t.kill());

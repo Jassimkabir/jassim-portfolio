@@ -35,12 +35,7 @@ export function Loader() {
 export function Nav() {
   return (
     <nav id='nav'>
-      <a
-        href='#top'
-        className='logo has-tip'
-        aria-label={CONTENT.name}
-        data-tip="JK = Jassim M Kabir. also 'just kidding'. mostly the first one ✦"
-      >
+      <a href='#top' className='logo' aria-label={CONTENT.name}>
         <Html html={CONTENT.logo} />
       </a>
       <div className='nav-right'>

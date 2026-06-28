@@ -203,6 +203,45 @@ export const CONTENT = {
     ],
   },
 
+  /* — EXPERIENCE — vertical timeline (most recent first).
+     period = the date range shown in mono; current:true adds a live dot. */
+  experience: {
+    label: 'Experience',
+    heading: 'The <em>road</em> so far',
+    items: [
+      {
+        period: '2024 — Now',
+        role: 'Web Developer',
+        company: 'INNSOF',
+        location: 'Kerala, India',
+        current: true,
+        blurb:
+          'Building and maintaining a full ERP platform end-to-end — SQL Server logic, pricing engines and schema tooling — while crafting the front-end with React, TypeScript and Tailwind.',
+        tags: ['SQL Server', 'React', 'TypeScript', 'Tooling'],
+      },
+      {
+        period: '2023 — 2024',
+        role: 'Front-end Developer',
+        company: 'Freelance / Contract',
+        location: 'Remote',
+        current: false,
+        blurb:
+          'Designed and shipped premium brand storefronts on Shopify Hydrogen — motion-rich, accessible and tuned to convert, with smooth-scroll and scroll-driven storytelling.',
+        tags: ['Shopify Hydrogen', 'Framer Motion', 'GSAP'],
+      },
+      {
+        period: '2022 — 2023',
+        role: 'Junior Web Developer',
+        company: 'Early days',
+        location: 'Kerala, India',
+        current: false,
+        blurb:
+          'Cut my teeth turning designs into pixel-honest, responsive interfaces and learned to care about the details that make a UI feel alive.',
+        tags: ['JavaScript', 'CSS', 'UI'],
+      },
+    ],
+  },
+
   /* — STATS — (suffix renders in serif italic) — */
   stats: {
     label: 'By the numbers',

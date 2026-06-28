@@ -6,6 +6,7 @@ import {
   Terminal,
   Services,
   Work,
+  Experience,
   Stats,
   Contact,
   Footer,
@@ -31,6 +32,7 @@ export default function Home() {
         <Terminal />
         <Services />
         <Work />
+        <Experience />
         <Stats />
         <Contact />
       </main>
