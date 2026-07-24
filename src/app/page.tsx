@@ -1,9 +1,8 @@
-import { Grain, Cursor, Loader, Nav, MobileMenu } from "@/components/Chrome";
+import { Grain, Cursor, Loader, Nav, MobileMenu, ChannelBug } from "@/components/Chrome";
 import {
   Hero,
   Marquee,
   About,
-  Terminal,
   Services,
   Work,
   Experience,
@@ -11,6 +10,9 @@ import {
   Contact,
   Footer,
 } from "@/components/Sections";
+import Skills from "@/components/Skills";
+import TerminalLive from "@/components/TerminalLive";
+import Arcade from "@/components/Arcade";
 import FloatingGlyphs from "@/components/FloatingGlyphs";
 import Effects from "@/components/Effects";
 import EasterEggs from "@/components/EasterEggs";
@@ -21,6 +23,7 @@ export default function Home() {
       <FloatingGlyphs />
       <Grain />
       <Cursor />
+      <ChannelBug />
       <Loader />
       <Nav />
       <MobileMenu />
@@ -29,7 +32,8 @@ export default function Home() {
         <Hero />
         <Marquee />
         <About />
-        <Terminal />
+        <Skills />
+        <TerminalLive />
         <Services />
         <Work />
         <Experience />
@@ -38,6 +42,9 @@ export default function Home() {
       </main>
 
       <Footer />
+
+      {/* hidden Snake — opens as a retro popup only when you type `play` */}
+      <Arcade />
 
       <Effects />
       <EasterEggs />

@@ -2,9 +2,24 @@ import { CONTENT } from '@/content/site';
 import { Html } from '@/lib/text';
 import ThemeToggle from './ThemeToggle';
 
-/** Film-grain overlay. */
+/** CRT scanline + vignette overlay. */
 export function Grain() {
   return <div className='grain' aria-hidden='true' />;
+}
+
+/** Broadcast "channel bug" HUD — updated by Effects as you scroll / press 1–9. */
+export function ChannelBug() {
+  return (
+    <div className='channel-bug' id='channelBug' aria-hidden='true'>
+      <span className='cb-ch'>CH</span>
+      <span className='cb-num' id='channelNum'>
+        01
+      </span>
+      <span className='cb-name' id='channelName'>
+        ABOUT
+      </span>
+    </div>
+  );
 }
 
 /** Custom cursor markup — animated by Effects. */
@@ -19,13 +34,42 @@ export function Cursor() {
   );
 }
 
-/** Preloader — counter driven by Effects. */
+/** Preloader — a POST / BIOS boot; counter + bar driven by Effects. */
 export function Loader() {
   return (
     <div id='loader'>
-      <Html className='lname' html={CONTENT.loaderName} />
-      <div className='lcount' id='loaderCount'>
-        0
+      <div className='boot-screen'>
+        <div className='boot-post' aria-hidden='true'>
+          <p>
+            <b>SIGNAL BIOS</b> v1.6 — (C) 2026 J.KABIR SYSTEMS
+          </p>
+          <p>CPU: Creative Cortex @ 8-BIT · OK</p>
+          <p>
+            Memory Test: <span className='boot-mem' id='loaderMem'>0000</span> KB OK
+          </p>
+          <p>Detecting drives … React ✓ Next ✓ TypeScript ✓ GSAP ✓</p>
+          <p>Initializing display adapter … CRT MODE 80×25</p>
+        </div>
+        <div className='boot-center'>
+          <div className='boot-top'>
+            <span className='live' aria-hidden='true' />
+            <span>Booting portfolio</span>
+          </div>
+          <Html className='lname' html={CONTENT.loaderName} />
+          <div className='boot-bar'>
+            <span>Load</span>
+            <span className='boot-track' aria-hidden='true'>
+              <span className='boot-fill' id='loaderFill' />
+            </span>
+            <span className='lcount' id='loaderCount'>
+              0
+            </span>
+            <span>%</span>
+          </div>
+        </div>
+        <p className='boot-foot' aria-hidden='true'>
+          Press DEL to enter setup · or just wait ▮
+        </p>
       </div>
     </div>
   );

@@ -14,18 +14,19 @@ type Glyph = {
   hideSm?: boolean;
 };
 
+/* web-dev code tokens, floating in the background (rendered in the pixel font). */
 const GLYPHS: Glyph[] = [
-  { s: "</>", top: "16%", left: "82%", size: 92, color: "var(--lime)", depth: 1.4, o: 0.16 },
-  { s: "{ }", top: "70%", left: "8%", size: 78, color: "var(--coral)", depth: 1.1, o: 0.14 },
-  { s: "( )", top: "38%", left: "46%", size: 64, color: "var(--lilac)", depth: 0.7, o: 0.1, hideSm: true },
-  { s: "=>", top: "84%", left: "70%", size: 70, color: "var(--lime)", depth: 1.2, o: 0.13 },
-  { s: ";", top: "26%", left: "14%", size: 110, color: "var(--coral)", depth: 0.9, o: 0.12 },
-  { s: "#", top: "58%", left: "90%", size: 86, color: "var(--lilac)", depth: 1.5, o: 0.13, hideSm: true },
-  { s: "*", top: "8%", left: "40%", size: 60, color: "var(--lime)", depth: 0.6, o: 0.12, hideSm: true },
-  { s: "[ ]", top: "92%", left: "30%", size: 66, color: "var(--lilac)", depth: 1.0, o: 0.11 },
-  { s: "&&", top: "48%", left: "24%", size: 58, color: "var(--coral)", depth: 1.3, o: 0.1, hideSm: true },
-  { s: "::", top: "12%", left: "62%", size: 72, color: "var(--lime)", depth: 0.8, o: 0.12, hideSm: true },
-  { s: "0x1", top: "76%", left: "52%", size: 54, color: "var(--lilac)", depth: 1.1, o: 0.1, hideSm: true },
+  { s: "</>", top: "16%", left: "80%", size: 62, color: "var(--lime)", depth: 1.4, o: 0.16 },
+  { s: "{ }", top: "70%", left: "7%", size: 60, color: "var(--coral)", depth: 1.1, o: 0.14 },
+  { s: "=>", top: "38%", left: "46%", size: 54, color: "var(--lilac)", depth: 0.7, o: 0.1, hideSm: true },
+  { s: "( )", top: "84%", left: "70%", size: 56, color: "var(--lime)", depth: 1.2, o: 0.13 },
+  { s: "git", top: "26%", left: "13%", size: 58, color: "var(--coral)", depth: 0.9, o: 0.12 },
+  { s: "#fff", top: "58%", left: "88%", size: 46, color: "var(--lilac)", depth: 1.5, o: 0.13, hideSm: true },
+  { s: ";", top: "8%", left: "40%", size: 66, color: "var(--lime)", depth: 0.6, o: 0.12, hideSm: true },
+  { s: "npm", top: "92%", left: "30%", size: 52, color: "var(--lilac)", depth: 1.0, o: 0.11 },
+  { s: "&&", top: "48%", left: "23%", size: 56, color: "var(--coral)", depth: 1.3, o: 0.1, hideSm: true },
+  { s: "css", top: "12%", left: "62%", size: 54, color: "var(--lime)", depth: 0.8, o: 0.12, hideSm: true },
+  { s: "404", top: "76%", left: "50%", size: 50, color: "var(--lilac)", depth: 1.1, o: 0.1, hideSm: true },
 ];
 
 export default function FloatingGlyphs() {

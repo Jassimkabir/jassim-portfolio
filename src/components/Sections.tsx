@@ -1,8 +1,9 @@
+import Image from 'next/image';
 import { CONTENT } from '@/content/site';
 import { Html, wrapWords } from '@/lib/text';
 
 export function Hero() {
-  const { hero } = CONTENT;
+  const { hero, name } = CONTENT;
   return (
     <section className='hero' id='home'>
       <div className='blobs'>
@@ -11,20 +12,43 @@ export function Hero() {
         <div className='blob b3' data-speed='0.2' />
       </div>
       <div className='wrap hero-inner'>
-        <div className='standfirst reveal'>
-          <span className='avail'>
+        <div className='hero-copy'>
+          <span className='avail reveal'>
             <span className='dot' />
             <span>{hero.available}</span>
           </span>
-          <p>{hero.intro}</p>
+          <h1>
+            {hero.titleLines.map((line, i) => (
+              <span className='ln' key={i}>
+                <Html className='lnInner' as='span' html={line} />
+              </span>
+            ))}
+          </h1>
+          <p className='hero-lead reveal'>{hero.intro}</p>
+          <div className='hero-cta reveal'>
+            <a href='#work' className='cta-btn' data-cursor>
+              ▶ View work
+            </a>
+            <a href='#terminal' className='cta-btn ghost' data-cursor>
+              ⌨ Open terminal
+            </a>
+          </div>
         </div>
-        <h1>
-          {hero.titleLines.map((line, i) => (
-            <span className='ln' key={i}>
-              <Html className='lnInner' as='span' html={line} />
-            </span>
-          ))}
-        </h1>
+      </div>
+
+      {/* 8-bit portrait — rises from the bottom-left corner, feathered into
+          the hero. Direct child of .hero so it anchors to the real corner. */}
+      <div className='hero-portrait reveal'>
+        <div className='portrait-wrap'>
+          <Image
+            src='/images/jassim-8bit.png'
+            alt={`8-bit pixel-art portrait of ${name}`}
+            fill
+            priority
+            sizes='(max-width: 940px) 78vw, 46vw'
+            className='portrait-img'
+          />
+        </div>
       </div>
     </section>
   );
@@ -58,7 +82,7 @@ export function About() {
     <section className='pad about' id='about'>
       <div className='wrap'>
         <span className='eyebrow reveal'>
-          <b>01</b> <span>{about.label}</span>
+          <b>CH.01</b> <span>{about.label}</span>
         </span>
         <Html
           as='p'
@@ -91,62 +115,6 @@ export function About() {
   );
 }
 
-export function Terminal() {
-  const { terminal: t } = CONTENT;
-  const prompt = (
-    <>
-      <span className='term-user'>
-        {t.user}@{t.host}
-      </span>
-      <span className='term-path'>:{t.dir}</span>
-      <span className='term-dollar'>$</span>
-    </>
-  );
-  return (
-    <section className='pad' id='terminal'>
-      <div className='wrap'>
-        <div className='sec-head'>
-          <Html as='h2' className='reveal' html={t.heading} />
-          <span className='eyebrow reveal'>
-            <b>02</b> <span>{t.label}</span>
-          </span>
-        </div>
-        <div className='term reveal' id='term'>
-          <div className='term-bar'>
-            <span className='term-dots' aria-hidden='true'>
-              <i />
-              <i />
-              <i />
-            </span>
-            <span className='term-title'>
-              {t.user}@{t.host}: {t.dir}
-            </span>
-          </div>
-          <div className='term-body'>
-            {t.lines.map((l, i) => (
-              <div className='term-line' key={i}>
-                <p className='term-prompt'>
-                  {prompt}
-                  <span className='term-cmd' data-text={l.cmd}>
-                    {l.cmd}
-                  </span>
-                </p>
-                <p className='term-out'>{l.out}</p>
-              </div>
-            ))}
-            <p className='term-prompt term-tail'>
-              {prompt}
-              <span className='term-blink' aria-hidden='true'>
-                ▮
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function Services() {
   const { services } = CONTENT;
   return (
@@ -155,7 +123,7 @@ export function Services() {
         <div className='sec-head'>
           <Html as='h2' className='reveal' html={services.heading} />
           <span className='eyebrow reveal'>
-            <b>03</b> <span>{services.label}</span>
+            <b>CH.04</b> <span>{services.label}</span>
           </span>
         </div>
         <div className='svc-list'>
@@ -180,7 +148,7 @@ export function Work() {
         <div className='sec-head'>
           <Html as='h2' className='reveal' html={work.heading} />
           <span className='eyebrow reveal'>
-            <b>04</b> <span>{work.label}</span>
+            <b>CH.05</b> <span>{work.label}</span>
           </span>
         </div>
         <div className='work-grid'>
@@ -218,7 +186,7 @@ export function Experience() {
         <div className='sec-head'>
           <Html as='h2' className='reveal' html={xp.heading} />
           <span className='eyebrow reveal'>
-            <b>05</b> <span>{xp.label}</span>
+            <b>CH.06</b> <span>{xp.label}</span>
           </span>
         </div>
         <div className='xp-list'>
@@ -259,7 +227,7 @@ export function Stats() {
           className='eyebrow reveal'
           style={{ marginBottom: 50, display: 'inline-flex' }}
         >
-          <b>06</b> <span>{stats.label}</span>
+          <b>CH.07</b> <span>{stats.label}</span>
         </span>
         <div className='stats'>
           {stats.items.map((s) => (
@@ -285,7 +253,7 @@ export function Contact() {
     <section className='pad contact' id='contact'>
       <div className='wrap'>
         <span className='eyebrow reveal'>
-          <b>07</b> <span>{contact.label}</span>
+          <b>CH.09</b> <span>{contact.label}</span>
         </span>
         <p className='pre reveal' style={{ marginTop: 24 }}>
           {contact.pre}

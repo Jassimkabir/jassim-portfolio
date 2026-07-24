@@ -206,6 +206,9 @@ export default function Effects() {
     const anchorHandlers: Array<[HTMLAnchorElement, (e: Event) => void]> = [];
     let lenisTick: ((time: number) => void) | null = null;
     const useSmooth = !prefersReduced && !coarse;
+    // shared scroll-to used by anchors, the live terminal (jk:goto) and channel keys
+    let scrollToId: (id: string) => void = (id) =>
+      document.querySelector(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
     const bindAnchors = (scrollTo: (id: string) => void) => {
       $$<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
@@ -235,7 +238,8 @@ export default function Effects() {
       lenisTick = (time: number) => lenis?.raf(time * 1000); // gsap time is seconds
       gsap.ticker.add(lenisTick);
       gsap.ticker.lagSmoothing(0);
-      bindAnchors((id) => lenis?.scrollTo(id, { offset: -10 }));
+      scrollToId = (id) => lenis?.scrollTo(id, { offset: -10 });
+      bindAnchors(scrollToId);
     } else {
       const docProgress = () => {
         const max = document.documentElement.scrollHeight - innerHeight;
@@ -244,11 +248,89 @@ export default function Effects() {
       };
       on(window, "scroll", docProgress, { passive: true } as AddEventListenerOptions);
       docProgress();
-      bindAnchors((id) =>
+      scrollToId = (id) =>
         document
           .querySelector(id)
-          ?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "start" }),
+          ?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "start" });
+      bindAnchors(scrollToId);
+    }
+
+    /* ---- the live terminal asks us to tune to a channel ---- */
+    on(window, "jk:goto", (e) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (id && document.querySelector(id)) scrollToId(id);
+    });
+
+    /* ---- CHANNEL HUD + number-key channel switching ----
+       Sections are "channels". A corner bug shows the current one; number keys
+       1–9 jump between them with a quick channel-change flash. */
+    const channelSections = $$<HTMLElement>("main section[id]").filter((s) =>
+      $(".eyebrow b", s),
+    );
+    const bug = $("#channelBug");
+    const bugNum = $("#channelNum");
+    const bugName = $("#channelName");
+    const flashChannel = (label: string, num: string) => {
+      if (bugName) bugName.textContent = label;
+      if (bugNum) bugNum.textContent = num;
+      if (bug) {
+        bug.classList.add("flash");
+        setTimeout(() => bug.classList.remove("flash"), 420);
+      }
+    };
+    if (channelSections.length && bug) {
+      const labelOf = (s: HTMLElement) =>
+        ($(".eyebrow span:last-child", s)?.textContent || s.id).toUpperCase();
+      const numOf = (s: HTMLElement) =>
+        ($(".eyebrow b", s)?.textContent || "").replace(/[^0-9]/g, "").padStart(2, "0");
+      const io = new IntersectionObserver(
+        (entries) => {
+          const vis = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (vis) {
+            const s = vis.target as HTMLElement;
+            if (bugName) bugName.textContent = labelOf(s);
+            if (bugNum) bugNum.textContent = numOf(s);
+          }
+        },
+        { threshold: [0.25, 0.55] },
       );
+      channelSections.forEach((s) => io.observe(s));
+      cleanups.push(() => io.disconnect());
+
+      // hide the HUD once the footer is in view so it doesn't overlap it
+      const footerEl = $("footer");
+      if (footerEl) {
+        const fio = new IntersectionObserver(
+          (entries) => bug.classList.toggle("at-footer", entries[0].isIntersecting),
+          { threshold: 0.1 },
+        );
+        fio.observe(footerEl);
+        cleanups.push(() => fio.disconnect());
+      }
+
+      on(window, "keydown", (e) => {
+        const ev = e as KeyboardEvent;
+        const el = document.activeElement;
+        const typing =
+          el instanceof HTMLElement &&
+          (el.tagName === "INPUT" ||
+            el.tagName === "TEXTAREA" ||
+            el.isContentEditable);
+        if (typing || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+        if (/^[1-9]$/.test(ev.key)) {
+          const idx = Number(ev.key) - 1;
+          const s = channelSections[idx];
+          if (s) {
+            scrollToId(`#${s.id}`);
+            flashChannel(
+              ($(".eyebrow span:last-child", s)?.textContent || s.id).toUpperCase(),
+              ($(".eyebrow b", s)?.textContent || "").replace(/[^0-9]/g, "").padStart(2, "0"),
+            );
+          }
+        }
+      });
     }
 
     /* ---- shared ticker: floating glyphs + velocity marquee ----
@@ -487,32 +569,7 @@ export default function Effects() {
           });
         });
 
-        // terminal — type the commands out on scroll, reveal each output
-        const term = $("#term");
-        if (term) {
-          const tl = gsap.timeline({ scrollTrigger: { trigger: term, start: "top 72%" } });
-          $$(".term-line", term).forEach((line) => {
-            const cmd = $<HTMLElement>(".term-cmd", line);
-            const out = $<HTMLElement>(".term-out", line);
-            if (cmd) {
-              const text = cmd.dataset.text || "";
-              cmd.textContent = "";
-              const state = { n: 0 };
-              tl.to(state, {
-                n: text.length,
-                duration: Math.max(0.3, text.length * 0.038),
-                ease: "none",
-                onStart: () => cmd.classList.add("typing"),
-                onUpdate: () => (cmd.textContent = text.slice(0, Math.round(state.n))),
-                onComplete: () => cmd.classList.remove("typing"),
-              });
-            }
-            if (out) {
-              gsap.set(out, { opacity: 0, y: 6 });
-              tl.to(out, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }, "+=0.12");
-            }
-          });
-        }
+        // (the live terminal — #term — auto-types + accepts input on its own)
 
         ScrollTrigger.refresh();
       });
@@ -539,6 +596,8 @@ export default function Effects() {
 
     /* ---- preloader ---- */
     const countEl = $("#loaderCount");
+    const fillEl = $("#loaderFill");
+    const memEl = $("#loaderMem");
     const loader = $("#loader");
     const startReveals = () => {
       runGSAP();
@@ -560,6 +619,8 @@ export default function Effects() {
           clearInterval(iv);
         }
         countEl.textContent = String(n);
+        if (fillEl) fillEl.style.width = `${n}%`;
+        if (memEl) memEl.textContent = String(Math.round((65536 * n) / 100)).padStart(5, "0");
         if (n === 100) {
           setTimeout(() => {
             loader.classList.add("loader-out");

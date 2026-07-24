@@ -253,6 +253,33 @@ export const CONTENT = {
     ],
   },
 
+  /* — SKILLS — rendered as a retro equalizer / VU-meter rack.
+     level 0–100 drives how many segments light up; accent picks the colour. */
+  skills: {
+    label: 'Levels',
+    heading: 'Signal <em>levels</em>',
+    note: 'INPUT GAIN · auto',
+    items: [
+      { name: 'React', level: 95, accent: 'lime' },
+      { name: 'TypeScript', level: 90, accent: 'lilac' },
+      { name: 'Next.js', level: 88, accent: 'coral' },
+      { name: 'Tailwind', level: 92, accent: 'lime' },
+      { name: 'Motion / GSAP', level: 86, accent: 'lilac' },
+      { name: 'SQL Server', level: 82, accent: 'coral' },
+      { name: 'Node', level: 78, accent: 'lime' },
+      { name: 'Shopify Hydrogen', level: 80, accent: 'lilac' },
+    ],
+  },
+
+  /* — ARCADE — the playable easter-egg cabinet (Snake). */
+  arcade: {
+    label: 'Arcade',
+    heading: 'Insert <em>coin</em>',
+    note: 'A tiny break. Eat the pixels, dodge yourself.',
+    title: 'SNAKE.EXE',
+    hint: 'Arrows / WASD to move · Enter to start · P to pause',
+  },
+
   /* — CONTACT — */
   contact: {
     label: 'Contact',

@@ -18,9 +18,9 @@ export default function EasterEggs() {
     const w = window as unknown as { __jkHello?: boolean };
     if (!w.__jkHello) {
       w.__jkHello = true;
-      const big = "font:700 26px monospace;color:#3b82f6";
-      const p = "color:#22d3ee;font:14px/1.6 monospace";
-      const a = "color:#7dd3fc;font:13px monospace";
+      const big = "font:700 26px monospace;color:#ffcf3a";
+      const p = "color:#ff45a6;font:14px/1.6 monospace";
+      const a = "color:#46d9ff;font:13px monospace";
       console.log(`%c${CONTENT.name} ✦`, big);
       console.log("%cYou opened the console — respect.\nTry the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A", p);
       console.log(`%cLike what you see? → ${CONTENT.contact.email}`, a);
@@ -48,7 +48,7 @@ export default function EasterEggs() {
       if (pos === seq.length) {
         pos = 0;
         window.dispatchEvent(new Event("jk:party"));
-        setToast("dev mode unlocked — you found it ✦");
+        setToast("dev mode unlocked — type 'play' in the terminal ✦");
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => setToast(null), 3200);
       }

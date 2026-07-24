@@ -1,36 +1,39 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
+import { GeistPixelSquare, GeistPixelGrid } from "geist/font/pixel";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { VT323, Press_Start_2P } from "next/font/google";
 import { CONTENT } from "@/content/site";
 import "./globals.css";
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const serif = Instrument_Serif({
+/* ── Type system ──────────────────────────────────────────────────
+   Display voice  → Geist Pixel Square  (headlines, numbers, logo)
+   Accent texture → Geist Pixel Grid    (the <em> highlight words)
+   System voice   → Geist Mono          (labels, nav, tags)
+   Reading voice  → Geist Sans          (paragraphs / prose)
+   CRT voice      → VT323               (terminal, BIOS, readouts)
+   Arcade voice   → Press Start 2P      (game HUD, coin/score badges) */
+const crt = VT323({
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
+  variable: "--font-crt",
+  display: "swap",
+});
+const arcade = Press_Start_2P({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-arcade",
   display: "swap",
 });
 
-const body = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-body",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-mono",
-  display: "swap",
-});
+const fontVars = [
+  GeistPixelSquare.variable, // --font-geist-pixel-square
+  GeistPixelGrid.variable, // --font-geist-pixel-grid
+  GeistSans.variable, // --font-geist-sans
+  GeistMono.variable, // --font-geist-mono
+  crt.variable, // --font-crt
+  arcade.variable, // --font-arcade
+].join(" ");
 
 const { seo, name, role } = CONTENT;
 
@@ -69,7 +72,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#060912",
+  themeColor: "#0a0a0f",
   width: "device-width",
   initialScale: 1,
 };
@@ -93,7 +96,7 @@ export default function RootLayout({
       lang="en"
       data-theme="dark"
       suppressHydrationWarning
-      className={`${display.variable} ${serif.variable} ${body.variable} ${mono.variable}`}
+      className={fontVars}
     >
       <body>
         {/* set theme before paint to avoid a flash of the wrong theme */}
