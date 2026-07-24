@@ -1,16 +1,19 @@
 import { Grain, Cursor, Loader, Nav, MobileMenu } from "@/components/Chrome";
 import {
-  Hero,
-  Marquee,
-  About,
-  Terminal,
+  Nameplate,
+  FrontPage,
+  Ticker,
+  Editorial,
+  Wire,
   Services,
-  Work,
-  Experience,
-  Stats,
-  Contact,
-  Footer,
+  Dispatches,
+  Chronicle,
+  Numbers,
+  Classifieds,
+  Correspondence,
+  Colophon,
 } from "@/components/Sections";
+import Crossword from "@/components/Crossword";
 import FloatingGlyphs from "@/components/FloatingGlyphs";
 import Effects from "@/components/Effects";
 import EasterEggs from "@/components/EasterEggs";
@@ -25,19 +28,22 @@ export default function Home() {
       <Nav />
       <MobileMenu />
 
-      <main id="top">
-        <Hero />
-        <Marquee />
-        <About />
-        <Terminal />
+      <main>
+        <Nameplate />
+        <FrontPage />
+        <Ticker />
+        <Editorial />
+        <Wire />
         <Services />
-        <Work />
-        <Experience />
-        <Stats />
-        <Contact />
+        <Dispatches />
+        <Chronicle />
+        <Numbers />
+        <Classifieds />
+        <Crossword />
+        <Correspondence />
       </main>
 
-      <Footer />
+      <Colophon />
 
       <Effects />
       <EasterEggs />

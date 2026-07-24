@@ -1,11 +1,12 @@
 import { ImageResponse } from "next/og";
 import { CONTENT } from "@/content/site";
 
-export const alt = `${CONTENT.name} — ${CONTENT.role}`;
+export const alt = `${CONTENT.paper.title} — ${CONTENT.name}, ${CONTENT.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OgImage() {
+  const { paper, lead, role } = CONTENT;
   return new ImageResponse(
     (
       <div
@@ -14,47 +15,91 @@ export default function OgImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          padding: 80,
-          background: "#060912",
-          color: "#eaf1ff",
-          fontFamily: "sans-serif",
+          padding: 64,
+          background: "#ece0c6",
+          color: "#211b12",
+          fontFamily: "serif",
         }}
       >
+        {/* folio bar */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 16,
-            fontSize: 28,
-            letterSpacing: "0.18em",
+            justifyContent: "space-between",
+            fontSize: 22,
+            letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "#7e8aa6",
+            color: "#574c39",
+            borderBottom: "2px solid #211b12",
+            paddingBottom: 12,
           }}
         >
-          <div style={{ width: 48, height: 2, background: "#3b82f6" }} />
-          {CONTENT.role}
+          <span>{paper.edition}</span>
+          <span>{paper.established}</span>
+          <span style={{ color: "#97281d" }}>{paper.price}</span>
         </div>
 
+        {/* nameplate */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontSize: 118,
+            fontWeight: 900,
+            letterSpacing: "-0.02em",
+            padding: "26px 0 18px",
+            borderBottom: "4px solid #211b12",
+          }}
+        >
+          {paper.title}
+        </div>
+
+        {/* lead headline */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            fontSize: 132,
-            fontWeight: 700,
-            lineHeight: 0.95,
-            letterSpacing: "-0.04em",
+            marginTop: 34,
+            flex: 1,
           }}
         >
-          <span>{CONTENT.name.split(" ").slice(0, -1).join(" ") || CONTENT.name}</span>
-          <span style={{ color: "#3b82f6" }}>
-            {CONTENT.name.split(" ").slice(-1).join(" ")}
+          <span
+            style={{
+              fontSize: 24,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "#97281d",
+            }}
+          >
+            {lead.kicker}
+          </span>
+          <span
+            style={{
+              fontSize: 72,
+              fontWeight: 900,
+              lineHeight: 1.02,
+              marginTop: 14,
+            }}
+          >
+            Developer Builds Digital Worlds That Move
           </span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 30 }}>
-          <span style={{ color: "#22d3ee" }}>{CONTENT.contact.email}</span>
-          <span style={{ color: "#7e8aa6" }}>Building digital experiences that move</span>
+        {/* footer line */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 26,
+            borderTop: "2px solid #211b12",
+            paddingTop: 16,
+            color: "#574c39",
+          }}
+        >
+          <span style={{ fontStyle: "italic" }}>{paper.slogan}</span>
+          <span>
+            {CONTENT.name} · {role}
+          </span>
         </div>
       </div>
     ),

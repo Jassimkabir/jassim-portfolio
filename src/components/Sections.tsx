@@ -1,46 +1,101 @@
 import { CONTENT } from '@/content/site';
 import { Html, wrapWords } from '@/lib/text';
+import Cartoon from './Cartoon';
 
-export function Hero() {
-  const { hero } = CONTENT;
+/* ───────── the printed nameplate / masthead ───────── */
+export function Nameplate() {
+  const { paper } = CONTENT;
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
   return (
-    <section className='hero' id='home'>
-      <div className='blobs'>
-        <div className='blob b1' data-speed='0.3' />
-        <div className='blob b2' data-speed='0.5' />
-        <div className='blob b3' data-speed='0.2' />
+    <header className='wrap nameplate' id='top'>
+      <div className='folio-top reveal'>
+        <span>{paper.edition}</span>
+        <span className='weather'>{paper.weather}</span>
+        <span>{paper.price}</span>
       </div>
-      <div className='wrap hero-inner'>
-        <div className='standfirst reveal'>
-          <span className='avail'>
-            <span className='dot' />
-            <span>{hero.available}</span>
-          </span>
-          <p>{hero.intro}</p>
+      <h1 className='plate-title reveal'>{paper.title}</h1>
+      <div className='plate-sub reveal'>
+        <span className='est'>{paper.established}</span>
+        <span className='dash'>·</span>
+        <span>{today}</span>
+        <span className='dash'>·</span>
+        <span className='est'>
+          {paper.volume} — {paper.issue}
+        </span>
+      </div>
+    </header>
+  );
+}
+
+/* ───────── FRONT PAGE / lead story (hero) ───────── */
+export function FrontPage() {
+  const { lead } = CONTENT;
+  return (
+    <section className='wrap front-page' id='front-page'>
+      <div className='front-grid'>
+        <div className='front-main'>
+          <span className='kicker lead-kicker reveal'>{lead.kicker}</span>
+          <h2 className='lead-headline'>
+            {lead.headlineLines.map((line, i) => (
+              <span className='ln' key={i}>
+                <Html className='lnInner' as='span' html={line} />
+              </span>
+            ))}
+          </h2>
+          <Html as='p' className='lead-deck reveal' html={lead.deck} />
+          <div className='lead-byline reveal'>
+            <span className='by'>{lead.byline}</span>
+            <span>{new Date().getFullYear()} · The Jassim Times</span>
+          </div>
+          <div className='lead-body col-reveal'>
+            <p className='dropcap'>
+              <span className='dateline'>{lead.dateline} </span>
+              {lead.lead}
+            </p>
+            {lead.body.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+            <p className='continued'>{lead.continued}</p>
+          </div>
         </div>
-        <h1>
-          {hero.titleLines.map((line, i) => (
-            <span className='ln' key={i}>
-              <Html className='lnInner' as='span' html={line} />
-            </span>
-          ))}
-        </h1>
+
+        <aside className='front-aside'>
+          <figure className='cartoon-box reveal'>
+            <Cartoon />
+            <figcaption className='cap'>
+              Fig. 1 — Our man, in high spirits, shipping before deadline.
+            </figcaption>
+          </figure>
+          <div className='notice reveal'>
+            <div className='n-top'>✶ Public Notice ✶</div>
+            <div className='n-main'>{lead.stamp}</div>
+            <div className='n-sub'>Commissions open. Enquire at the desk.</div>
+            <span className='stamp'>Approved</span>
+          </div>
+        </aside>
       </div>
     </section>
   );
 }
 
-export function Marquee() {
-  // doubled for a seamless loop
-  const items = [...CONTENT.marquee, ...CONTENT.marquee];
+/* ───────── STOP-PRESS ticker (marquee) ───────── */
+export function Ticker() {
+  const { ticker } = CONTENT;
+  const items = [...ticker.items, ...ticker.items];
   return (
-    <div className='marquee' id='marquee'>
+    <div className='ticker' id='marquee'>
+      <span className='ticker-tag'>{ticker.label}</span>
       <div className='marq-skew'>
         <div className='track'>
           {items.map((m, i) => (
             <span
               key={i}
-              style={{ display: 'inline-flex', gap: 46, alignItems: 'center' }}
+              style={{ display: 'inline-flex', gap: 30, alignItems: 'center' }}
             >
               <span className='item'>{m}</span>
               <span className='star'>✦</span>
@@ -52,91 +107,93 @@ export function Marquee() {
   );
 }
 
-export function About() {
-  const { about } = CONTENT;
+/* ───────── shared section front ───────── */
+function SectionFront({
+  kicker,
+  page,
+  label,
+  heading,
+}: {
+  kicker: string;
+  page: string;
+  label: string;
+  heading: string;
+}) {
   return (
-    <section className='pad about' id='about'>
+    <div className='section-front reveal'>
+      <div className='folio'>
+        <span className='kicker'>{kicker}</span>
+        <span>The Jassim Times</span>
+        <span className='folio-page'>Page {page}</span>
+      </div>
+      <Html as='h2' className='section-title' html={heading} />
+      <div className='section-rule' />
+    </div>
+  );
+}
+
+/* ───────── THE EDITORIAL (about) ───────── */
+export function Editorial() {
+  const { editorial: ed } = CONTENT;
+  return (
+    <section className='pad editorial' id='editorial'>
       <div className='wrap'>
-        <span className='eyebrow reveal'>
-          <b>01</b> <span>{about.label}</span>
-        </span>
+        <SectionFront kicker={ed.kicker} page={ed.page} label={ed.label} heading={ed.heading} />
         <Html
           as='p'
-          className='big'
-          html={wrapWords(about.big)}
-          id='aboutBig'
-          style={{ marginTop: 28 }}
+          className='ed-lede'
+          html={wrapWords(ed.lede)}
+          id='edLede'
         />
-        <div className='about-grid'>
-          <div className='col reveal'>
-            {about.colA.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-          <div className='col reveal'>
-            <div>
-              {about.colB.map((p, i) => (
-                <Html as='p' key={i} html={p} />
-              ))}
-            </div>
-            <div className='about-tags'>
-              {about.tags.map((t) => (
-                <span key={t}>{t}</span>
-              ))}
-            </div>
-          </div>
+        <div className='ed-columns col-reveal'>
+          {ed.columns.map((p, i) => (
+            <p key={i} className={i === 0 ? 'dropcap' : undefined}>
+              {p}
+            </p>
+          ))}
+        </div>
+        <span className='ed-sign reveal'>{ed.signature}</span>
+        <div className='ed-tags reveal'>
+          {ed.tags.map((t) => (
+            <span key={t}>{t}</span>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-export function Terminal() {
-  const { terminal: t } = CONTENT;
-  const prompt = (
-    <>
-      <span className='term-user'>
-        {t.user}@{t.host}
-      </span>
-      <span className='term-path'>:{t.dir}</span>
-      <span className='term-dollar'>$</span>
-    </>
-  );
+/* ───────── THE WIRE (teletype terminal) ───────── */
+export function Wire() {
+  const { wire } = CONTENT;
   return (
-    <section className='pad' id='terminal'>
+    <section className='pad' id='wire'>
       <div className='wrap'>
-        <div className='sec-head'>
-          <Html as='h2' className='reveal' html={t.heading} />
-          <span className='eyebrow reveal'>
-            <b>02</b> <span>{t.label}</span>
-          </span>
-        </div>
-        <div className='term reveal' id='term'>
-          <div className='term-bar'>
-            <span className='term-dots' aria-hidden='true'>
+        <SectionFront kicker={wire.kicker} page={wire.page} label={wire.label} heading={wire.heading} />
+        <div className='wire-machine reveal' id='wire-machine'>
+          <div className='wire-bar'>
+            <span className='holes' aria-hidden='true'>
               <i />
               <i />
               <i />
             </span>
-            <span className='term-title'>
-              {t.user}@{t.host}: {t.dir}
-            </span>
+            <span>{wire.machine}</span>
           </div>
-          <div className='term-body'>
-            {t.lines.map((l, i) => (
-              <div className='term-line' key={i}>
-                <p className='term-prompt'>
-                  {prompt}
-                  <span className='term-cmd' data-text={l.cmd}>
+          <div className='wire-body'>
+            {wire.lines.map((l, i) => (
+              <div className='wire-line' key={i}>
+                <p className='wire-prompt'>
+                  <span className='wire-star'>✶</span>
+                  <span className='wire-cmd' data-text={l.cmd}>
                     {l.cmd}
                   </span>
                 </p>
-                <p className='term-out'>{l.out}</p>
+                <p className='wire-out'>{l.out}</p>
               </div>
             ))}
-            <p className='term-prompt term-tail'>
-              {prompt}
-              <span className='term-blink' aria-hidden='true'>
+            <p className='wire-prompt'>
+              <span className='wire-star'>✶</span>
+              <span className='wire-tail' aria-hidden='true'>
                 ▮
               </span>
             </p>
@@ -147,57 +204,58 @@ export function Terminal() {
   );
 }
 
+/* ───────── SERVICES OFFERED (display advert) ───────── */
 export function Services() {
   const { services } = CONTENT;
   return (
     <section className='pad' id='services'>
       <div className='wrap'>
-        <div className='sec-head'>
-          <Html as='h2' className='reveal' html={services.heading} />
-          <span className='eyebrow reveal'>
-            <b>03</b> <span>{services.label}</span>
-          </span>
-        </div>
-        <div className='svc-list'>
-          {services.items.map((s, i) => (
-            <div className='svc-item reveal' data-cursor key={s.title}>
-              <span className='num'>{String(i + 1).padStart(2, '0')}</span>
-              <h3>{s.title}</h3>
-              <span className='desc'>{s.desc}</span>
-            </div>
-          ))}
+        <SectionFront
+          kicker={services.kicker}
+          page={services.page}
+          label={services.label}
+          heading={services.heading}
+        />
+        <div className='advert reveal'>
+          <div className='svc-list'>
+            {services.items.map((s, i) => (
+              <div className='svc-item' data-cursor key={s.title}>
+                <span className='num'>{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3>{s.title}</h3>
+                  <span className='desc'>{s.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className='advert-terms'>{services.terms}</div>
         </div>
       </div>
     </section>
   );
 }
 
-export function Work() {
-  const { work } = CONTENT;
+/* ───────── FEATURED DISPATCHES (work) ───────── */
+export function Dispatches() {
+  const { dispatches: d } = CONTENT;
   return (
-    <section className='pad' id='work'>
+    <section className='pad' id='dispatches'>
       <div className='wrap'>
-        <div className='sec-head'>
-          <Html as='h2' className='reveal' html={work.heading} />
-          <span className='eyebrow reveal'>
-            <b>04</b> <span>{work.label}</span>
-          </span>
-        </div>
-        <div className='work-grid'>
-          {work.projects.map((p) => (
-            <a href={p.href} className='proj reveal' data-view key={p.name}>
-              <div className='frame'>
-                <div
-                  className='glow'
-                  style={{ '--c1': p.c1, '--c2': p.c2 } as React.CSSProperties}
-                />
-                <div className='ph'>{p.placeholder}</div>
+        <SectionFront kicker={d.kicker} page={d.page} label={d.label} heading={d.heading} />
+        <div className='dispatch-grid'>
+          {d.projects.map((p) => (
+            <a href={p.href} className='dispatch reveal' data-view key={p.name}>
+              <span className='d-beat'>{p.beat}</span>
+              <h3 className='d-headline'>{p.headline}</h3>
+              <div className='d-photo'>
+                <span className='ph'>{p.placeholder}</span>
               </div>
-              <div className='meta'>
-                <h3>{p.name}</h3>
-                <span className='yr'>{p.year}</span>
+              <p className='d-deck'>{p.deck}</p>
+              <div className='d-meta'>
+                <span className='d-name'>{p.name}</span>
+                <span>{p.year}</span>
               </div>
-              <div className='tags'>
+              <div className='d-tags'>
                 {p.tags.map((t) => (
                   <span key={t}>{t}</span>
                 ))}
@@ -205,38 +263,35 @@ export function Work() {
             </a>
           ))}
         </div>
+        <p className='dispatch-foot reveal'>{d.continued}</p>
       </div>
     </section>
   );
 }
 
-export function Experience() {
-  const { experience: xp } = CONTENT;
+/* ───────── ON THIS DAY (experience) ───────── */
+export function Chronicle() {
+  const { chronicle: c } = CONTENT;
   return (
-    <section className='pad' id='experience'>
+    <section className='pad' id='chronicle'>
       <div className='wrap'>
-        <div className='sec-head'>
-          <Html as='h2' className='reveal' html={xp.heading} />
-          <span className='eyebrow reveal'>
-            <b>05</b> <span>{xp.label}</span>
-          </span>
-        </div>
-        <div className='xp-list'>
-          {xp.items.map((item) => (
-            <article className='xp-row reveal' key={`${item.company}-${item.period}`}>
-              <div className='xp-date'>
-                <span className='xp-period'>{item.period}</span>
-                {item.current ? <span className='xp-now'>● current</span> : null}
-                {item.location ? <span className='xp-loc'>{item.location}</span> : null}
+        <SectionFront kicker={c.kicker} page={c.page} label={c.label} heading={c.heading} />
+        <div className='chronicle-list'>
+          {c.items.map((item) => (
+            <article className='chron-row reveal' key={`${item.company}-${item.period}`}>
+              <div className='chron-date'>
+                <span className='chron-period'>{item.period}</span>
+                {item.current ? <span className='chron-now'>● Current</span> : null}
+                {item.location ? <span className='chron-loc'>{item.location}</span> : null}
               </div>
-              <div className='xp-body'>
-                <h3 className='xp-role'>
+              <div className='chron-body'>
+                <h3 className='chron-role'>
                   {item.role}
-                  <span className='xp-at'> @ </span>
-                  <span className='xp-company'>{item.company}</span>
+                  <span className='chron-at'> of </span>
+                  <span className='chron-company'>{item.company}</span>
                 </h3>
-                <p className='xp-blurb'>{item.blurb}</p>
-                <div className='xp-tags'>
+                <p className='chron-blurb'>{item.blurb}</p>
+                <div className='chron-tags'>
                   {item.tags.map((tg) => (
                     <span key={tg}>{tg}</span>
                   ))}
@@ -250,20 +305,21 @@ export function Experience() {
   );
 }
 
-export function Stats() {
-  const { stats } = CONTENT;
+/* ───────── BY THE NUMBERS (almanac) ───────── */
+export function Numbers() {
+  const { numbers } = CONTENT;
   return (
-    <section className='pad' id='stats'>
+    <section className='pad' id='numbers'>
       <div className='wrap'>
-        <span
-          className='eyebrow reveal'
-          style={{ marginBottom: 50, display: 'inline-flex' }}
-        >
-          <b>06</b> <span>{stats.label}</span>
-        </span>
-        <div className='stats'>
-          {stats.items.map((s) => (
-            <div className='stat reveal' key={s.label}>
+        <SectionFront
+          kicker={numbers.kicker}
+          page={numbers.page}
+          label={numbers.label}
+          heading={numbers.heading}
+        />
+        <div className='almanac reveal'>
+          {numbers.items.map((s) => (
+            <div className='fig' key={s.label}>
               <div className='n'>
                 <span className='count' data-to={s.value}>
                   0
@@ -279,29 +335,78 @@ export function Stats() {
   );
 }
 
-export function Contact() {
-  const { contact } = CONTENT;
-  return (
-    <section className='pad contact' id='contact'>
-      <div className='wrap'>
-        <span className='eyebrow reveal'>
-          <b>07</b> <span>{contact.label}</span>
-        </span>
-        <p className='pre reveal' style={{ marginTop: 24 }}>
-          {contact.pre}
-        </p>
+/* ───────── THE CLASSIFIEDS (with a hidden secret link) ───────── */
+export function Classifieds() {
+  const { classifieds: cl } = CONTENT;
+  /** Render an ad body, splicing a disguised secret link over one word. */
+  const renderBody = (ad: (typeof cl.ads)[number]) => {
+    if (!('secret' in ad) || !ad.secret) return ad.body;
+    const { word, href } = ad.secret;
+    const idx = ad.body.indexOf(word);
+    if (idx === -1) return ad.body;
+    return (
+      <>
+        {ad.body.slice(0, idx)}
         <a
-          href={`mailto:${contact.email}`}
-          className='mail'
+          className='cl-secret'
+          href={href}
+          target='_blank'
+          rel='noopener noreferrer'
+          data-cursor
+          title='…?'
+        >
+          {word}
+        </a>
+        {ad.body.slice(idx + word.length)}
+      </>
+    );
+  };
+
+  return (
+    <section className='pad classifieds' id='classifieds'>
+      <div className='wrap'>
+        <SectionFront kicker={cl.kicker} page={cl.page} label={cl.label} heading={cl.heading} />
+        <p className='cl-note reveal'>{cl.note}</p>
+        <div className='cl-grid reveal'>
+          {cl.ads.map((ad, i) => (
+            <div className='cl-ad' key={i}>
+              <div className='cl-cat'>{ad.cat}</div>
+              <div className='cl-title'>{ad.title}</div>
+              <p className='cl-body'>{renderBody(ad)}</p>
+            </div>
+          ))}
+        </div>
+        <p className='cl-hint reveal'>
+          {cl.hint.split('“X”')[0]}
+          <kbd>X</kbd>
+          {cl.hint.split('“X”')[1] ?? ''}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ───────── CORRESPONDENCE (contact) ───────── */
+export function Correspondence() {
+  const { correspondence: c } = CONTENT;
+  return (
+    <section className='pad correspondence' id='correspondence'>
+      <div className='wrap'>
+        <SectionFront kicker={c.kicker} page={c.page} label={c.label} heading={c.heading} />
+        <p className='corr-pre reveal'>{c.pre}</p>
+        <p className='corr-cta reveal'>{c.cta}</p>
+        <a
+          href={`mailto:${c.email}`}
+          className='corr-mail'
           id='contactMail'
           data-cursor
         >
-          {[...contact.email].map((ch, i) => (
+          {[...c.email].map((ch, i) => (
             <span key={i}>{ch}</span>
           ))}
         </a>
-        <div className='socials reveal' id='socials'>
-          {contact.socials.map((s) => (
+        <div className='corr-socials reveal' id='socials'>
+          {c.socials.map((s) => (
             <a key={s.label} href={s.href} data-cursor>
               {s.label}
             </a>
@@ -312,16 +417,20 @@ export function Contact() {
   );
 }
 
-export function Footer() {
-  const { footer } = CONTENT;
+/* ───────── COLOPHON (footer) ───────── */
+export function Colophon() {
+  const { colophon } = CONTENT;
   return (
     <footer>
-      <div className='wrap row'>
-        <Html as='p' html={footer.left} />
-        <Html as='p' html={footer.center} />
-        <a href='#top' className='totop'>
-          Back to top ↑
-        </a>
+      <div className='wrap'>
+        <div className='row'>
+          <Html as='p' html={colophon.left} />
+          <Html as='p' html={colophon.center} />
+          <a href='#top' className='totop'>
+            Back to the front page ↑
+          </a>
+        </div>
+        <p className='colophon-note'>{colophon.note}</p>
       </div>
     </footer>
   );

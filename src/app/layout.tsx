@@ -1,34 +1,47 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Merriweather, Oswald, Special_Elite } from "next/font/google";
+import localFont from "next/font/local";
 import { CONTENT } from "@/content/site";
 import "./globals.css";
 
-const display = Space_Grotesk({
+/* Chomsky — the blackletter nameplate (SIL OFL, self-hosted) */
+const masthead = localFont({
+  src: "./fonts/Chomsky.woff2",
+  variable: "--font-masthead",
+  display: "swap",
+});
+
+/* Playfair Display — high-contrast headline serif */
+const display = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700", "800", "900"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const serif = Instrument_Serif({
+/* Merriweather — the readable body serif */
+const body = Merriweather({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["300", "400", "700", "900"],
   style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const body = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
   variable: "--font-body",
   display: "swap",
 });
 
-const mono = JetBrains_Mono({
+/* Oswald — condensed gothic for kickers / labels / rules */
+const gothic = Oswald({
   subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-gothic",
+  display: "swap",
+});
+
+/* Special Elite — typewriter for the wire, captions & classifieds */
+const type = Special_Elite({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-type",
   display: "swap",
 });
 
@@ -69,7 +82,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#060912",
+  themeColor: "#efe4cf",
   width: "device-width",
   initialScale: 1,
 };
@@ -80,7 +93,7 @@ const personJsonLd = {
   name,
   url: seo.url,
   jobTitle: role,
-  email: `mailto:${CONTENT.contact.email}`,
+  email: `mailto:${CONTENT.correspondence.email}`,
   description: seo.description,
   knowsAbout: [...seo.keywords],
 };
@@ -91,15 +104,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="day"
       suppressHydrationWarning
-      className={`${display.variable} ${serif.variable} ${body.variable} ${mono.variable}`}
+      className={`${masthead.variable} ${display.variable} ${body.variable} ${gothic.variable} ${type.variable}`}
     >
       <body>
         {/* set theme before paint to avoid a flash of the wrong theme */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='day'||t==='night'){document.documentElement.dataset.theme=t;}}catch(e){}})();`,
           }}
         />
         <script

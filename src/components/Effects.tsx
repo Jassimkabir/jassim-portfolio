@@ -139,22 +139,20 @@ export default function Effects() {
       }
     }
 
-    /* ---- 3D tilt on project cards ---- */
+    /* ---- halftone photo parallax on dispatch cards ----
+       a gentle "ken-burns" drift of the halftone plate on hover — flat and
+       print-appropriate, no 3D tilt (a newspaper lies on the table). */
     if (hoverable && !prefersReduced) {
-      $$(".proj").forEach((card) => {
-        const frame = $(".frame", card);
-        if (!frame) return;
+      $$(".dispatch").forEach((card) => {
+        const ph = $(".d-photo .ph", card);
+        if (!ph) return;
         const move = (e: MouseEvent) => {
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width - 0.5;
           const py = (e.clientY - r.top) / r.height - 0.5;
-          frame.style.transform = `rotateY(${px * 11}deg) rotateX(${-py * 11}deg) scale(1.02)`;
-          card.classList.add("tilting");
+          ph.style.transform = `translate(${px * 10}px, ${py * 10}px) scale(1.05)`;
         };
-        const leave = () => {
-          frame.style.transform = "";
-          card.classList.remove("tilting");
-        };
+        const leave = () => (ph.style.transform = "");
         card.addEventListener("mousemove", move as EventListener);
         card.addEventListener("mouseleave", leave);
         cleanups.push(() => {
@@ -162,24 +160,6 @@ export default function Effects() {
           card.removeEventListener("mouseleave", leave);
         });
       });
-    }
-
-    /* ---- hero pointer parallax on the headline ---- */
-    if (hoverable && !prefersReduced) {
-      const hero = $(".hero");
-      const h1 = $(".hero h1");
-      if (hero && h1) {
-        const move = () => {
-          h1.style.transform = `rotateX(${-pointer.ny * 4}deg) rotateY(${pointer.nx * 5}deg)`;
-        };
-        const leave = () => (h1.style.transform = "");
-        hero.addEventListener("mousemove", move);
-        hero.addEventListener("mouseleave", leave);
-        cleanups.push(() => {
-          hero.removeEventListener("mousemove", move);
-          hero.removeEventListener("mouseleave", leave);
-        });
-      }
     }
 
     /* ---- nav auto-hide ---- */
@@ -351,30 +331,6 @@ export default function Effects() {
         }
       };
       on(window, "jk:party", party);
-
-      // periodic "scramble" glitch — a random glyph cycles random code chars then settles
-      const SCRAMBLE = "</>{}[]();=&|*#%$@!~^:";
-      const scrambleOne = () => {
-        if (glyphs.length === 0) return;
-        const g = glyphs[Math.floor(Math.random() * glyphs.length)];
-        const original = g.el.dataset.glyph ?? g.el.textContent ?? "";
-        const len = original.length || 2;
-        let steps = 7;
-        const iv = setInterval(() => {
-          if (steps-- <= 0) {
-            clearInterval(iv);
-            g.el.textContent = original;
-            return;
-          }
-          let out = "";
-          for (let k = 0; k < len; k++)
-            out += SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
-          g.el.textContent = out;
-        }, 45);
-        cleanups.push(() => clearInterval(iv));
-      };
-      const scrambleTimer = setInterval(scrambleOne, 2200);
-      cleanups.push(() => clearInterval(scrambleTimer));
     }
 
     /* ---- mobile menu overlay ---- */
@@ -403,74 +359,77 @@ export default function Effects() {
     let ctx: gsap.Context | null = null;
     const runGSAP = () => {
       ctx = gsap.context(() => {
-        // hero title lines
+        // lead headline — the printed lines rise into place, like set type
         gsap
           .timeline({ delay: 0.1 })
-          .to(".lnInner", { yPercent: 0, duration: 1.1, stagger: 0.09, ease: "power4.out" })
+          .to(".lnInner", { yPercent: 0, duration: 1.05, stagger: 0.1, ease: "power4.out" })
           // fromTo (not from): the .reveal CSS pins opacity:0, so we must
           // animate explicitly TO opacity:1 or these stay invisible
           .fromTo(
-            ".hero .reveal",
-            { y: 24, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: "power3.out" },
+            ".front-page .reveal, .nameplate .reveal",
+            { y: 22, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" },
             "-=.7",
           );
 
-        // generic reveals (projects get their own 3D entrance below)
+        // generic reveals (dispatch cards get their own entrance below)
         $$(".reveal").forEach((el) => {
-          if (el.closest(".hero") || el.classList.contains("proj")) return;
+          if (el.closest(".front-page") || el.closest(".nameplate")) return;
+          if (el.classList.contains("dispatch")) return;
           gsap.fromTo(
             el,
-            { y: 40, opacity: 0 },
+            { y: 34, opacity: 0 },
             {
               y: 0,
               opacity: 1,
-              duration: 1,
+              duration: 0.9,
               ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 88%" },
+              scrollTrigger: { trigger: el, start: "top 90%" },
             },
           );
         });
 
-        // about big — word highlight on scrub
+        // column-wipe reveal — printed columns "develop" from the top down
+        $$(".col-reveal").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { clipPath: "inset(0 0 100% 0)", opacity: 0 },
+            {
+              clipPath: "inset(0 0 0% 0)",
+              opacity: 1,
+              duration: 1.1,
+              ease: "power2.out",
+              scrollTrigger: { trigger: el, start: "top 85%" },
+            },
+          );
+        });
+
+        // editorial lede — word highlight on scrub (ink developing on the page)
         gsap.fromTo(
-          "#aboutBig .w",
-          { opacity: 0.18 },
+          "#edLede .w",
+          { opacity: 0.2 },
           {
             opacity: 1,
             stagger: 0.05,
             ease: "none",
-            scrollTrigger: { trigger: "#aboutBig", start: "top 80%", end: "bottom 60%", scrub: 0.6 },
+            scrollTrigger: { trigger: "#edLede", start: "top 80%", end: "bottom 62%", scrub: 0.6 },
           },
         );
 
-        // project cards: staggered 3D entrance
-        $$(".proj").forEach((p) => {
+        // dispatch cards: staggered fade-and-rise (flat, no tilt)
+        $$(".dispatch").forEach((p) => {
           gsap.fromTo(
             p,
-            { y: 60, opacity: 0, rotateX: 12, transformPerspective: 900 },
+            { y: 46, opacity: 0 },
             {
               y: 0,
               opacity: 1,
-              rotateX: 0,
-              duration: 1.1,
+              duration: 0.95,
               ease: "power3.out",
-              scrollTrigger: { trigger: p, start: "top 90%" },
+              scrollTrigger: { trigger: p, start: "top 92%" },
             },
           );
         });
-
-        // blobs parallax — skip on touch: translating a big blurred layer on
-        // every scroll frame is costly and the effect is barely visible there
-        if (!coarse) {
-          $$<HTMLElement>(".blob").forEach((b) => {
-            gsap.to(b, {
-              yPercent: parseFloat(b.dataset.speed || "0") * 60,
-              ease: "none",
-              scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
-            });
-          });
-        }
 
         // stat counters
         $$<HTMLElement>(".count").forEach((el) => {
@@ -487,13 +446,13 @@ export default function Effects() {
           });
         });
 
-        // terminal — type the commands out on scroll, reveal each output
-        const term = $("#term");
+        // the wire — teletype the dispatch out on scroll, reveal each reply
+        const term = $("#wire-machine");
         if (term) {
-          const tl = gsap.timeline({ scrollTrigger: { trigger: term, start: "top 72%" } });
-          $$(".term-line", term).forEach((line) => {
-            const cmd = $<HTMLElement>(".term-cmd", line);
-            const out = $<HTMLElement>(".term-out", line);
+          const tl = gsap.timeline({ scrollTrigger: { trigger: term, start: "top 74%" } });
+          $$(".wire-line", term).forEach((line) => {
+            const cmd = $<HTMLElement>(".wire-cmd", line);
+            const out = $<HTMLElement>(".wire-out", line);
             if (cmd) {
               const text = cmd.dataset.text || "";
               cmd.textContent = "";
@@ -559,7 +518,7 @@ export default function Effects() {
           n = 100;
           clearInterval(iv);
         }
-        countEl.textContent = String(n);
+        countEl.textContent = `${n}%`;
         if (n === 100) {
           setTimeout(() => {
             loader.classList.add("loader-out");
