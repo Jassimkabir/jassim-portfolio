@@ -1,13 +1,14 @@
 /* ──────────────────────────────────────────────────────────────────
    ✏️  EDIT EVERYTHING HERE — THE JASSIM TIMES
    ──────────────────────────────────────────────────────────────────
-   This single CONTENT object holds EVERY piece of copy in the paper.
-   Change any value below and the broadsheet re-sets itself.
+   A vintage developer broadsheet. This single CONTENT object holds
+   EVERY piece of copy in the paper. Change any value and the page resets.
 
    Inline accent tags you can use inside headlines / prose:
      <em>word</em>   → italic serif accent
      <i>word</i>     → red "extra!" ink
      <strong>word</strong> → bold black ink
+     <code>word</code> → monospace inline code
 ─────────────────────────────────────────────────────────────────── */
 
 export const CONTENT = {
@@ -18,6 +19,7 @@ export const CONTENT = {
   /* — MASTHEAD / NAMEPLATE — the paper itself — */
   paper: {
     title: 'The Jassim Times', // set in Chomsky blackletter
+    descriptor: 'The Web Development, UI/UX & Software Engineering Broadsheet',
     slogan: 'All the Code That’s Fit to Ship',
     established: 'Est. 2019',
     edition: 'Morning Edition',
@@ -25,7 +27,6 @@ export const CONTENT = {
     issue: 'No. 2,048',
     price: 'Price: One Clever Idea',
     city: 'Kerala, India',
-    /* the folio bar reads like a real broadsheet dateline */
     weather: 'Weather: Clear skies, 100% uptime, light drizzle of ideas.',
   },
 
@@ -33,7 +34,7 @@ export const CONTENT = {
   seo: {
     title: 'The Jassim Times — Jassim M Kabir, Web Developer',
     description:
-      'The Jassim Times — a digital broadsheet by Jassim M Kabir, a web developer crafting fast, expressive interfaces and the systems behind them, from pixel-perfect storefronts to the database layer.',
+      'The Jassim Times — a developer broadsheet by Jassim M Kabir, a web developer crafting fast, expressive interfaces and the systems behind them: React, Next.js, TypeScript, Tailwind and the database layer.',
     keywords: [
       'Jassim M Kabir',
       'Web Developer',
@@ -53,52 +54,49 @@ export const CONTENT = {
   },
 
   /* — preloader / press — */
-  loaderName: 'The Jassim Times',
-  loaderNote: 'Running the presses',
+  loaderNote: 'Compiling the edition',
 
   /* — SECTIONS INDEX (nav) — label → section id — */
   nav: [
     { label: 'Front Page', href: '#front-page', page: 'A1' },
-    { label: 'Editorial', href: '#editorial', page: 'A4' },
-    { label: 'Dispatches', href: '#dispatches', page: 'B1' },
+    { label: 'Features', href: '#features', page: 'B1' },
+    { label: 'Tech Desk', href: '#stack', page: 'B6' },
     { label: 'Classifieds', href: '#classifieds', page: 'C7' },
-    { label: 'Correspondence', href: '#correspondence', page: 'D2' },
+    { label: 'Terminal', href: '#terminal', page: 'C9' },
   ],
 
   /* — FRONT PAGE / LEAD STORY (hero) — */
   lead: {
     kicker: 'Lead Story · Front Page',
     // each fragment is its own headline line. <em>=italic, <i>=red
-    headlineLines: ['Developer Builds', '<em>Digital</em> Worlds', 'That <i>Move</i>'],
+    headlineLines: ['Developer Ships', '<em>Interfaces</em>', 'That <i>Move</i>'],
     deck:
-      'Local craftsman marries design and engineering to ship interfaces that feel alive — “buttery motion and clean architecture,” sources confirm.',
+      'Kerala-based engineer marries design and systems to build fast, expressive web apps — “buttery motion and clean architecture,” colleagues confirm.',
     byline: 'By Jassim M Kabir',
+    role: 'Web Developer @ INNSOF',
     dateline: 'KERALA —',
     lead:
       'A web developer working at the intersection of design and engineering was reported today building fast, expressive interfaces and the systems behind them — from pixel-perfect storefronts to the database layer.',
     body: [
-      'By day he builds and maintains a full ERP platform, wrangling SQL Server logic, pricing engines and schema tooling. By craft he ships premium storefronts in React, TypeScript and Tailwind.',
+      'By day he builds and maintains a full ERP platform in <code>SQL Server</code>, wrangling pricing engines and schema tooling. By craft he ships premium storefronts in <code>React</code>, <code>TypeScript</code> and <code>Tailwind</code>.',
       'Witnesses describe an obsession with the “front of the front-end”: smooth scroll, scroll-triggered reveals, magnetic interactions and polish you feel before you can name it.',
     ],
-    continued: 'Continued on the Editorial page →',
-    stamp: 'Open for Freelance — 2026',
+    continued: 'Continued in Features, page B1 →',
+    stamp: 'Available for Freelance — 2026',
   },
 
-  /* — STOP-PRESS TICKER (marquee) — reads like a breaking-news crawl — */
-  ticker: {
-    label: 'Stop Press',
+  /* — BREAKING NEWS TICKER — reads like a live commit / status feed — */
+  breaking: {
+    label: 'Breaking',
     items: [
-      'React',
-      'TypeScript',
-      'Next.js',
-      'Tailwind',
-      'Framer Motion',
-      'Lenis',
-      'SQL Server',
-      'Node',
-      'GSAP',
-      'Shopify Hydrogen',
-      'UI Engineering',
+      'feat: shipped a motion-rich Hydrogen storefront',
+      '● Status: available for freelance — Q3 2026',
+      'fix: squashed a nasty hydration mismatch',
+      'perf: Lighthouse back to 99 after image audit',
+      'chore: refactored the pricing engine (−1.2k LOC)',
+      '● Now reading: the React compiler RFCs',
+      'style: migrated a design system to CSS tokens',
+      'test: 0 flaky specs, and it stays that way',
     ],
   },
 
@@ -109,11 +107,11 @@ export const CONTENT = {
     label: 'The Editorial',
     heading: 'From the <em>Editor’s</em> Desk',
     lede:
-      'I design and build for the web with an obsession for <em>motion</em>, performance and the small details that make an interface feel <em>alive</em>.',
+      'I build for the web with an obsession for <em>motion</em>, performance and the small details that make an interface feel <em>alive</em>.',
     columns: [
       "I'm a web developer who lives at the intersection of design and engineering. By day I build and maintain a full ERP platform — wrangling SQL Server logic, pricing engines and schema tooling — and by craft I build premium storefronts with React, TypeScript and Tailwind.",
-      'My happy place is the front of the front-end: smooth scroll, scroll-triggered reveals, magnetic interactions and the kind of polish you feel before you can name it.',
-      "Whether it's a high-converting brand storefront or a complex internal tool, I care about the same things: clean architecture, buttery motion, and shipping things that actually hold up in production.",
+      'My happy place is the front of the front-end: smooth scroll, scroll-triggered reveals, magnetic interactions and the kind of polish you feel before you can name it. I sweat the easing curves so the user never has to think about them.',
+      "Whether it's a high-converting brand storefront or a complex internal tool, I care about the same things: clean architecture, buttery motion, accessible markup, and shipping things that actually hold up in production.",
     ],
     signature: 'Jassim M Kabir, Editor-in-Chief',
     tags: [
@@ -126,107 +124,133 @@ export const CONTENT = {
     ],
   },
 
-  /* — THE WIRE (terminal) — a teletype dispatch that prints on scroll — */
-  wire: {
-    kicker: 'Via the Wire',
-    page: 'A2',
-    label: 'The Newsroom Wire',
-    heading: 'Incoming <em>dispatch</em>',
-    machine: 'TELETYPE MODEL 15 · NEWSROOM',
-    lines: [
-      { cmd: 'WHOIS SENDER', out: 'web developer · motion-obsessed · systems-minded' },
-      {
-        cmd: 'LIST STACK',
-        out: 'react · next.js · typescript · tailwind · gsap · node · sql-server',
-      },
-      { cmd: 'LIST BEATS', out: 'front-end / motion / e-commerce / data' },
-      { cmd: 'LATEST FILING', out: 'feat: ship things that hold up in production' },
-      { cmd: 'MESSAGE READER', out: 'Thanks for scrolling — let us build something. END.' },
-    ],
-  },
-
-  /* — SERVICES OFFERED (services) — a display advert / directory — */
-  services: {
-    kicker: 'Advertisement',
-    page: 'A6',
-    label: 'Services Offered',
-    heading: 'Now <em>Booking</em> Commissions',
-    items: [
-      {
-        title: 'Front-end Development',
-        desc: 'React, TypeScript & Tailwind builds that are fast, accessible and pixel-honest.',
-      },
-      {
-        title: 'Motion & Interaction',
-        desc: 'Scroll-driven storytelling, micro-interactions and smooth-scroll experiences.',
-      },
-      {
-        title: 'E-commerce / Hydrogen',
-        desc: 'Premium Shopify Hydrogen storefronts engineered to convert.',
-      },
-      {
-        title: 'Backend & Data',
-        desc: 'SQL Server logic, pricing engines, schema tooling and APIs that hold up.',
-      },
-    ],
-    terms: 'Enquiries welcomed daily · No job too pixel-perfect · Satisfaction, engineered.',
-  },
-
-  /* — FEATURED DISPATCHES (work) — projects as front-page stories — */
-  dispatches: {
-    kicker: 'The Gallery',
+  /* — FEATURE ARTICLES (work) — technical editorials / case studies —
+     The first item renders as the big lead feature (multi-column, with
+     a code excerpt & subheads). The rest render as secondary stories.  */
+  features: {
+    kicker: 'Technical Editorials',
     page: 'B1',
-    label: 'Featured Dispatches',
-    heading: 'Selected <em>Work</em>, Filed & Shipped',
-    projects: [
-      {
-        name: 'Zebia Storefront',
-        headline: 'Storefront Converts Browsers Into Believers',
-        deck: 'A motion-rich Hydrogen build tuned to sell.',
-        placeholder: 'ZB',
-        year: '2026',
-        beat: 'E-COMMERCE',
-        tags: ['Shopify Hydrogen', 'React Router', 'Framer Motion'],
-        href: '#',
+    label: 'Feature Articles',
+    heading: 'Case <em>Studies</em> From the Field',
+    lead: {
+      beat: 'E-COMMERCE · CASE STUDY',
+      name: 'Zebia Storefront',
+      headline: 'Storefront Converts Browsers Into Believers',
+      deck: 'How a motion-rich Shopify Hydrogen build shaved seconds off the funnel and lifted conversion — without a single janky frame.',
+      byline: 'Filed from the Front-end Desk',
+      year: '2026',
+      dropcap:
+        'The brief was deceptively simple: make it fast, make it feel expensive. Delivering both meant treating motion as an engineering budget, not a decoration.',
+      sections: [
+        {
+          h: 'The Design',
+          p: 'A restrained editorial grid, oversized product type and a single accent colour did the heavy lifting. Every interaction — magnetic add-to-cart, sticky gallery, scroll-linked reveals — was storyboarded before a line of code was written.',
+        },
+        {
+          h: 'The Architecture',
+          p: 'Built on Next.js-style routing with Shopify Hydrogen, streaming server components kept the storefront shell instant while product data hydrated progressively. Cart state lived in a small, typed store; nothing re-rendered that did not have to.',
+        },
+        {
+          h: 'The Stack',
+          p: 'React and TypeScript for the app, Tailwind for a token-driven design system, Framer Motion and GSAP for the choreography, and Lenis for a scroll that finally felt native.',
+        },
+      ],
+      // a click-to-copy code excerpt printed in halftone
+      code: {
+        caption: 'Excerpt — scroll-linked reveal, reduced-motion aware',
+        lang: 'tsx',
+        source: `const prefersReduced = useReducedMotion();
+
+useGSAP(() => {
+  if (prefersReduced) return;
+  gsap.from(".product", {
+    yPercent: 12,
+    opacity: 0,
+    stagger: 0.08,
+    ease: "power3.out",
+    scrollTrigger: { trigger: ".grid", start: "top 80%" },
+  });
+});`,
       },
+      tags: ['Shopify Hydrogen', 'React', 'TypeScript', 'Tailwind', 'GSAP', 'Lenis'],
+    },
+    stories: [
       {
         name: 'INNSOF ERP',
+        beat: 'SYSTEMS',
         headline: 'Internal Platform Tames a Sprawling Business',
-        deck: 'Pricing engines and schema tooling, all in one system.',
+        deck: 'Pricing engines, schema tooling and reporting — one typed system replacing a decade of spreadsheets.',
         placeholder: 'ERP',
         year: '2025',
-        beat: 'SYSTEMS',
         tags: ['SQL Server', 'Pricing Engine', 'Tooling'],
         href: '#',
       },
       {
         name: 'Schema Exporter',
+        beat: 'DEVELOPER TOOLS',
         headline: 'Little CLI Exports Databases Without Complaint',
-        deck: 'A quiet workhorse for keeping schemas honest.',
-        placeholder: 'DB',
+        deck: 'A quiet Python workhorse that keeps schemas honest across environments.',
+        placeholder: 'CLI',
         year: '2025',
-        beat: 'DATA',
         tags: ['Python', 'SQLAlchemy', 'CLI'],
         href: '#',
       },
       {
         name: 'Your Next Build',
-        headline: 'This Space Reserved For Your Story',
-        deck: 'A commission awaits an ambitious editor.',
+        beat: 'OPEN COMMISSION',
+        headline: 'This Column Reserved For Your Story',
+        deck: 'A commission awaits an ambitious editor. Enquire at the Classifieds.',
         placeholder: 'NEW',
         year: '2026',
-        beat: 'OPEN',
         tags: ['Let’s talk', 'Available'],
-        href: '#correspondence',
+        href: '#classifieds',
       },
     ],
-    continued: 'Full portfolio continued on request →',
+    continued: 'More filings available on request →',
+  },
+
+  /* — THE TECH DESK (new) — a stock-ticker of the stack — */
+  stack: {
+    kicker: 'The Tech Desk',
+    page: 'B6',
+    label: 'The Stack Exchange',
+    heading: 'Today’s <em>Listings</em> on the Tech Desk',
+    note: 'Closing positions as of this edition. Past performance is indicative of future shipping.',
+    // sym = ticker, name = tech, sector = category, trend = up/flat/watch
+    listings: [
+      { sym: 'RCT', name: 'React', sector: 'UI Framework', trend: 'up' },
+      { sym: 'NEXT', name: 'Next.js', sector: 'App Framework', trend: 'up' },
+      { sym: 'TS', name: 'TypeScript', sector: 'Language', trend: 'up' },
+      { sym: 'TWCS', name: 'Tailwind CSS', sector: 'Styling', trend: 'up' },
+      { sym: 'GSAP', name: 'GSAP', sector: 'Animation', trend: 'up' },
+      { sym: 'FM', name: 'Framer Motion', sector: 'Animation', trend: 'up' },
+      { sym: 'LEN', name: 'Lenis', sector: 'Smooth Scroll', trend: 'up' },
+      { sym: 'NODE', name: 'Node.js', sector: 'Runtime', trend: 'flat' },
+      { sym: 'SQL', name: 'SQL Server', sector: 'Database', trend: 'flat' },
+      { sym: 'HYDR', name: 'Shopify Hydrogen', sector: 'E-commerce', trend: 'up' },
+      { sym: 'FIGMA', name: 'Figma', sector: 'Design Tool', trend: 'up' },
+      { sym: 'GIT', name: 'Git', sector: 'Version Control', trend: 'flat' },
+    ],
+    // secondary column: design tools & disciplines
+    desk: {
+      h: 'Design Desk',
+      items: [
+        'UI Engineering',
+        'Design Systems',
+        'Design Tokens',
+        'Accessibility (a11y)',
+        'Motion Design',
+        'Responsive Layout',
+        'Prototyping',
+        'Type & Grid',
+      ],
+    },
   },
 
   /* — ON THIS DAY (experience) — career as an historical record — */
   chronicle: {
     kicker: 'The Record',
-    page: 'B4',
+    page: 'B8',
     label: 'On This Day',
     heading: 'A Brief <em>History</em> of the Byline',
     items: [
@@ -266,7 +290,7 @@ export const CONTENT = {
   /* — BY THE NUMBERS (stats) — an infographic box — */
   numbers: {
     kicker: 'Almanac',
-    page: 'B6',
+    page: 'B9',
     label: 'By the Numbers',
     heading: 'The Year in <em>Figures</em>',
     items: [
@@ -277,13 +301,22 @@ export const CONTENT = {
     ],
   },
 
-  /* — THE CLASSIFIEDS (new) — tiny ads; one hides a secret link — */
+  /* — THE CLASSIFIEDS — ads, freelance availability & résumé — */
   classifieds: {
     kicker: 'The Back Pages',
     page: 'C7',
     label: 'Classifieds',
     heading: 'Small Ads, <em>Big</em> Ideas',
     note: 'To place an advertisement, write to the Correspondence desk. Cash only. No refunds.',
+    // headline availability box
+    availability: {
+      status: 'Available',
+      title: 'Now Booking Freelance',
+      body: 'One (1) motion-obsessed web developer open for select commissions in 2026. React, Next.js, Tailwind & the systems behind them.',
+      resumeLabel: 'Download Résumé (PDF)',
+      resumeHref: '/resume.pdf',
+      printLabel: 'Print this Edition',
+    },
     ads: [
       {
         cat: 'For Hire',
@@ -298,13 +331,12 @@ export const CONTENT = {
       {
         cat: 'Lost & Found',
         title: 'FOUND: A SEMICOLON',
-        body: 'Discovered loitering at the end of a line. Owner may claim it at the newsroom wire. ;',
+        body: 'Discovered loitering at the end of a line. Owner may claim it at the newsroom terminal. ;',
       },
       {
         cat: 'Personals',
         title: 'SWF: STATE MGMT',
         body: 'Single function seeks composable partner for long-term re-renders. Must love hooks. No prop-drilling.',
-        // the secret! a hidden link lives on the underlined word below
         secret: { word: 'hooks', href: 'https://github.com/Jassimkabir' },
       },
       {
@@ -318,17 +350,14 @@ export const CONTENT = {
         body: 'Perfect alignment guaranteed. Comes with a matching baseline grid and a lifetime of kerning opinions.',
       },
     ],
-    /* console/keyboard breadcrumb for the crossword easter egg */
-    hint: 'Psst — a crossword is hidden in these pages. Press “X” to unfold it.',
   },
 
-  /* — THE CROSSWORD (new · easter egg) — a tiny 5×5 interactive puzzle — */
+  /* — THE PUZZLE PAGE — crossword + the hidden newsroom terminal — */
   crossword: {
     kicker: 'The Puzzle Page',
     page: 'C9',
     label: 'The Daily Crossword',
-    subtitle: 'A five-by-five diversion for the developer at leisure. Set by the Editor.',
-    // solution grid: a letter, or null for a black square
+    subtitle: 'Solve the grid to unlock newsroom terminal access. Set by the Editor.',
     solution: [
       ['R', 'E', 'A', 'C', 'T'],
       ['A', null, 'R', null, 'H'],
@@ -346,7 +375,43 @@ export const CONTENT = {
       { n: 2, clue: 'An ordered, zero-indexed list of values (5)' },
       { n: 3, clue: 'A design system’s palette, or a WordPress skin (5)' },
     ],
-    win: 'EXTRA! EXTRA! You solved it — the Editor is impressed.',
+    win: 'EXTRA! EXTRA! You solved it — terminal access granted. Try “sudo” below.',
+  },
+
+  /* — THE NEWSROOM TERMINAL — an interactive REPL, unlocked by the puzzle — */
+  terminal: {
+    label: 'The Newsroom Terminal',
+    locked: 'Restricted — solve The Daily Crossword above to gain access.',
+    user: 'guest',
+    host: 'jassim-times',
+    boot: [
+      'Newsroom Terminal v2.6 — Geist Mono edition',
+      'Connected to jassim-times over the wire ✦',
+      'Type `help` for the list of commands.',
+    ],
+    help: [
+      ['help', 'list available commands'],
+      ['whoami', 'who is behind this paper'],
+      ['stack', 'the current tech stack'],
+      ['projects', 'selected work, filed & shipped'],
+      ['resume', 'grab the résumé'],
+      ['contact', 'how to reach the desk'],
+      ['socials', 'links to the wire'],
+      ['theme', 'flip the morning / late edition'],
+      ['coffee', 'brew a fresh cup'],
+      ['sudo', 'attempt root access'],
+      ['clear', 'clear the screen'],
+    ],
+    responses: {
+      whoami: 'Jassim M Kabir — Web Developer @ INNSOF. Motion-obsessed, systems-minded.',
+      stack: 'react · next.js · typescript · tailwind · gsap · lenis · node · sql-server',
+      projects:
+        'Zebia Storefront (2026) · INNSOF ERP (2025) · Schema Exporter (2025). See Features, page B1.',
+      contact: 'jassimmkabir@gmail.com — letters welcomed at the Correspondence desk (D2).',
+      socials: 'github.com/Jassimkabir · linkedin.com/in/waleed-jassim-m-k',
+      resume: 'Fetching résumé… available for download in The Classifieds (page C7).',
+      coffee: '☕  brewing… done. A developer runs on caffeine and clean diffs.',
+    },
   },
 
   /* — CORRESPONDENCE (contact) — letters to the editor — */
@@ -368,9 +433,9 @@ export const CONTENT = {
 
   /* — COLOPHON (footer) — printing credits — */
   colophon: {
-    left: 'Written, set & printed by <b>Jassim M Kabir</b>',
+    left: 'Written, set & compiled by <b>Jassim M Kabir</b>',
     center: 'Kerala, India — © 2026 The Jassim Times',
-    note: 'Composed in Chomsky, Playfair Display & Merriweather. Pressed with Next.js, GSAP & Lenis. No trees were harmed.',
+    note: 'Set in Chomsky, Playfair Display, Merriweather & Geist Mono. Compiled with Next.js, GSAP & Lenis. No trees were harmed.',
   },
 } as const;
 

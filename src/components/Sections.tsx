@@ -1,6 +1,8 @@
 import { CONTENT } from '@/content/site';
 import { Html, wrapWords } from '@/lib/text';
-import Cartoon from './Cartoon';
+import { RetroComputer, ServerRack, Wireframe } from './Illustrations';
+import CodeClip from './CodeClip';
+import ResumeActions from './ResumeActions';
 
 /* ───────── the printed nameplate / masthead ───────── */
 export function Nameplate() {
@@ -28,6 +30,7 @@ export function Nameplate() {
           {paper.volume} — {paper.issue}
         </span>
       </div>
+      <p className='plate-descriptor reveal'>{paper.descriptor}</p>
     </header>
   );
 }
@@ -50,7 +53,7 @@ export function FrontPage() {
           <Html as='p' className='lead-deck reveal' html={lead.deck} />
           <div className='lead-byline reveal'>
             <span className='by'>{lead.byline}</span>
-            <span>{new Date().getFullYear()} · The Jassim Times</span>
+            <span className='role'>{lead.role}</span>
           </div>
           <div className='lead-body col-reveal'>
             <p className='dropcap'>
@@ -58,23 +61,23 @@ export function FrontPage() {
               {lead.lead}
             </p>
             {lead.body.map((p, i) => (
-              <p key={i}>{p}</p>
+              <Html as='p' key={i} html={p} />
             ))}
             <p className='continued'>{lead.continued}</p>
           </div>
         </div>
 
         <aside className='front-aside'>
-          <figure className='cartoon-box reveal'>
-            <Cartoon />
+          <figure className='ill-box reveal ht-reveal'>
+            <RetroComputer />
             <figcaption className='cap'>
-              Fig. 1 — Our man, in high spirits, shipping before deadline.
+              Fig. 1 — The newsroom rig, mid-compile, cursor still blinking.
             </figcaption>
           </figure>
           <div className='notice reveal'>
-            <div className='n-top'>✶ Public Notice ✶</div>
+            <div className='n-top'>✶ Situations Vacant ✶</div>
             <div className='n-main'>{lead.stamp}</div>
-            <div className='n-sub'>Commissions open. Enquire at the desk.</div>
+            <div className='n-sub'>{lead.role} · commissions open.</div>
             <span className='stamp'>Approved</span>
           </div>
         </aside>
@@ -83,22 +86,22 @@ export function FrontPage() {
   );
 }
 
-/* ───────── STOP-PRESS ticker (marquee) ───────── */
-export function Ticker() {
-  const { ticker } = CONTENT;
-  const items = [...ticker.items, ...ticker.items];
+/* ───────── BREAKING NEWS ticker (latest commits / status) ───────── */
+export function Breaking() {
+  const { breaking } = CONTENT;
+  const items = [...breaking.items, ...breaking.items];
   return (
-    <div className='ticker' id='marquee'>
-      <span className='ticker-tag'>{ticker.label}</span>
+    <div className='ticker breaking' id='marquee'>
+      <span className='ticker-tag'>{breaking.label}</span>
       <div className='marq-skew'>
         <div className='track'>
           {items.map((m, i) => (
             <span
               key={i}
-              style={{ display: 'inline-flex', gap: 30, alignItems: 'center' }}
+              style={{ display: 'inline-flex', gap: 26, alignItems: 'center' }}
             >
               <span className='item'>{m}</span>
-              <span className='star'>✦</span>
+              <span className='star'>◆</span>
             </span>
           ))}
         </div>
@@ -111,12 +114,10 @@ export function Ticker() {
 function SectionFront({
   kicker,
   page,
-  label,
   heading,
 }: {
   kicker: string;
   page: string;
-  label: string;
   heading: string;
 }) {
   return (
@@ -138,13 +139,8 @@ export function Editorial() {
   return (
     <section className='pad editorial' id='editorial'>
       <div className='wrap'>
-        <SectionFront kicker={ed.kicker} page={ed.page} label={ed.label} heading={ed.heading} />
-        <Html
-          as='p'
-          className='ed-lede'
-          html={wrapWords(ed.lede)}
-          id='edLede'
-        />
+        <SectionFront kicker={ed.kicker} page={ed.page} heading={ed.heading} />
+        <Html as='p' className='ed-lede' html={wrapWords(ed.lede)} id='edLede' />
         <div className='ed-columns col-reveal'>
           {ed.columns.map((p, i) => (
             <p key={i} className={i === 0 ? 'dropcap' : undefined}>
@@ -163,94 +159,71 @@ export function Editorial() {
   );
 }
 
-/* ───────── THE WIRE (teletype terminal) ───────── */
-export function Wire() {
-  const { wire } = CONTENT;
+/* ───────── FEATURE ARTICLES / technical editorials (work) ───────── */
+export function Features() {
+  const { features: f } = CONTENT;
+  const lead = f.lead;
   return (
-    <section className='pad' id='wire'>
+    <section className='pad' id='features'>
       <div className='wrap'>
-        <SectionFront kicker={wire.kicker} page={wire.page} label={wire.label} heading={wire.heading} />
-        <div className='wire-machine reveal' id='wire-machine'>
-          <div className='wire-bar'>
-            <span className='holes' aria-hidden='true'>
-              <i />
-              <i />
-              <i />
-            </span>
-            <span>{wire.machine}</span>
-          </div>
-          <div className='wire-body'>
-            {wire.lines.map((l, i) => (
-              <div className='wire-line' key={i}>
-                <p className='wire-prompt'>
-                  <span className='wire-star'>✶</span>
-                  <span className='wire-cmd' data-text={l.cmd}>
-                    {l.cmd}
-                  </span>
-                </p>
-                <p className='wire-out'>{l.out}</p>
-              </div>
-            ))}
-            <p className='wire-prompt'>
-              <span className='wire-star'>✶</span>
-              <span className='wire-tail' aria-hidden='true'>
-                ▮
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+        <SectionFront kicker={f.kicker} page={f.page} heading={f.heading} />
 
-/* ───────── SERVICES OFFERED (display advert) ───────── */
-export function Services() {
-  const { services } = CONTENT;
-  return (
-    <section className='pad' id='services'>
-      <div className='wrap'>
-        <SectionFront
-          kicker={services.kicker}
-          page={services.page}
-          label={services.label}
-          heading={services.heading}
-        />
-        <div className='advert reveal'>
-          <div className='svc-list'>
-            {services.items.map((s, i) => (
-              <div className='svc-item' data-cursor key={s.title}>
-                <span className='num'>{String(i + 1).padStart(2, '0')}</span>
-                <div>
-                  <h3>{s.title}</h3>
-                  <span className='desc'>{s.desc}</span>
+        {/* the lead feature — a full case study */}
+        <article className='feature'>
+          <div className='feature-head reveal'>
+            <span className='d-beat'>{lead.beat}</span>
+            <h3 className='feature-headline'>{lead.headline}</h3>
+            <p className='feature-deck'>{lead.deck}</p>
+            <div className='feature-byline'>
+              <span>{lead.byline}</span>
+              <span>{lead.year}</span>
+            </div>
+          </div>
+
+          <div className='feature-grid'>
+            <div className='feature-body col-reveal'>
+              <p className='dropcap'>{lead.dropcap}</p>
+              {lead.sections.map((s) => (
+                <div className='feature-sec' key={s.h}>
+                  <h4>{s.h}</h4>
+                  <p>{s.p}</p>
                 </div>
+              ))}
+              <div className='feature-tags'>
+                {lead.tags.map((t) => (
+                  <span key={t}>{t}</span>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className='advert-terms'>{services.terms}</div>
-        </div>
-      </div>
-    </section>
-  );
-}
+            </div>
 
-/* ───────── FEATURED DISPATCHES (work) ───────── */
-export function Dispatches() {
-  const { dispatches: d } = CONTENT;
-  return (
-    <section className='pad' id='dispatches'>
-      <div className='wrap'>
-        <SectionFront kicker={d.kicker} page={d.page} label={d.label} heading={d.heading} />
-        <div className='dispatch-grid'>
-          {d.projects.map((p) => (
-            <a href={p.href} className='dispatch reveal' data-view key={p.name}>
+            <aside className='feature-aside'>
+              <figure className='ill-box reveal ht-reveal'>
+                <Wireframe />
+                <figcaption className='cap'>
+                  Fig. 2 — Wireframe, before the pixels moved in.
+                </figcaption>
+              </figure>
+              <div className='reveal'>
+                <CodeClip
+                  source={lead.code.source}
+                  lang={lead.code.lang}
+                  caption={lead.code.caption}
+                />
+              </div>
+            </aside>
+          </div>
+        </article>
+
+        {/* secondary stories */}
+        <div className='story-grid'>
+          {f.stories.map((p) => (
+            <a href={p.href} className='story reveal' data-view key={p.name}>
               <span className='d-beat'>{p.beat}</span>
-              <h3 className='d-headline'>{p.headline}</h3>
-              <div className='d-photo'>
+              <h3 className='story-headline'>{p.headline}</h3>
+              <div className='d-photo ht-reveal'>
                 <span className='ph'>{p.placeholder}</span>
               </div>
-              <p className='d-deck'>{p.deck}</p>
+              <p className='story-deck'>{p.deck}</p>
               <div className='d-meta'>
                 <span className='d-name'>{p.name}</span>
                 <span>{p.year}</span>
@@ -263,7 +236,59 @@ export function Dispatches() {
             </a>
           ))}
         </div>
-        <p className='dispatch-foot reveal'>{d.continued}</p>
+        <p className='dispatch-foot reveal'>{f.continued}</p>
+      </div>
+    </section>
+  );
+}
+
+/* ───────── THE TECH DESK — stack "listings" ───────── */
+export function TechStack() {
+  const { stack } = CONTENT;
+  const trendGlyph = (t: string) => (t === 'up' ? '▲' : t === 'watch' ? '◆' : '▬');
+  return (
+    <section className='pad' id='stack'>
+      <div className='wrap'>
+        <SectionFront kicker={stack.kicker} page={stack.page} heading={stack.heading} />
+        <p className='cl-note reveal' style={{ fontFamily: 'var(--mono)' }}>
+          {stack.note}
+        </p>
+
+        <div className='tech-grid'>
+          <div className='listings reveal'>
+            <div className='listings-head'>
+              <span>Sym</span>
+              <span>Technology</span>
+              <span>Sector</span>
+              <span className='ta-r'>Trend</span>
+            </div>
+            {stack.listings.map((l) => (
+              <div className='listing-row' key={l.sym}>
+                <span className='l-sym'>{l.sym}</span>
+                <span className='l-name'>{l.name}</span>
+                <span className='l-sector'>{l.sector}</span>
+                <span className={`l-trend ta-r t-${l.trend}`}>
+                  {trendGlyph(l.trend)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <aside className='tech-aside'>
+            <figure className='ill-box reveal ht-reveal'>
+              <ServerRack />
+              <figcaption className='cap'>Fig. 3 — Racks humming, LEDs blinking.</figcaption>
+            </figure>
+            <div className='desk-box reveal'>
+              <h4 className='desk-h'>{stack.desk.h}</h4>
+              <ul className='desk-list'>
+                {stack.desk.items.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
   );
@@ -275,7 +300,7 @@ export function Chronicle() {
   return (
     <section className='pad' id='chronicle'>
       <div className='wrap'>
-        <SectionFront kicker={c.kicker} page={c.page} label={c.label} heading={c.heading} />
+        <SectionFront kicker={c.kicker} page={c.page} heading={c.heading} />
         <div className='chronicle-list'>
           {c.items.map((item) => (
             <article className='chron-row reveal' key={`${item.company}-${item.period}`}>
@@ -311,12 +336,7 @@ export function Numbers() {
   return (
     <section className='pad' id='numbers'>
       <div className='wrap'>
-        <SectionFront
-          kicker={numbers.kicker}
-          page={numbers.page}
-          label={numbers.label}
-          heading={numbers.heading}
-        />
+        <SectionFront kicker={numbers.kicker} page={numbers.page} heading={numbers.heading} />
         <div className='almanac reveal'>
           {numbers.items.map((s) => (
             <div className='fig' key={s.label}>
@@ -335,10 +355,10 @@ export function Numbers() {
   );
 }
 
-/* ───────── THE CLASSIFIEDS (with a hidden secret link) ───────── */
+/* ───────── THE CLASSIFIEDS (availability, résumé & a hidden link) ───────── */
 export function Classifieds() {
   const { classifieds: cl } = CONTENT;
-  /** Render an ad body, splicing a disguised secret link over one word. */
+  const a = cl.availability;
   const renderBody = (ad: (typeof cl.ads)[number]) => {
     if (!('secret' in ad) || !ad.secret) return ad.body;
     const { word, href } = ad.secret;
@@ -365,7 +385,18 @@ export function Classifieds() {
   return (
     <section className='pad classifieds' id='classifieds'>
       <div className='wrap'>
-        <SectionFront kicker={cl.kicker} page={cl.page} label={cl.label} heading={cl.heading} />
+        <SectionFront kicker={cl.kicker} page={cl.page} heading={cl.heading} />
+
+        {/* headline availability advert */}
+        <div className='avail reveal'>
+          <div className='avail-badge'>{a.status}</div>
+          <div className='avail-main'>
+            <h3 className='avail-title'>{a.title}</h3>
+            <p className='avail-body'>{a.body}</p>
+          </div>
+          <ResumeActions />
+        </div>
+
         <p className='cl-note reveal'>{cl.note}</p>
         <div className='cl-grid reveal'>
           {cl.ads.map((ad, i) => (
@@ -376,11 +407,6 @@ export function Classifieds() {
             </div>
           ))}
         </div>
-        <p className='cl-hint reveal'>
-          {cl.hint.split('“X”')[0]}
-          <kbd>X</kbd>
-          {cl.hint.split('“X”')[1] ?? ''}
-        </p>
       </div>
     </section>
   );
@@ -392,7 +418,7 @@ export function Correspondence() {
   return (
     <section className='pad correspondence' id='correspondence'>
       <div className='wrap'>
-        <SectionFront kicker={c.kicker} page={c.page} label={c.label} heading={c.heading} />
+        <SectionFront kicker={c.kicker} page={c.page} heading={c.heading} />
         <p className='corr-pre reveal'>{c.pre}</p>
         <p className='corr-cta reveal'>{c.cta}</p>
         <a

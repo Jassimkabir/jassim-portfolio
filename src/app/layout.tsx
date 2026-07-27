@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Merriweather, Oswald, Special_Elite } from "next/font/google";
+import { Playfair_Display, Merriweather, Oswald, Special_Elite, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { CONTENT } from "@/content/site";
 import "./globals.css";
@@ -37,11 +37,19 @@ const gothic = Oswald({
   display: "swap",
 });
 
-/* Special Elite — typewriter for the wire, captions & classifieds */
+/* Special Elite — typewriter for captions & classifieds (vintage) */
 const type = Special_Elite({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-type",
+  display: "swap",
+});
+
+/* Geist Mono — clean monospace for code, terminals, data & the tech desk */
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -106,7 +114,7 @@ export default function RootLayout({
       lang="en"
       data-theme="day"
       suppressHydrationWarning
-      className={`${masthead.variable} ${display.variable} ${body.variable} ${gothic.variable} ${type.variable}`}
+      className={`${masthead.variable} ${display.variable} ${body.variable} ${gothic.variable} ${type.variable} ${mono.variable}`}
     >
       <body>
         {/* set theme before paint to avoid a flash of the wrong theme */}

@@ -139,11 +139,11 @@ export default function Effects() {
       }
     }
 
-    /* ---- halftone photo parallax on dispatch cards ----
+    /* ---- halftone photo parallax on story cards ----
        a gentle "ken-burns" drift of the halftone plate on hover — flat and
        print-appropriate, no 3D tilt (a newspaper lies on the table). */
     if (hoverable && !prefersReduced) {
-      $$(".dispatch").forEach((card) => {
+      $$(".story").forEach((card) => {
         const ph = $(".d-photo .ph", card);
         if (!ph) return;
         const move = (e: MouseEvent) => {
@@ -375,7 +375,7 @@ export default function Effects() {
         // generic reveals (dispatch cards get their own entrance below)
         $$(".reveal").forEach((el) => {
           if (el.closest(".front-page") || el.closest(".nameplate")) return;
-          if (el.classList.contains("dispatch")) return;
+          if (el.classList.contains("story")) return;
           gsap.fromTo(
             el,
             { y: 34, opacity: 0 },
@@ -416,8 +416,8 @@ export default function Effects() {
           },
         );
 
-        // dispatch cards: staggered fade-and-rise (flat, no tilt)
-        $$(".dispatch").forEach((p) => {
+        // secondary story cards: staggered fade-and-rise (flat, no tilt)
+        $$(".story").forEach((p) => {
           gsap.fromTo(
             p,
             { y: 46, opacity: 0 },
@@ -427,6 +427,23 @@ export default function Effects() {
               duration: 0.95,
               ease: "power3.out",
               scrollTrigger: { trigger: p, start: "top 92%" },
+            },
+          );
+        });
+
+        // halftone image reveal — the "photo" develops from the bottom up,
+        // fading in its dot-screen like a print pulled off the press
+        $$(".ht-reveal").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { clipPath: "inset(100% 0 0 0)", opacity: 0.2, filter: "contrast(1.6)" },
+            {
+              clipPath: "inset(0% 0 0 0)",
+              opacity: 1,
+              filter: "contrast(1)",
+              duration: 1.15,
+              ease: "power2.out",
+              scrollTrigger: { trigger: el, start: "top 86%" },
             },
           );
         });
@@ -445,33 +462,6 @@ export default function Effects() {
             },
           });
         });
-
-        // the wire — teletype the dispatch out on scroll, reveal each reply
-        const term = $("#wire-machine");
-        if (term) {
-          const tl = gsap.timeline({ scrollTrigger: { trigger: term, start: "top 74%" } });
-          $$(".wire-line", term).forEach((line) => {
-            const cmd = $<HTMLElement>(".wire-cmd", line);
-            const out = $<HTMLElement>(".wire-out", line);
-            if (cmd) {
-              const text = cmd.dataset.text || "";
-              cmd.textContent = "";
-              const state = { n: 0 };
-              tl.to(state, {
-                n: text.length,
-                duration: Math.max(0.3, text.length * 0.038),
-                ease: "none",
-                onStart: () => cmd.classList.add("typing"),
-                onUpdate: () => (cmd.textContent = text.slice(0, Math.round(state.n))),
-                onComplete: () => cmd.classList.remove("typing"),
-              });
-            }
-            if (out) {
-              gsap.set(out, { opacity: 0, y: 6 });
-              tl.to(out, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }, "+=0.12");
-            }
-          });
-        }
 
         ScrollTrigger.refresh();
       });

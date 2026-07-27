@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CONTENT } from '@/content/site';
 
 /**
@@ -43,6 +43,15 @@ export default function Crossword() {
   const solved = solution.every((row, r) =>
     row.every((sol, c) => sol === null || grid[r][c].toUpperCase() === sol),
   );
+
+  // announce the solve once — this unlocks the Newsroom Terminal below
+  const fired = useRef(false);
+  useEffect(() => {
+    if (solved && !fired.current) {
+      fired.current = true;
+      window.dispatchEvent(new Event('jt:solved'));
+    }
+  }, [solved]);
 
   const focusCell = (r: number, c: number) => {
     inputs.current[`${r}-${c}`]?.focus();
