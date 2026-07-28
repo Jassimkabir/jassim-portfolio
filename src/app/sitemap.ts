@@ -1,12 +1,12 @@
-import type { MetadataRoute } from "next";
-import { CONTENT } from "@/content/site";
+import type { MetadataRoute } from 'next';
+import { SITE } from '@/content/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: CONTENT.seo.url,
+      url: SITE.url,
       lastModified: new Date(),
-      changeFrequency: "monthly",
+      changeFrequency: 'monthly',
       priority: 1,
     },
   ];

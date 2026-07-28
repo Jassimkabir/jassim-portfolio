@@ -1,66 +1,56 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { CONTENT } from "@/content/site";
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { SITE, TERMINAL } from '@/content/site';
 
 export const metadata: Metadata = {
-  title: "404 — command not found",
+  title: '404 — command not found',
   robots: { index: false, follow: false },
 };
 
 export default function NotFound() {
-  const { user, host } = CONTENT.terminal;
-  const prompt = (
-    <>
-      <span className="term-user">
-        {user}@{host}
-      </span>
-      <span className="term-path">:~</span>
-      <span className="term-dollar">$</span>
-    </>
-  );
-
   return (
-    <main
-      style={{
-        minHeight: "100svh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "120px 0",
-      }}
-    >
-      <div className="wrap" style={{ display: "flex", justifyContent: "center" }}>
-        <div className="term" style={{ width: "min(680px, 100%)", margin: 0 }}>
-          <div className="term-bar">
-            <span className="term-dots" aria-hidden="true">
-              <i />
-              <i />
-              <i />
+    <main className="grid min-h-svh place-items-center px-5 py-20 sm:px-8">
+      <div className="shell w-full">
+        <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-card bg-ink text-white ring-1 ring-white/5">
+          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-3.5">
+            <span className="size-2.5 rounded-pill bg-accent-from" />
+            <span className="size-2.5 rounded-pill bg-white/25" />
+            <span className="size-2.5 rounded-pill bg-white/15" />
+            <span className="font-mono text-xs text-white/40">
+              {TERMINAL.title.replace('zsh', '~/404')}
             </span>
-            <span className="term-title">{user}@{host}: ~/404</span>
           </div>
-          <div className="term-body" style={{ lineHeight: 2 }}>
-            <p className="term-prompt">
-              {prompt}
-              <span className="term-cmd">cd ./the-page-you-wanted</span>
+
+          <div className="p-6 font-mono text-sm leading-7 sm:p-8">
+            <p>
+              <span className="text-accent-from">➜</span>{' '}
+              <span className="text-white/45">~</span>{' '}
+              <span>cd ./the-page-you-wanted</span>
             </p>
-            <p style={{ color: "var(--coral)", margin: "2px 0 14px" }}>
-              bash: cd: no such file or directory — error 404
+            <p className="mb-4 text-accent-from">
+              cd: no such file or directory — error 404
             </p>
-            <p className="term-prompt">
-              {prompt}
-              <span className="term-cmd">whereis it</span>
+
+            <p>
+              <span className="text-accent-from">➜</span>{' '}
+              <span className="text-white/45">~</span> <span>whereis it</span>
             </p>
-            <p className="term-out">honestly? no idea. but home is still standing. ✦</p>
-            <p className="term-prompt" style={{ marginTop: 6 }}>
-              {prompt}{" "}
-              <Link href="/" className="term-cmd" style={{ color: "var(--lime)" }}>
+            <p className="mb-4 text-white/60">
+              honestly, no idea — but home is still standing.
+            </p>
+
+            <p>
+              <span className="text-accent-from">➜</span>{' '}
+              <span className="text-white/45">~</span>{' '}
+              <Link href="/" className="text-accent-from underline-offset-4 hover:underline">
                 ./go-home
               </Link>
-              <span className="term-blink" aria-hidden="true">
-                ▮
-              </span>
+              <span className="caret ml-1 align-middle" aria-hidden="true" />
             </p>
+          </div>
+
+          <div className="border-t border-white/10 px-5 py-4 text-xs tracking-wide text-white/40 uppercase">
+            {SITE.name}
           </div>
         </div>
       </div>

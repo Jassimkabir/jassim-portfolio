@@ -1,107 +1,94 @@
-import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
-import { CONTENT } from "@/content/site";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import { Onest } from 'next/font/google';
+import { SEO, SITE, SOCIALS } from '@/content/site';
+import './globals.css';
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-display",
-  display: "swap",
+/* Onest ships as a variable font, so one file covers 400–700. */
+const onest = Onest({
+  subsets: ['latin'],
+  variable: '--font-onest',
+  display: 'swap',
 });
-
-const serif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const body = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-body",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
-const { seo, name, role } = CONTENT;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(seo.url),
+  metadataBase: new URL(SITE.url),
   title: {
-    default: seo.title,
-    template: `%s — ${name}`,
+    default: SEO.title,
+    template: `%s — ${SITE.name}`,
   },
-  description: seo.description,
-  keywords: [...seo.keywords],
-  authors: [{ name, url: seo.url }],
-  creator: name,
-  publisher: name,
-  alternates: { canonical: "/" },
+  description: SEO.description,
+  keywords: [...SEO.keywords],
+  authors: [{ name: SITE.name, url: SITE.url }],
+  creator: SITE.name,
+  publisher: SITE.name,
+  alternates: { canonical: '/' },
   openGraph: {
-    type: "website",
-    locale: seo.locale,
-    url: seo.url,
-    siteName: `${name} — ${role}`,
-    title: seo.title,
-    description: seo.description,
+    type: 'website',
+    locale: SEO.locale,
+    url: SITE.url,
+    siteName: `${SITE.name} — ${SITE.role}`,
+    title: SEO.title,
+    description: SEO.description,
   },
   twitter: {
-    card: "summary_large_image",
-    title: seo.title,
-    description: seo.description,
-    creator: seo.twitterHandle,
+    card: 'summary_large_image',
+    title: SEO.title,
+    description: SEO.description,
+    creator: SEO.twitterHandle,
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
-  icons: { icon: "/favicon.ico" },
+  icons: { icon: '/favicon.ico' },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#060912",
-  width: "device-width",
+  themeColor: SEO.themeColor,
+  width: 'device-width',
   initialScale: 1,
 };
 
 const personJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name,
-  url: seo.url,
-  jobTitle: role,
-  email: `mailto:${CONTENT.contact.email}`,
-  description: seo.description,
-  knowsAbout: [...seo.keywords],
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  url: SITE.url,
+  jobTitle: 'Front-End Engineer',
+  email: `mailto:${SITE.email}`,
+  description: SEO.description,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Kerala',
+    addressCountry: 'IN',
+  },
+  knowsAbout: [...SEO.keywords],
+  sameAs: [SOCIALS.github, SOCIALS.linkedin, SOCIALS.instagram],
 };
+
+/* Adaptive grid: CSS media queries handle every width up to 1920px;
+   above that the root font-size is scaled up here, damped by `coef`.
+   Runs before paint so wide screens never flash at the wrong scale. */
+const adaptiveGrid = `(function(){
+var FONT_BASE=16,baseWidth=1920,coef=0.6666;
+function apply(){
+var w=window.innerWidth;
+var widthReduction=((baseWidth-w)/baseWidth)*100;
+var size=FONT_BASE-(FONT_BASE*(widthReduction*coef))/100;
+if(size>FONT_BASE){document.documentElement.style.fontSize=size+'px';}
+else{document.documentElement.style.removeProperty('font-size');}
+}
+apply();window.addEventListener('resize',apply);
+})();`;
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      data-theme="dark"
-      suppressHydrationWarning
-      className={`${display.variable} ${serif.variable} ${body.variable} ${mono.variable}`}
-    >
+    <html lang="en" className={onest.variable}>
       <body>
-        {/* set theme before paint to avoid a flash of the wrong theme */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();`,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: adaptiveGrid }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

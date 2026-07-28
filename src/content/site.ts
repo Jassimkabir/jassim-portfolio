@@ -1,279 +1,325 @@
 /* ──────────────────────────────────────────────────────────────────
    ✏️  EDIT EVERYTHING HERE
-   ──────────────────────────────────────────────────────────────────
-   This single CONTENT object holds EVERY piece of text on the site.
-   Change any value below and the page updates.
-
-   Inline accent tags you can use inside titles / statements:
-     <em>word</em>  → serif italic accent
-     <i>word</i>    → lime colour
-     <strong>word</strong> → emphasised cream (about paragraphs)
-
-   This is the only file you normally need to touch.
+   Every string on the page lives in this file. Sections read from it,
+   so changing a value here updates the site.
 ─────────────────────────────────────────────────────────────────── */
 
-export const CONTENT = {
-  /* — basics — */
+export const SITE = {
   name: 'Jassim M Kabir',
-  logo: 'JK<span>.</span>', // shown top-left
-  role: 'Web Developer',
+  firstName: 'Jassim',
+  role: 'Front-End Engineer',
+  locationShort: 'Kerala, IN',
+  location: 'Kerala, India',
+  email: 'jassimmkabir@gmail.com',
+  url: 'https://jassimmkabir.dev',
+  resume: '/jassim-m-kabir-resume.pdf',
+  watermark: 'JASSIM',
+  timeZone: 'Asia/Kolkata',
+} as const;
 
-  /* — SEO / browser tab — */
-  seo: {
-    title: 'Jassim M Kabir — Web Developer',
-    description:
-      'Jassim M Kabir is a web developer crafting fast, expressive interfaces and the systems behind them — from pixel-perfect storefronts to the database layer.',
-    keywords: [
-      'Jassim M Kabir',
-      'Web Developer',
-      'Front-end Developer',
-      'React',
-      'Next.js',
-      'TypeScript',
-      'Tailwind CSS',
-      'GSAP',
-      'Shopify Hydrogen',
-      'UI Engineering',
-    ],
-    /* used for canonical + Open Graph URLs — change to your domain */
-    url: 'https://jassimmkabir.dev',
-    ogImage: '/og.png',
-    twitterHandle: '@jassimmkabir',
-    locale: 'en_US',
-  },
-
-  /* — preloader — */
-  loaderName: 'Ja<em>ssim</em>', // <em> = serif lime accent
-
-  /* — navigation links (label → section id) — */
-  nav: [
-    { label: 'Work', href: '#work' },
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Contact', href: '#contact' },
-  ],
-
-  /* — HERO — */
-  hero: {
-    available: 'Open for freelance — 2026',
-    intro:
-      'A web developer crafting fast, expressive interfaces and the systems behind them — from pixel-perfect storefronts to the database layer.',
-    /* each line is its own row. <em>=serif italic, <i>=lime */
-    titleLines: [
-      'Building',
-      '<em>digital</em>',
-      '<i>experiences</i>',
-      'that move.',
-    ],
-  },
-
-  /* — MARQUEE strip (the rotating tech words) — */
-  marquee: [
+export const SEO = {
+  title: 'Jassim M Kabir — Front-End & Full-Stack Engineer',
+  description:
+    'I build fast, considered interfaces and the systems behind them — React, TypeScript, Next.js, and everything that makes them ship.',
+  themeColor: '#0a0a0a',
+  locale: 'en_US',
+  twitterHandle: '@jassimmkabir',
+  keywords: [
+    'Jassim M Kabir',
+    'Front-End Engineer',
+    'Full-Stack Engineer',
     'React',
-    'TypeScript',
     'Next.js',
-    'Tailwind',
-    'Framer Motion',
-    'Lenis',
-    'SQL Server',
-    'Node',
+    'TypeScript',
+    'Tailwind CSS',
     'GSAP',
     'Shopify Hydrogen',
     'UI Engineering',
   ],
-
-  /* — ABOUT — */
-  about: {
-    label: 'About',
-    /* big statement — <em>=serif coral accent */
-    big: 'I design and build for the web with an obsession for <em>motion</em>, performance and the small details that make an interface feel <em>alive</em>.',
-    colA: [
-      "I'm a web developer who lives at the intersection of design and engineering. By day I build and maintain a full ERP platform — wrangling SQL Server logic, pricing engines and schema tooling — and by craft I build premium storefronts with React, TypeScript and Tailwind.",
-      'My happy place is the front of the front-end: smooth scroll, scroll-triggered reveals, magnetic interactions and the kind of polish you feel before you can name it.',
-    ],
-    colB: [
-      "Whether it's a high-converting brand storefront or a complex internal tool, I care about the same things: <strong>clean architecture</strong>, <strong>buttery motion</strong>, and shipping things that actually hold up in production.",
-    ],
-    tags: [
-      'Front-end',
-      'UI Engineering',
-      'Motion / GSAP',
-      'SQL Server',
-      'Shopify Hydrogen',
-      'Design Systems',
-    ],
-  },
-
-  /* — TERMINAL — a faux shell that types itself out on scroll.
-     user@host shows in the prompt; each line is a command + its output. */
-  terminal: {
-    label: 'Terminal',
-    heading: 'Run the <em>intro</em>',
-    user: 'jassim',
-    host: 'portfolio',
-    dir: '~',
-    lines: [
-      {
-        cmd: 'whoami',
-        out: 'web developer · motion-obsessed · systems-minded',
-      },
-      {
-        cmd: 'cat stack.json',
-        out: '["react", "next.js", "typescript", "tailwind", "gsap", "node", "sql-server"]',
-      },
-      { cmd: 'ls ./focus', out: 'front-end/   motion/   e-commerce/   data/' },
-      {
-        cmd: 'git log --oneline -1',
-        out: 'feat: ship things that hold up in production ✦',
-      },
-      {
-        cmd: './say-hi --to you',
-        out: "👋 thanks for scrolling — let's build something.",
-      },
-    ],
-  },
-
-  /* — SERVICES — */
-  services: {
-    heading: 'What I <em>do</em>',
-    label: 'Services',
-    items: [
-      {
-        title: 'Front-end Development',
-        desc: 'React, TypeScript & Tailwind builds that are fast, accessible and pixel-honest.',
-      },
-      {
-        title: 'Motion & Interaction',
-        desc: 'Scroll-driven storytelling, micro-interactions and smooth-scroll experiences.',
-      },
-      {
-        title: 'E-commerce / Hydrogen',
-        desc: 'Premium Shopify Hydrogen storefronts engineered to convert.',
-      },
-      {
-        title: 'Backend & Data',
-        desc: 'SQL Server logic, pricing engines, schema tooling and APIs that hold up.',
-      },
-    ],
-  },
-
-  /* — WORK / PROJECTS —
-     placeholder = the big outlined letters/word shown in the card.
-     c1 / c2 = the two glow colours (any CSS colour). */
-  work: {
-    heading: 'Selected <em>work</em>',
-    label: 'Work',
-    projects: [
-      {
-        name: 'Zebia Storefront',
-        placeholder: 'ZB',
-        year: '2026',
-        tags: ['Shopify Hydrogen', 'React Router', 'Framer Motion'],
-        c1: '#22d3ee',
-        c2: '#3b82f6',
-        href: '#',
-      },
-      {
-        name: 'INNSOF ERP',
-        placeholder: 'ERP',
-        year: '2025',
-        tags: ['SQL Server', 'Pricing Engine', 'Tooling'],
-        c1: '#7dd3fc',
-        c2: '#22d3ee',
-        href: '#',
-      },
-      {
-        name: 'Schema Exporter',
-        placeholder: 'DB',
-        year: '2025',
-        tags: ['Python', 'SQLAlchemy', 'CLI'],
-        c1: '#3b82f6',
-        c2: '#7dd3fc',
-        href: '#',
-      },
-      {
-        name: 'Your Next Build',
-        placeholder: 'NEW',
-        year: '2026',
-        tags: ["Let's talk", 'Available'],
-        c1: '#22d3ee',
-        c2: '#7dd3fc',
-        href: '#contact',
-      },
-    ],
-  },
-
-  /* — EXPERIENCE — vertical timeline (most recent first).
-     period = the date range shown in mono; current:true adds a live dot. */
-  experience: {
-    label: 'Experience',
-    heading: 'The <em>road</em> so far',
-    items: [
-      {
-        period: '2024 — Now',
-        role: 'Web Developer',
-        company: 'INNSOF',
-        location: 'Kerala, India',
-        current: true,
-        blurb:
-          'Building and maintaining a full ERP platform end-to-end — SQL Server logic, pricing engines and schema tooling — while crafting the front-end with React, TypeScript and Tailwind.',
-        tags: ['SQL Server', 'React', 'TypeScript', 'Tooling'],
-      },
-      {
-        period: '2023 — 2024',
-        role: 'Front-end Developer',
-        company: 'Freelance / Contract',
-        location: 'Remote',
-        current: false,
-        blurb:
-          'Designed and shipped premium brand storefronts on Shopify Hydrogen — motion-rich, accessible and tuned to convert, with smooth-scroll and scroll-driven storytelling.',
-        tags: ['Shopify Hydrogen', 'Framer Motion', 'GSAP'],
-      },
-      {
-        period: '2022 — 2023',
-        role: 'Junior Web Developer',
-        company: 'Early days',
-        location: 'Kerala, India',
-        current: false,
-        blurb:
-          'Cut my teeth turning designs into pixel-honest, responsive interfaces and learned to care about the details that make a UI feel alive.',
-        tags: ['JavaScript', 'CSS', 'UI'],
-      },
-    ],
-  },
-
-  /* — STATS — (suffix renders in serif italic) — */
-  stats: {
-    label: 'By the numbers',
-    items: [
-      { value: 5, suffix: '+', label: 'Years building for the web' },
-      { value: 40, suffix: '+', label: 'Projects shipped to production' },
-      { value: 99, suffix: '', label: 'Lighthouse scores chased relentlessly' },
-      { value: 100, suffix: '%', label: 'Commitment to the details' },
-    ],
-  },
-
-  /* — CONTACT — */
-  contact: {
-    label: 'Contact',
-    pre: 'Got something in mind?',
-    email: 'jassimmkabir@gmail.com',
-    socials: [
-      { label: 'GitHub', href: 'https://github.com/Jassimkabir' },
-      {
-        label: 'LinkedIn',
-        href: 'https://www.linkedin.com/in/waleed-jassim-m-k/',
-      },
-      { label: 'Instagram', href: 'https://www.instagram.com/jassim.m.kabir' },
-      { label: 'Email', href: 'mailto:jassimmkabir@gmail.com' },
-    ],
-  },
-
-  /* — FOOTER — */
-  footer: {
-    left: 'Designed & built by <b>Jassim M Kabir</b>',
-    center: 'Kerala, India — © 2026',
-  },
 } as const;
 
-export type SiteContent = typeof CONTENT;
+export const SOCIALS = {
+  github: 'https://github.com/Jassimkabir',
+  linkedin: 'https://www.linkedin.com/in/waleed-jassim-m-k/',
+  instagram: 'https://www.instagram.com/jassim.m.kabir',
+} as const;
+
+/* — header / nav — “modal: true” opens the contact modal instead of scrolling — */
+export const NAV = [
+  { label: 'Home', target: 'home' },
+  { label: 'Work', target: 'work' },
+  { label: 'Services', target: 'services', caret: true },
+  { label: 'About', target: 'about' },
+  { label: 'Experience', target: 'experience' },
+  { label: 'Contact', target: 'contact', modal: true },
+] as const;
+
+/* — loader — */
+export const LOADER = {
+  tagline: 'Front-end engineer. Full-stack when it helps.',
+  label: 'Loading',
+} as const;
+
+/* — hero — */
+export const HERO = {
+  eyebrow: 'Front-end engineer · Kerala, IN',
+  /* one array entry per rendered line */
+  headline: ['Interfaces that', 'feel fast,', 'built to last'],
+  proof: '4+ years shipping production front-ends',
+  ctaPrimary: "Let's talk",
+  ctaSecondary: 'See the work',
+  cards: [
+    { caption: 'Front-end', title: 'React & Next.js, typed end to end.' },
+    { caption: 'Motion', title: 'GSAP and Lenis, tuned by hand.' },
+    { caption: 'Full-stack', title: 'Node, SQL Server, Shopify Hydrogen.' },
+  ],
+  stackLabel: 'Working with',
+  stack: [
+    'React',
+    'TypeScript',
+    'Next.js',
+    'Tailwind',
+    'GSAP',
+    'Node',
+    'SQL Server',
+    'Hydrogen',
+  ],
+  status: {
+    left: 'Building since 2022',
+    center: 'Remote · working worldwide',
+    right: 'Scroll to explore',
+  },
+  /* Base layer is always visible; the reveal layer is painted under the
+     cursor. Both frames must share a crop and aspect ratio or the
+     reveal will slide against the base. Set `reveal` to null to fall
+     back to the generated dark code plate (see lib/heroPlate.ts). */
+  base: '/assets/hero/me.webp',
+  reveal: '/assets/hero/mecha.webp' as string | null,
+  alt: 'Jassim M Kabir, smiling, in a dark green hoodie',
+} as const;
+
+/* — marquee — */
+export const MARQUEE = [
+  'Front-end engineering',
+  'Design systems',
+  'Motion & interaction',
+  'Next.js at scale',
+  'API & data layer',
+  'Performance budgets',
+  'Shopify Hydrogen',
+] as const;
+
+/* — about — */
+export const ABOUT = {
+  eyebrow: 'About',
+  based: 'Based in Kerala, India — working with teams across time zones.',
+  statementLead:
+    'I build front-ends for teams who care about the details — ',
+  statementMuted:
+    'typed React and Next.js on the surface, a considered data layer underneath, and motion that earns its place.',
+  socialsLabel: 'Find me online',
+  cta: 'Download CV',
+} as const;
+
+/* — terminal — “cmd” lines get the ➜ ~ prompt, “out” lines are output — */
+export type TerminalLine = { kind: 'cmd' | 'out' | 'gap'; text: string };
+
+export const TERMINAL = {
+  title: 'jassim@portfolio — zsh',
+  lines: [
+    { kind: 'cmd', text: 'whoami' },
+    { kind: 'out', text: 'Jassim M Kabir — front-end engineer, sometimes full-stack.' },
+    { kind: 'gap', text: '' },
+    { kind: 'cmd', text: 'cat stack.json' },
+    { kind: 'out', text: '{' },
+    { kind: 'out', text: '  "core":      ["React", "TypeScript", "Next.js"],' },
+    { kind: 'out', text: '  "styling":   ["Tailwind", "CSS Modules", "design tokens"],' },
+    { kind: 'out', text: '  "motion":    ["GSAP", "ScrollTrigger", "Lenis"],' },
+    { kind: 'out', text: '  "backend":   ["Node", "SQL Server", "REST"],' },
+    { kind: 'out', text: '  "commerce":  ["Shopify Hydrogen", "Storefront API"]' },
+    { kind: 'out', text: '}' },
+    { kind: 'gap', text: '' },
+    { kind: 'cmd', text: './availability --next' },
+    { kind: 'out', text: 'open for freelance and full-time roles' },
+  ] as TerminalLine[],
+  exit: 'Exit code 0',
+  copy: 'Copy email',
+  copied: 'Copied',
+} as const;
+
+/* — services — */
+export const SERVICES = {
+  eyebrow: 'Services',
+  heading: 'What I do best',
+  items: [
+    {
+      title: 'Front-End Engineering',
+      desc: 'Production React and Next.js — typed, accessible, and fast.',
+    },
+    {
+      title: 'Design Systems & UI',
+      desc: 'Component libraries and tokens that stay consistent as the product grows.',
+    },
+    {
+      title: 'Motion & Interaction',
+      desc: 'Scroll, transitions, and micro-interaction built with GSAP and Lenis.',
+    },
+    {
+      title: 'Full-Stack & Commerce',
+      desc: 'Node APIs, SQL Server data layers, and Shopify Hydrogen storefronts.',
+    },
+  ],
+} as const;
+
+/* — work — exactly four, for the 2×2 grid — */
+export const WORK = {
+  eyebrow: 'Selected work',
+  heading: "Things I've shipped",
+  cta: 'See all projects',
+  ctaHref: SOCIALS.github,
+  projects: [
+    {
+      name: 'Zebia Storefront',
+      type: 'E-commerce',
+      year: '2026',
+      summary:
+        'A premium Shopify Hydrogen storefront — motion-rich, accessible, and tuned to convert on mobile first.',
+      tags: ['Shopify Hydrogen', 'Storefront API', 'GSAP'],
+      href: SOCIALS.github,
+    },
+    {
+      name: 'INNSOF ERP',
+      type: 'Product',
+      year: '2025',
+      summary:
+        'A full ERP platform end to end — pricing engine, SQL Server logic, and the typed React front-end on top of it.',
+      tags: ['React', 'Node', 'SQL Server'],
+      href: SOCIALS.github,
+    },
+    {
+      name: 'Schema Exporter',
+      type: 'Developer Tool',
+      year: '2025',
+      summary:
+        'A CLI that snapshots SQL Server schemas and diffs them between environments, so migrations stop being guesswork.',
+      tags: ['Python', 'SQLAlchemy', 'CLI'],
+      href: SOCIALS.github,
+    },
+    {
+      name: 'This Portfolio',
+      type: 'Experiment',
+      year: '2026',
+      summary:
+        'A liquid cursor reveal painted on canvas, driven by GSAP and Lenis on an adaptive rem grid.',
+      tags: ['GSAP', 'Canvas', 'Lenis'],
+      href: SOCIALS.github,
+    },
+  ],
+} as const;
+
+/* — experience — most recent first — */
+export const EXPERIENCE = {
+  eyebrow: 'Experience',
+  heading: "Where I've been building",
+  items: [
+    {
+      period: '2024 — Present',
+      role: 'Web Developer',
+      company: 'INNSOF',
+      summary:
+        'Own a full ERP platform end to end — SQL Server logic, pricing engines, and schema tooling — while building the front-end in React, TypeScript, and Tailwind.',
+      tags: ['React', 'TypeScript', 'SQL Server', 'Tooling'],
+    },
+    {
+      period: '2023 — 2024',
+      role: 'Front-End Developer',
+      company: 'Freelance / Contract',
+      summary:
+        'Designed and shipped premium brand storefronts on Shopify Hydrogen — scroll-driven storytelling, smooth scroll, and accessible motion tuned to convert.',
+      tags: ['Shopify Hydrogen', 'GSAP', 'Lenis'],
+    },
+    {
+      period: '2022 — 2023',
+      role: 'Junior Web Developer',
+      company: 'Early days',
+      summary:
+        'Turned designs into pixel-honest, responsive interfaces and learned to care about the details that make a UI feel alive.',
+      tags: ['JavaScript', 'CSS', 'UI'],
+    },
+  ],
+} as const;
+
+/* — stats — */
+export const STATS = {
+  eyebrow: 'By the numbers',
+  heading: 'Measured in shipped work, not job titles.',
+  items: [
+    { value: 4, suffix: '+', label: 'Years of experience' },
+    { value: 30, suffix: '+', label: 'Projects shipped' },
+    { value: 99, suffix: '', label: 'Lighthouse performance' },
+    { value: 12, suffix: '', label: 'Production stacks' },
+  ],
+} as const;
+
+/* — contact — */
+export const CONTACT = {
+  eyebrow: 'Contact',
+  heading: ["Have something in mind?", "Let's build it."],
+  body: "Freelance projects, contract work, or a full-time role — tell me what you're building and I'll reply within a day.",
+  ctaPrimary: 'Send a message',
+  ctaSecondary: 'Email me directly',
+  replies: 'Replies within 24h',
+} as const;
+
+/* — modal — */
+export const MODAL = {
+  eyebrow: 'Start a project',
+  heading: "Tell me what you're building.",
+  note: 'I reply within one business day.',
+  submit: 'Send message',
+  sending: 'Sending…',
+  successTitle: 'Message received',
+  successBody:
+    "Thanks for reaching out — I'll get back to you within one business day.",
+} as const;
+
+/* — footer — */
+export const FOOTER = {
+  heading: ['Available for work.', "Let's start."],
+  cta: 'Start a project',
+  blurb:
+    'Front-end engineer building fast, considered interfaces — and the systems behind them.',
+  columns: [
+    {
+      title: 'Navigate',
+      links: [
+        { label: 'Home', target: 'home' },
+        { label: 'Work', target: 'work' },
+        { label: 'Services', target: 'services' },
+        { label: 'About', target: 'about' },
+        { label: 'Experience', target: 'experience' },
+      ],
+    },
+    {
+      title: 'Services',
+      links: [
+        { label: 'Front-End Engineering', target: 'services' },
+        { label: 'Design Systems', target: 'services' },
+        { label: 'Motion & Interaction', target: 'services' },
+        { label: 'Full-Stack & Commerce', target: 'services' },
+      ],
+    },
+  ],
+  elsewhere: [
+    { label: 'GitHub', href: SOCIALS.github },
+    { label: 'LinkedIn', href: SOCIALS.linkedin },
+    { label: 'Instagram', href: SOCIALS.instagram },
+    { label: 'Email', href: `mailto:${SITE.email}` },
+    { label: 'Resume', href: SITE.resume },
+  ],
+  copyright: `© ${new Date().getFullYear()} ${SITE.name}. All rights reserved.`,
+  legal: [
+    { label: 'Built with Next.js & GSAP', href: 'https://nextjs.org' },
+    { label: 'Colophon', href: 'https://gsap.com' },
+  ],
+} as const;
