@@ -1,279 +1,226 @@
-/* ──────────────────────────────────────────────────────────────────
-   ✏️  EDIT EVERYTHING HERE
-   ──────────────────────────────────────────────────────────────────
-   This single CONTENT object holds EVERY piece of text on the site.
-   Change any value below and the page updates.
+/**
+ * Single source of truth for every word on the page.
+ *
+ * RULES, enforced in review:
+ *  - Zero em-dashes and zero en-dashes. Hyphen or restructure.
+ *  - Every fact and every number traces to verified source material.
+ *  - Anything not yet supplied is `NEEDS_INPUT`, never invented.
+ *  - Percentages appear only welded to their mechanism. Never bare.
+ */
 
-   Inline accent tags you can use inside titles / statements:
-     <em>word</em>  → serif italic accent
-     <i>word</i>    → lime colour
-     <strong>word</strong> → emphasised cream (about paragraphs)
+/** Marks content that has been asked for and not yet supplied. */
+export const NEEDS_INPUT = Symbol('NEEDS_INPUT');
 
-   This is the only file you normally need to touch.
-─────────────────────────────────────────────────────────────────── */
-
-export const CONTENT = {
-  /* — basics — */
-  name: 'Jassim M Kabir',
-  logo: 'JK<span>.</span>', // shown top-left
-  role: 'Web Developer',
-
-  /* — SEO / browser tab — */
-  seo: {
-    title: 'Jassim M Kabir — Web Developer',
-    description:
-      'Jassim M Kabir is a web developer crafting fast, expressive interfaces and the systems behind them — from pixel-perfect storefronts to the database layer.',
-    keywords: [
-      'Jassim M Kabir',
-      'Web Developer',
-      'Front-end Developer',
-      'React',
-      'Next.js',
-      'TypeScript',
-      'Tailwind CSS',
-      'GSAP',
-      'Shopify Hydrogen',
-      'UI Engineering',
-    ],
-    /* used for canonical + Open Graph URLs — change to your domain */
-    url: 'https://jassimmkabir.dev',
-    ogImage: '/og.png',
-    twitterHandle: '@jassimmkabir',
-    locale: 'en_US',
-  },
-
-  /* — preloader — */
-  loaderName: 'Ja<em>ssim</em>', // <em> = serif lime accent
-
-  /* — navigation links (label → section id) — */
-  nav: [
-    { label: 'Work', href: '#work' },
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Contact', href: '#contact' },
-  ],
-
-  /* — HERO — */
-  hero: {
-    available: 'Open for freelance — 2026',
-    intro:
-      'A web developer crafting fast, expressive interfaces and the systems behind them — from pixel-perfect storefronts to the database layer.',
-    /* each line is its own row. <em>=serif italic, <i>=lime */
-    titleLines: [
-      'Building',
-      '<em>digital</em>',
-      '<i>experiences</i>',
-      'that move.',
-    ],
-  },
-
-  /* — MARQUEE strip (the rotating tech words) — */
-  marquee: [
-    'React',
-    'TypeScript',
-    'Next.js',
-    'Tailwind',
-    'Framer Motion',
-    'Lenis',
-    'SQL Server',
-    'Node',
-    'GSAP',
-    'Shopify Hydrogen',
-    'UI Engineering',
-  ],
-
-  /* — ABOUT — */
-  about: {
-    label: 'About',
-    /* big statement — <em>=serif coral accent */
-    big: 'I design and build for the web with an obsession for <em>motion</em>, performance and the small details that make an interface feel <em>alive</em>.',
-    colA: [
-      "I'm a web developer who lives at the intersection of design and engineering. By day I build and maintain a full ERP platform — wrangling SQL Server logic, pricing engines and schema tooling — and by craft I build premium storefronts with React, TypeScript and Tailwind.",
-      'My happy place is the front of the front-end: smooth scroll, scroll-triggered reveals, magnetic interactions and the kind of polish you feel before you can name it.',
-    ],
-    colB: [
-      "Whether it's a high-converting brand storefront or a complex internal tool, I care about the same things: <strong>clean architecture</strong>, <strong>buttery motion</strong>, and shipping things that actually hold up in production.",
-    ],
-    tags: [
-      'Front-end',
-      'UI Engineering',
-      'Motion / GSAP',
-      'SQL Server',
-      'Shopify Hydrogen',
-      'Design Systems',
-    ],
-  },
-
-  /* — TERMINAL — a faux shell that types itself out on scroll.
-     user@host shows in the prompt; each line is a command + its output. */
-  terminal: {
-    label: 'Terminal',
-    heading: 'Run the <em>intro</em>',
-    user: 'jassim',
-    host: 'portfolio',
-    dir: '~',
-    lines: [
-      {
-        cmd: 'whoami',
-        out: 'web developer · motion-obsessed · systems-minded',
-      },
-      {
-        cmd: 'cat stack.json',
-        out: '["react", "next.js", "typescript", "tailwind", "gsap", "node", "sql-server"]',
-      },
-      { cmd: 'ls ./focus', out: 'front-end/   motion/   e-commerce/   data/' },
-      {
-        cmd: 'git log --oneline -1',
-        out: 'feat: ship things that hold up in production ✦',
-      },
-      {
-        cmd: './say-hi --to you',
-        out: "👋 thanks for scrolling — let's build something.",
-      },
-    ],
-  },
-
-  /* — SERVICES — */
-  services: {
-    heading: 'What I <em>do</em>',
-    label: 'Services',
-    items: [
-      {
-        title: 'Front-end Development',
-        desc: 'React, TypeScript & Tailwind builds that are fast, accessible and pixel-honest.',
-      },
-      {
-        title: 'Motion & Interaction',
-        desc: 'Scroll-driven storytelling, micro-interactions and smooth-scroll experiences.',
-      },
-      {
-        title: 'E-commerce / Hydrogen',
-        desc: 'Premium Shopify Hydrogen storefronts engineered to convert.',
-      },
-      {
-        title: 'Backend & Data',
-        desc: 'SQL Server logic, pricing engines, schema tooling and APIs that hold up.',
-      },
-    ],
-  },
-
-  /* — WORK / PROJECTS —
-     placeholder = the big outlined letters/word shown in the card.
-     c1 / c2 = the two glow colours (any CSS colour). */
-  work: {
-    heading: 'Selected <em>work</em>',
-    label: 'Work',
-    projects: [
-      {
-        name: 'Zebia Storefront',
-        placeholder: 'ZB',
-        year: '2026',
-        tags: ['Shopify Hydrogen', 'React Router', 'Framer Motion'],
-        c1: '#22d3ee',
-        c2: '#3b82f6',
-        href: '#',
-      },
-      {
-        name: 'INNSOF ERP',
-        placeholder: 'ERP',
-        year: '2025',
-        tags: ['SQL Server', 'Pricing Engine', 'Tooling'],
-        c1: '#7dd3fc',
-        c2: '#22d3ee',
-        href: '#',
-      },
-      {
-        name: 'Schema Exporter',
-        placeholder: 'DB',
-        year: '2025',
-        tags: ['Python', 'SQLAlchemy', 'CLI'],
-        c1: '#3b82f6',
-        c2: '#7dd3fc',
-        href: '#',
-      },
-      {
-        name: 'Your Next Build',
-        placeholder: 'NEW',
-        year: '2026',
-        tags: ["Let's talk", 'Available'],
-        c1: '#22d3ee',
-        c2: '#7dd3fc',
-        href: '#contact',
-      },
-    ],
-  },
-
-  /* — EXPERIENCE — vertical timeline (most recent first).
-     period = the date range shown in mono; current:true adds a live dot. */
-  experience: {
-    label: 'Experience',
-    heading: 'The <em>road</em> so far',
-    items: [
-      {
-        period: '2024 — Now',
-        role: 'Web Developer',
-        company: 'INNSOF',
-        location: 'Kerala, India',
-        current: true,
-        blurb:
-          'Building and maintaining a full ERP platform end-to-end — SQL Server logic, pricing engines and schema tooling — while crafting the front-end with React, TypeScript and Tailwind.',
-        tags: ['SQL Server', 'React', 'TypeScript', 'Tooling'],
-      },
-      {
-        period: '2023 — 2024',
-        role: 'Front-end Developer',
-        company: 'Freelance / Contract',
-        location: 'Remote',
-        current: false,
-        blurb:
-          'Designed and shipped premium brand storefronts on Shopify Hydrogen — motion-rich, accessible and tuned to convert, with smooth-scroll and scroll-driven storytelling.',
-        tags: ['Shopify Hydrogen', 'Framer Motion', 'GSAP'],
-      },
-      {
-        period: '2022 — 2023',
-        role: 'Junior Web Developer',
-        company: 'Early days',
-        location: 'Kerala, India',
-        current: false,
-        blurb:
-          'Cut my teeth turning designs into pixel-honest, responsive interfaces and learned to care about the details that make a UI feel alive.',
-        tags: ['JavaScript', 'CSS', 'UI'],
-      },
-    ],
-  },
-
-  /* — STATS — (suffix renders in serif italic) — */
-  stats: {
-    label: 'By the numbers',
-    items: [
-      { value: 5, suffix: '+', label: 'Years building for the web' },
-      { value: 40, suffix: '+', label: 'Projects shipped to production' },
-      { value: 99, suffix: '', label: 'Lighthouse scores chased relentlessly' },
-      { value: 100, suffix: '%', label: 'Commitment to the details' },
-    ],
-  },
-
-  /* — CONTACT — */
-  contact: {
-    label: 'Contact',
-    pre: 'Got something in mind?',
-    email: 'jassimmkabir@gmail.com',
-    socials: [
-      { label: 'GitHub', href: 'https://github.com/Jassimkabir' },
-      {
-        label: 'LinkedIn',
-        href: 'https://www.linkedin.com/in/waleed-jassim-m-k/',
-      },
-      { label: 'Instagram', href: 'https://www.instagram.com/jassim.m.kabir' },
-      { label: 'Email', href: 'mailto:jassimmkabir@gmail.com' },
-    ],
-  },
-
-  /* — FOOTER — */
-  footer: {
-    left: 'Designed & built by <b>Jassim M Kabir</b>',
-    center: 'Kerala, India — © 2026',
+export const IDENTITY = {
+  fullName: 'Waleed Jassim M K',
+  shortName: 'Jassim',
+  title: 'Front-End Engineer',
+  location: 'Palakkad, Kerala, India',
+  email: 'jassimmkabir@gmail.com',
+  github: { handle: 'Jassimkabir', url: 'https://github.com/Jassimkabir' },
+  linkedin: {
+    handle: 'waleed-jassim-m-k',
+    url: 'https://linkedin.com/in/waleed-jassim-m-k',
   },
 } as const;
 
-export type SiteContent = typeof CONTENT;
+export const SEO = {
+  title: 'Jassim, Front-End Engineer',
+  /* 131 characters. Under the 155 limit, no dashes. */
+  description:
+    'Waleed Jassim M K, front-end engineer in Palakkad, Kerala. Over 4 years building scalable React, Next.js and TypeScript applications.',
+  url: 'https://jassim-m-kabir.vercel.app',
+  locale: 'en_US',
+} as const;
+
+/**
+ * Anchor slugs are preserved from the previous site so existing deep links
+ * survive. Two are deliberately stale: `#terminal` now holds Proof, and
+ * `#services` now holds Capabilities. Do not rename either.
+ */
+export const NAV = [
+  { label: 'Work', href: '#work' },
+  { label: 'About', href: '#about' },
+  /* Label overridden from "Services". Anchor kept. See MASTER.md. */
+  { label: 'Capabilities', href: '#services' },
+  { label: 'Contact', href: '#contact' },
+] as const;
+
+export const HERO = {
+  /** Two lines maximum on desktop. Non-negotiable. */
+  headline: ['Front-end engineer', 'building for production'],
+  /** One sentence, 17 words. */
+  subtext:
+    'Over 4 years building scalable React and Next.js applications, with a focus on performance and frontend architecture.',
+  cta: { label: 'Get in touch', href: '#contact' },
+  /**
+   * The only status dot on the page, and only because it conveys real hiring
+   * state. NEEDS INPUT: confirm he is actually open to work. If not, delete
+   * the chip entirely rather than softening the wording.
+   */
+  availability: { label: 'Open to work', confirmed: false },
+} as const;
+
+/** Real stack only. No adjectives. The resume's AI-tools row stays off the site. */
+export const MARQUEE = [
+  'React.js',
+  'Next.js',
+  'TypeScript',
+  'JavaScript',
+  'Vue.js',
+  'Tailwind CSS',
+  'shadcn/ui',
+  'Redux Toolkit',
+  'Zustand',
+  'Node.js',
+  'Express.js',
+  'REST APIs',
+  'Supabase',
+  'PostgreSQL',
+  'MongoDB',
+  'AWS',
+  'Vercel',
+  'GSAP',
+] as const;
+
+export const ABOUT = {
+  paragraphs: [
+    'I started at Hamon Technologies in 2022 as a Junior Engineer, building full-stack applications in React and Node and designing the REST APIs behind them.',
+    'At Zartek I led production React and Next.js builds end to end. Now at Innsof I refactor legacy code and rebuild products that underperformed.',
+  ],
+  /** Real artifacts for the drifting right column. */
+  artifacts: [
+    { kind: 'education', label: 'Bachelor of Computer Applications', detail: 'AJK College of Arts and Science, Coimbatore', meta: '2018 to 2022' },
+    { kind: 'location', label: 'Based in Palakkad', detail: 'Kerala, India', meta: 'Remote and hybrid' },
+    { kind: 'focus', label: 'Frontend architecture', detail: 'State management, API integration, performance', meta: '4+ years' },
+  ],
+} as const;
+
+export const PROOF = {
+  article: {
+    title: 'BlurHash: An Alternative to Generic Image Placeholders',
+    /**
+     * NEEDS INPUT: the published URL and 4 to 5 lines of the real opening.
+     * Do not paraphrase the post from its title. Ship the pane empty before
+     * shipping invented prose.
+     */
+    url: null,
+    excerpt: null,
+    cta: 'Read the post',
+  },
+  /** NEEDS INPUT: screenshots, recordings, or a Lighthouse report. */
+  assets: [] as ReadonlyArray<{ src: string; alt: string; caption: string }>,
+} as const;
+
+/**
+ * Each capability carries concrete evidence. Percentages live here, welded to
+ * the mechanism that produced them, because the context is what makes them
+ * defensible in an interview.
+ */
+export const CAPABILITIES = [
+  {
+    title: 'Frontend architecture',
+    body: 'Rebuilding underperforming projects around maintainable structure, and factoring shared components so teams move faster on the next feature.',
+    evidence: { value: 25, suffix: '%', label: 'faster UI development', mechanism: 'reusable components and shared design systems' },
+  },
+  {
+    title: 'Performance optimisation',
+    body: 'Finding what the browser actually waits on, then removing it. Splitting bundles at the route boundary and cutting redundant network work.',
+    evidence: { value: 30, suffix: '%', label: 'lower page load times', mechanism: 'code splitting and API refinement' },
+  },
+  {
+    title: 'State management',
+    body: 'Picking the smallest tool that fits. Redux Toolkit where the state is genuinely shared and long-lived, Zustand where it is not.',
+    evidence: { value: 20, suffix: '%', label: 'better delivery efficiency', mechanism: 'end to end ownership of production React and Next.js builds' },
+  },
+  {
+    title: 'API integration',
+    body: 'Designing the contract from both sides, then making the client resilient to the parts of it that will change.',
+    evidence: { value: 20, suffix: '+', label: 'REST APIs designed', mechanism: 'improving backend performance by 15%' },
+  },
+] as const;
+
+export const WORK = {
+  /**
+   * BLOCKED. No client names, product names, live URLs, or repo links were
+   * supplied. Build the shell, ship nothing here.
+   *
+   * NEEDS INPUT: 3 to 5 projects, each with name, one-line problem, stack,
+   * one outcome, live URL, repo URL. If the work is all under NDA, say so and
+   * this becomes anonymised case notes with that stated on the page.
+   */
+  projects: [] as ReadonlyArray<{
+    name: string;
+    problem: string;
+    stack: readonly string[];
+    metric: string;
+    liveUrl: string | null;
+    repoUrl: string | null;
+  }>,
+} as const;
+
+/** Two bullets per role maximum on the page. The full list lives on the resume. */
+export const EXPERIENCE = [
+  {
+    company: 'Innsof Private Limited',
+    city: 'Calicut',
+    role: 'Software Developer',
+    from: 'Nov 2025',
+    to: 'Present',
+    bullets: [
+      'Refactored a legacy codebase, cutting complexity and improving feature development speed by 15%.',
+      'Built a reporting tool that improved internal data access efficiency by 20%.',
+    ],
+  },
+  {
+    company: 'Zartek Technologies',
+    city: 'Kochi',
+    role: 'React.js Developer',
+    from: 'Jun 2024',
+    to: 'Aug 2025',
+    bullets: [
+      'Led end to end development of production React.js and Next.js applications, improving delivery efficiency by 20%.',
+      'Cut page load times by 30% through code splitting and API refinement.',
+    ],
+  },
+  {
+    company: 'Hamon Technologies',
+    city: 'Calicut',
+    role: 'Junior Engineer I',
+    from: 'Jan 2022',
+    to: 'Jun 2024',
+    bullets: [
+      'Designed and optimised 20+ REST APIs, improving backend performance by 15%.',
+      'Increased UI development speed by 25% through reusable components and shared design systems.',
+    ],
+  },
+] as const;
+
+/**
+ * Countable claims only. These survive the follow-up question, which bare
+ * percentages do not. Percentages belong in Capabilities and Experience where
+ * their mechanism sits next to them.
+ */
+export const NUMBERS = [
+  { value: 4, suffix: '+', label: 'years experience' },
+  { value: 3, suffix: '', label: 'companies' },
+  { value: 20, suffix: '+', label: 'REST APIs designed' },
+  { value: 2, suffix: '', label: 'developers mentored' },
+] as const;
+
+export const CONTACT = {
+  email: IDENTITY.email,
+  links: [
+    { label: 'GitHub', value: IDENTITY.github.handle, href: IDENTITY.github.url },
+    { label: 'LinkedIn', value: IDENTITY.linkedin.handle, href: IDENTITY.linkedin.url },
+  ],
+  /** NEEDS INPUT: resume file. Drop it at /public/resume.pdf and set this. */
+  resume: null as string | null,
+  /** NEEDS INPUT: include the phone number publicly? Default is no. */
+  phone: null as string | null,
+} as const;
+
+export const FOOTER = {
+  builtWith: ['Next.js', 'GSAP', 'Lenis'],
+  backToTop: 'Back to top',
+} as const;
