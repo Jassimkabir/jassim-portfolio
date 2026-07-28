@@ -224,3 +224,86 @@ export const FOOTER = {
   builtWith: ['Next.js', 'GSAP', 'Lenis'],
   backToTop: 'Back to top',
 } as const;
+
+/**
+ * Education. One real entry.
+ *
+ * The reference layout carries four; inventing three more is not an option, so
+ * this section is designed around a single statement rather than a list that
+ * would look padded. `certifications` stays empty until real ones exist.
+ */
+export const EDUCATION = {
+  degree: 'Bachelor of Computer Applications',
+  institution: 'AJK College of Arts and Science',
+  city: 'Coimbatore',
+  from: '2018',
+  to: '2022',
+  /** NEEDS INPUT: any certifications worth listing, with issuer and year. */
+  certifications: [] as ReadonlyArray<{ name: string; issuer: string; year: string }>,
+} as const;
+
+/**
+ * Testimonials.
+ *
+ * BLOCKED, and deliberately empty. The reference fills this with quotes and a
+ * "18,000+ satisfied clients" figure. Nothing equivalent exists in the source
+ * material, and a fabricated endorsement attributed to a named person is both
+ * the worst kind of invented content and trivially checkable by the exact
+ * audience this page is for.
+ *
+ * NEEDS INPUT: 2 to 4 real quotes, each with the person's name, their role and
+ * company, and their permission to publish it.
+ */
+export const TESTIMONIALS = [] as ReadonlyArray<{
+  quote: string;
+  name: string;
+  role: string;
+  company: string;
+}>;
+
+/**
+ * FAQ.
+ *
+ * Only questions that can be answered from verified material are here. The
+ * reference asks about refund policy, ongoing support and hidden costs, which
+ * are freelance-service questions with no truthful answer available, so they
+ * are absent rather than guessed at.
+ *
+ * NEEDS INPUT for the three marked below: availability for freelance or
+ * contract work alongside the current role, typical response time, and
+ * preferred engagement type.
+ */
+export const FAQ: ReadonlyArray<{ question: string; answer: string | null }> = [
+  {
+    question: 'What kind of work do you take on?',
+    answer:
+      'Production React and Next.js applications. Most of my work is frontend architecture, state management, API integration and performance, on products that need to keep working after launch.',
+  },
+  {
+    question: 'Where are you based?',
+    answer:
+      'Palakkad, Kerala, India. I have worked with teams in Kochi and Calicut, and I work remotely.',
+  },
+  {
+    question: 'What do you build with?',
+    answer:
+      'React, Next.js and TypeScript day to day, with Tailwind and shadcn/ui for interfaces, Redux Toolkit or Zustand for state, and Node, Express, PostgreSQL and Supabase on the backend when a project needs it.',
+  },
+  {
+    question: 'Are you available for freelance or contract work?',
+    answer: null,
+  },
+  {
+    question: 'How soon do you reply?',
+    answer: null,
+  },
+  {
+    question: 'Can I see your resume?',
+    answer: null,
+  },
+];
+
+/** Closing statement above the contact block. Two lines maximum. */
+export const CLOSING = {
+  lines: ['Have something', 'worth building?'],
+} as const;

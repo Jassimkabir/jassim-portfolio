@@ -1,71 +1,47 @@
 'use client';
 
 import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
 
-import { gsap, SplitText, DUR, EASE } from '@/lib/gsap';
-import { CONTACT } from '@/content/site';
+import { CLOSING, CONTACT } from '@/content/site';
 import MonoLabel from '@/components/ui/MonoLabel';
+import SplitHeading from '@/components/ui/SplitHeading';
 
 /**
  * One oversized mailto and nothing competing with it. No contact form.
  *
- * The headline fills with accent on hover via animated background-position and
- * background-clip: text. In dark mode that is the accent behaving as a fill,
- * which is its only AA-passing use against the base.
+ * The address fills with accent on hover: a hard two-stop gradient slid into
+ * place with background-position and clipped to the glyphs. In dark mode that
+ * is the accent behaving as a fill, which is its only AA-passing use against
+ * the base. It is pure CSS, and deliberately so.
+ *
+ * NO CHARACTER-LEVEL DISPLACEMENT HERE, and do not add it back.
+ *
+ * The brief asked for a subtle per-character hover ripple, which is
+ * structurally incompatible with this fill. `background-clip: text` clips the
+ * gradient to the anchor's own background box; splitting the address into
+ * per-character spans and translating them moves the glyphs outside that clip,
+ * so they render as nothing and the address appears to vanish on hover. The
+ * inline-block spans SplitText introduces also reflow the line box, which made
+ * it collapse. Either the fill goes or the displacement does, and the fill is
+ * the one the design actually depends on.
  */
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
-  const mailto = useRef<HTMLAnchorElement>(null);
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-
-      mm.add('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
-        const el = mailto.current;
-        if (!el) return;
-
-        const split = SplitText.create(el, { type: 'chars' });
-
-        /* Character-level displacement, kept subtle. The fill itself is a CSS
-           transition; this only adds the ripple underneath it. */
-        const enter = () =>
-          gsap.to(split.chars, {
-            yPercent: -8,
-            duration: DUR.fast,
-            ease: EASE.snap,
-            stagger: { each: 0.012, from: 'start' },
-          });
-
-        const leave = () =>
-          gsap.to(split.chars, {
-            yPercent: 0,
-            duration: DUR.fast,
-            ease: EASE.snap,
-            stagger: { each: 0.012, from: 'end' },
-          });
-
-        el.addEventListener('pointerenter', enter);
-        el.addEventListener('pointerleave', leave);
-
-        return () => {
-          el.removeEventListener('pointerenter', enter);
-          el.removeEventListener('pointerleave', leave);
-          split.revert();
-        };
-      });
-
-      return () => mm.revert();
-    },
-    { scope: root },
-  );
 
   return (
     <section ref={root} id="contact" className="section contact">
       <div className="container">
+        {/*
+          The reference puts a full-width "let's work together" banner here and
+          then a separate contact block. That is the same conversion twice. The
+          closing statement sits directly above the address instead, so this
+          section carries the banner's job without duplicating it.
+        */}
+        <SplitHeading as="h2" variant="display-lg" className="contact__closing">
+          {CLOSING.lines.join(' ')}
+        </SplitHeading>
+
         <a
-          ref={mailto}
           href={`mailto:${CONTACT.email}`}
           className="display-xl contact__mailto"
           data-magnetic

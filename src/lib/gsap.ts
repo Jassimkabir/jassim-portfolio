@@ -1,6 +1,12 @@
 'use client';
 
 /**
+ * CustomWiggle was removed. Its only assigned job was the Numbers counter
+ * overshoot, and that job is impossible: a wiggle ease ends at 0 by
+ * construction, so it drove every counter to zero instead of to its value.
+ * The counters use back.out, which genuinely overshoots and settles on target.
+ * An unused plugin does not stay in the bundle.
+ *
  * Single registration point for GSAP. Import `gsap` and the plugins from here,
  * never from 'gsap' directly, so registration is guaranteed to have run.
  *
@@ -18,7 +24,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
-import { CustomWiggle } from 'gsap/CustomWiggle';
 import { Flip } from 'gsap/Flip';
 import { Observer } from 'gsap/Observer';
 import { Draggable } from 'gsap/Draggable';
@@ -38,13 +43,12 @@ if (typeof window !== 'undefined') {
     ScrollTrigger,      // every scroll-driven moment
     SplitText,          // every display heading
     CustomEase,         // the two project eases
-    CustomWiggle,       // the single Numbers counter overshoot
     Flip,               // Work card to detail, theme-toggle layout settle
     Observer,           // cursor magnetism, unified input on the Work track
     Draggable,          // drag-to-pan the Work track
     InertiaPlugin,      // hands that drag back to ScrollTrigger
     DrawSVGPlugin,      // the Experience connector line
-    MotionPathPlugin,   // hero pane drift along shallow curves
+    MotionPathPlugin,   // curved drift on the About artifacts
     ScrambleTextPlugin, // stack tags on hover
   );
 
@@ -53,9 +57,6 @@ if (typeof window !== 'undefined') {
      and --ease-snap; change both together or they desync. */
   CustomEase.create('glass', '0.16, 1, 0.3, 1'); // reveals and settles
   CustomEase.create('snap', '0.65, 0, 0.35, 1'); // UI state changes
-
-  /* One overshoot shape, used only by the Numbers counters. */
-  CustomWiggle.create('settle', { wiggles: 2, type: 'easeOut' });
 
   /* Development only. Statically dropped from the production bundle because
      NODE_ENV is inlined at build time. */
@@ -79,7 +80,6 @@ export const DUR = {
 export const EASE = {
   glass: 'glass',
   snap: 'snap',
-  settle: 'settle',
   drift: 'sine.inOut',
 } as const;
 
@@ -88,7 +88,6 @@ export {
   ScrollTrigger,
   SplitText,
   CustomEase,
-  CustomWiggle,
   Flip,
   Observer,
   Draggable,

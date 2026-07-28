@@ -9,7 +9,10 @@ import Proof from '@/components/sections/Proof';
 import Capabilities from '@/components/sections/Capabilities';
 import Work from '@/components/sections/Work';
 import Experience from '@/components/sections/Experience';
+import Education from '@/components/sections/Education';
 import Numbers from '@/components/sections/Numbers';
+import Testimonials from '@/components/sections/Testimonials';
+import Faq from '@/components/sections/Faq';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
 
@@ -35,7 +38,10 @@ export default function Home() {
         <Capabilities />
         <Work />
         <Experience />
+        <Education />
         <Numbers />
+        <Testimonials />
+        <Faq />
         <Contact />
       </main>
       <Footer />

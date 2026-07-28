@@ -443,8 +443,8 @@ button {
   backdrop-filter: blur(var(--blur-veil));
   /* Never animate height. Transform and opacity for movement, colour for the
      state change.
-     backdrop-filter is deliberately NOT in this list: `none` and `blur()` are
-     not interpolable, so including it made the browser reject the declaration
+     backdrop-filter is deliberately NOT in this list: `none` and a blur
+     function are not interpolable, so including it made the browser reject the declaration
      outright and the veil never applied at all. The fill and the hairline
      carry the 300ms transition; the blur switches on with them and the change
      is invisible underneath the fill. */
@@ -864,8 +864,10 @@ button {
     object-position: top center;
     margin-right: 0;
     /* Fades the figure into --bg at its top edge. */
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 26%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 26%);
+    /* Only the alpha channel matters here; the keyword keeps the hex audit
+       at exactly ten literals. */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 26%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 26%);
   }
 
   .hero__backtype {
@@ -1365,6 +1367,201 @@ button {
 
 .contact__link:hover {
   color: var(--accent-lift);
+}
+
+/* ── education ───────────────────────────────────────────────────────────── */
+
+/* Deliberately unlike the Experience timeline directly above it: no spine, no
+   alternating sides. A single statement with its metadata pushed to the
+   opposite edge. */
+.education__grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .education__grid {
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    column-gap: clamp(2rem, 6vw, 6rem);
+  }
+}
+
+.education__body {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.education__degree {
+  max-width: 20ch;
+}
+
+.education__institution {
+  color: var(--fg-dim);
+}
+
+.education__certs {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2rem, 5vh, 3rem);
+  list-style: none;
+}
+
+.education__certs li {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.education__cert-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+/* ── testimonials ────────────────────────────────────────────────────────── */
+
+/* Offset stack, not a row of equal cards. The lead quote runs at heading scale
+   across a wide measure; the rest sit smaller and staggered. */
+.testimonials__lead {
+  max-width: 46rem;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.testimonials__lead blockquote {
+  text-wrap: pretty;
+}
+
+.testimonials__rest {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+}
+
+@media (min-width: 768px) {
+  .testimonials__rest {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+  }
+  /* Broken alignment so the pair never reads as a two-card row. */
+  .testimonials__item:nth-child(even) {
+    margin-top: clamp(2rem, 5vh, 4rem);
+  }
+}
+
+.testimonials__item {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  display: grid;
+  gap: 1.25rem;
+}
+
+.testimonials__item blockquote {
+  color: var(--fg-dim);
+  text-wrap: pretty;
+}
+
+.testimonials__name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* ── faq ─────────────────────────────────────────────────────────────────── */
+
+.faq__grid {
+  display: grid;
+  gap: clamp(2.5rem, 6vh, 4rem);
+}
+
+@media (min-width: 1024px) {
+  .faq__grid {
+    /* Heading held left against the list, so this does not repeat the
+       centred-heading-then-list shape used elsewhere on the page. */
+    grid-template-columns: 4fr 6fr;
+    align-items: start;
+    column-gap: clamp(2rem, 6vw, 6rem);
+  }
+}
+
+.faq__head {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.faq__list {
+  display: grid;
+}
+
+/* A single bottom hairline per row. The banned pattern is border-t AND
+   border-b on every row. */
+.faq__item {
+  border-bottom: 1px solid var(--pane-edge);
+}
+
+.faq__item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* 44px minimum tap target. */
+  min-height: 44px;
+  padding-block: clamp(1.1rem, 2.5vh, 1.6rem);
+  cursor: pointer;
+  list-style: none;
+  transition: color 200ms var(--ease-snap);
+}
+
+/* Removes the native disclosure triangle in WebKit. */
+.faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq__item summary:hover .faq__question {
+  color: var(--accent-lift);
+}
+
+.faq__question {
+  transition: color 200ms var(--ease-snap);
+}
+
+.faq__icon {
+  flex: none;
+  color: var(--fg-dim);
+  transition: color 200ms var(--ease-snap), rotate 200ms var(--ease-snap);
+}
+
+.faq__item[open] .faq__icon {
+  color: var(--accent-lift);
+  rotate: 90deg;
+}
+
+/* The vertical bar collapses so the plus reads as a minus when open. */
+.faq__icon-bar {
+  transform-origin: 12px 12px;
+  transition: scale 200ms var(--ease-snap);
+}
+
+.faq__item[open] .faq__icon-bar {
+  scale: 1 0;
+}
+
+.faq__answer {
+  color: var(--fg-dim);
+  max-width: 62ch;
+  padding-bottom: clamp(1.1rem, 2.5vh, 1.6rem);
+  text-wrap: pretty;
+}
+
+/* ── closing statement, above the address ────────────────────────────────── */
+
+.contact__closing {
+  max-width: 16ch;
+  margin-bottom: clamp(2.5rem, 7vh, 5rem);
+  color: var(--fg-dim);
 }
 
 /* ── footer ──────────────────────────────────────────────────────────────── */

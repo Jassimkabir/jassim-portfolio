@@ -77,13 +77,11 @@ export function scrollToTop() {
 /**
  * Velocity ceilings, one per consumer.
  *
- * Every one of these is clamped. Uncapped velocity mapping is how skew and
- * scale effects turn into nausea, and it is the single easiest thing to get
- * wrong here. Verify by flick-scrolling hard on a trackpad.
+ * Every one of these is clamped. Uncapped velocity mapping is how these turn
+ * into nausea, and it is the single easiest thing to get wrong here. Verify by
+ * flick-scrolling hard on a trackpad.
  */
 export const VELOCITY_CAP = {
-  /** degrees */
-  paneSkew: 4,
   /** multiplier on the hero back-type */
   backTypeScale: 0.02,
   /** multiplier on marquee base speed */
@@ -99,8 +97,12 @@ export const VELOCITY_CAP = {
  * to the one full-screen mix-blend-mode element on the page, which is already
  * the flagged jank risk here (see commit dde66e5). Cost with no payoff.
  *
- * The other three velocity consumers stay: marquee speed and direction, pane
- * skew, and hero back-type scale.
+ * ALSO REMOVED: the velocity-driven pane skew. Tilting every pane on the page
+ * as a function of scroll speed read as the layout shearing rather than as
+ * responsiveness, so it went at the client's direction.
+ *
+ * Two velocity consumers remain: marquee speed and direction, and the hero
+ * back-type horizontal drift.
  */
 
 /** Velocity magnitude beyond which every effect is already at its cap. */
