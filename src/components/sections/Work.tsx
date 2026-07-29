@@ -64,21 +64,18 @@ export default function Work() {
           },
         });
 
-        /* Per-card depth. These are the triggers that need containerAnimation,
-           because their elements move horizontally rather than vertically. */
-        const depths = gsap.utils.toArray<HTMLElement>('[data-work-card]').map((card, i) =>
-          gsap.to(card, {
-            yPercent: [-6, 4, -10, 2][i % 4],
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: pan,
-              start: 'left right',
-              end: 'right left',
-              scrub: 1,
-            },
-          }),
-        );
+        /* NO PER-CARD Y OFFSET HERE, and do not add it back.
+           There was a depth parallax running the cards to yPercent -10 to +4,
+           which on a 358px card is a 50px spread. Against a horizontal pan it
+           did not read as depth, it read as four cards that had failed to line
+           up. The About figures get away with the same idea because they sit
+           in a grid with deliberate offsets and the eye has a column to
+           measure against; a single row of cards has no such reference.
+
+           If any trigger is ever attached to an element inside this track, it
+           MUST pass containerAnimation: pan. Without it, triggers fire at the
+           wrong scroll position, which is the single most common failure in
+           pinned horizontal sections. */
 
         /* Trackpad and touch drag, with inertia handing back to ScrollTrigger
            rather than fighting it for control of the same scroll position. */
@@ -92,7 +89,6 @@ export default function Work() {
 
         return () => {
           draggable?.kill();
-          for (const d of depths) d.scrollTrigger?.kill();
           pan.scrollTrigger?.kill();
           pan.kill();
         };
@@ -175,13 +171,29 @@ export default function Work() {
           ].join(' ')}
         >
           {WORK.projects.map((project) => (
-            <article key={project.name} data-work-card className="pane grid w-[min(80vw,30rem)] flex-none content-start gap-4 p-[clamp(1.5rem,3vw,2.5rem)] backdrop-blur-pane max-md:snap-center">
+            <article
+              key={project.name}
+              data-work-card
+              /* Column, not grid: the action row uses mt-auto to sit on the
+                 card's floor, so all four rows align across the track instead
+                 of floating at whatever height their own copy ended at. */
+              className="pane flex w-[min(80vw,30rem)] flex-none flex-col gap-4 p-[clamp(1.5rem,3vw,2.5rem)] backdrop-blur-pane max-md:snap-center"
+            >
               <h3 className="heading">{project.name}</h3>
               <p className="text-fg-dim">{project.problem}</p>
 
+              {/* Outlined chips, not bare text. Several tags are two words
+                  ("Shopify Hydrogen", "Tailwind CSS"), and with only a gap
+                  between them the row read as one run-on string. The border
+                  is the same one the resume button and the icon buttons use,
+                  so this joins an existing family rather than inventing a
+                  treatment. */}
               <ul className="flex list-none flex-wrap gap-2">
                 {project.stack.map((tech) => (
-                  <li key={tech}>
+                  <li
+                    key={tech}
+                    className="inline-flex items-center rounded-chip border border-pane-edge px-2.5 py-1"
+                  >
                     <MonoLabel>
                       <span data-stack-tag>{tech}</span>
                     </MonoLabel>
@@ -192,7 +204,7 @@ export default function Work() {
               {/* Omitted rather than stubbed while the outcome is unknown. */}
               {project.metric ? <MonoLabel>{project.metric}</MonoLabel> : null}
 
-              <div className="mt-2 flex gap-5 [&_a]:border-b [&_a]:border-transparent [&_a]:text-accent-lift [&_a]:transition-[border-color] [&_a]:duration-200 [&_a]:ease-snap hover:[&_a]:border-accent-lift [&_button]:min-h-11 [&_button]:cursor-pointer [&_button]:border-b [&_button]:border-transparent [&_button]:text-accent-lift [&_button]:transition-[border-color] [&_button]:duration-200 [&_button]:ease-snap hover:[&_button]:border-accent-lift">
+              <div className="mt-auto flex items-center gap-5 pt-2 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_a]:border-b [&_a]:border-transparent [&_a]:text-accent-lift [&_a]:transition-[border-color] [&_a]:duration-200 [&_a]:ease-snap hover:[&_a]:border-accent-lift [&_button]:min-h-11 [&_button]:cursor-pointer [&_button]:border-b [&_button]:border-transparent [&_button]:text-accent-lift [&_button]:transition-[border-color] [&_button]:duration-200 [&_button]:ease-snap hover:[&_button]:border-accent-lift">
                 <button type="button" onClick={() => openDetail(project)}>
                   View details
                 </button>
