@@ -384,17 +384,39 @@ export const FAQ: ReadonlyArray<{ question: string; answer: string | null }> = [
     answer:
       'React, Next.js and TypeScript day to day, with Tailwind and shadcn/ui for interfaces, Redux Toolkit or Zustand for state, and Node, Express, PostgreSQL and Supabase on the backend when a project needs it.',
   },
+  /*
+   * The three below were written for Jassim rather than supplied by him, at
+   * his request. The first two are commitments a reader can hold him to, so
+   * they are deliberately conservative: they promise less than he can
+   * probably deliver, because the failure mode of a portfolio FAQ is a
+   * promise that gets broken on the first enquiry.
+   *
+   * If either becomes untrue, change it here.
+   */
   {
     question: 'Are you available for freelance or contract work?',
-    answer: null,
+    /* Kept consistent with EXPERIENCE, which has him at Innsof from Nov 2025
+       to Present. Claiming open availability would contradict the page
+       directly above it. This says yes to the right enquiry without
+       promising capacity he may not have. */
+    answer:
+      'I am in a full time role, so I take on a small amount of contract work and only where I can commit properly to it. If you have something specific in mind, send me the details and I will tell you honestly whether I can do it justice.',
   },
   {
     question: 'How soon do you reply?',
-    answer: null,
+    /* Two working days, not "within 24 hours". He has a day job, and this is
+       a floor he can hold on a bad week rather than a best case. */
+    answer:
+      'Within two working days, usually sooner. If you have not heard back after that, the message went astray somewhere, so it is worth sending again.',
   },
   {
     question: 'Can I see your resume?',
-    answer: null,
+    /* The only one of the three that is a fact rather than a commitment. It
+       is true because the PDF is in /public and both buttons render off its
+       presence; if the file is ever removed both buttons disappear and this
+       answer becomes a lie. */
+    answer:
+      'Yes. There is a download button in the About section and another next to my email at the bottom of this page. It covers the same ground in more detail, including the roles and dates.',
   },
 ];
 
