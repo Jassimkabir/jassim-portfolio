@@ -29,7 +29,6 @@ import { Observer } from 'gsap/Observer';
 import { Draggable } from 'gsap/Draggable';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
 /*
@@ -48,7 +47,6 @@ if (typeof window !== 'undefined') {
     Draggable,          // drag-to-pan the Work track
     InertiaPlugin,      // hands that drag back to ScrollTrigger
     DrawSVGPlugin,      // the Experience connector line
-    MotionPathPlugin,   // curved drift on the About artifacts
     ScrambleTextPlugin, // stack tags on hover
   );
 
@@ -93,6 +91,5 @@ export {
   Draggable,
   InertiaPlugin,
   DrawSVGPlugin,
-  MotionPathPlugin,
   ScrambleTextPlugin,
 };

@@ -3,6 +3,9 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PlusSignIcon, MinusSignIcon } from '@hugeicons/core-free-icons';
+
 import { gsap, DUR, EASE } from '@/lib/gsap';
 import { FAQ } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
@@ -53,7 +56,66 @@ export default function Faq() {
         return () => tween.scrollTrigger?.kill();
       });
 
-      return () => mm.revert();
+      /*
+       * GSAP-driven accordion.
+       *
+       * <details> is kept for the semantics and the no-JS fallback, but it
+       * snaps open with no height to animate, so the click is intercepted and
+       * the panel is tweened instead:
+       *   opening  set open first, so the content is in flow and measurable,
+       *            then tween height 0 -> auto
+       *   closing  tween height -> 0 first and only clear `open` on complete,
+       *            or the panel vanishes before the animation runs
+       *
+       * The icon still keys off [open] in CSS, so it flips at the right moment
+       * in both directions with no extra wiring.
+       */
+      const items = gsap.utils.toArray<HTMLDetailsElement>('[data-faq-item]');
+
+      const handlers = items.map((el) => {
+        const summary = el.querySelector('summary');
+        const panel = el.querySelector<HTMLElement>('[data-faq-panel]');
+        if (!summary || !panel) return () => {};
+
+        const onClick = (e: Event) => {
+          e.preventDefault();
+
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.open = !el.open;
+            gsap.set(panel, { height: 'auto', opacity: 1 });
+            return;
+          }
+
+          gsap.killTweensOf(panel);
+
+          if (el.open) {
+            gsap.to(panel, {
+              height: 0,
+              opacity: 0,
+              duration: DUR.fast,
+              ease: EASE.snap,
+              onComplete: () => {
+                el.open = false;
+              },
+            });
+          } else {
+            el.open = true;
+            gsap.fromTo(
+              panel,
+              { height: 0, opacity: 0 },
+              { height: 'auto', opacity: 1, duration: DUR.base, ease: EASE.glass },
+            );
+          }
+        };
+
+        summary.addEventListener('click', onClick);
+        return () => summary.removeEventListener('click', onClick);
+      });
+
+      return () => {
+        for (const off of handlers) off();
+        mm.revert();
+      };
     },
     { scope: root },
   );
@@ -90,28 +152,40 @@ export default function Faq() {
                 ].join(' ')}
               >
                 <span className="heading transition-colors duration-200 ease-snap group-hover:text-accent-lift">{item.question}</span>
-                {/* Lucide "plus", rotated into a minus when open. SVG only;
-                    emoji as icons is banned. */}
-                <svg
-                  className="flex-none text-fg-dim transition-[color,rotate] duration-200 ease-snap group-open:rotate-90 group-open:text-accent-lift"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M5 12h14" />
-                  {/* The vertical bar collapses so the plus reads as a minus when open. */}
-                  <path
-                    className="origin-[12px_12px] transition-[scale] duration-200 ease-snap group-open:scale-y-0"
-                    d="M12 5v14"
+                {/*
+                  Plus swaps to minus on open. Both are stacked in one grid
+                  cell and cross-faded rather than conditionally rendered,
+                  because <details> toggles in CSS with no React state to hook
+                  into, and swapping nodes would kill the transition.
+
+                  PlusIcon and MinusIcon do not exist in the free Hugeicons set;
+                  PlusSignIcon and MinusSignIcon are the equivalents.
+                */}
+                <span className="grid flex-none place-items-center text-fg-dim transition-colors duration-200 ease-snap group-open:text-accent-lift">
+                  <HugeiconsIcon
+                    icon={PlusSignIcon}
+                    size={20}
+                    color="currentColor"
+                    strokeWidth={2}
+                    className="col-start-1 row-start-1 transition-[opacity,rotate] duration-200 ease-snap group-open:rotate-90 group-open:opacity-0"
                   />
-                </svg>
+                  <HugeiconsIcon
+                    icon={MinusSignIcon}
+                    size={20}
+                    color="currentColor"
+                    strokeWidth={2}
+                    className="col-start-1 row-start-1 -rotate-90 opacity-0 transition-[opacity,rotate] duration-200 ease-snap group-open:rotate-0 group-open:opacity-100"
+                  />
+                </span>
               </summary>
-              <p className="max-w-[62ch] pb-[clamp(1.1rem,2.5vh,1.6rem)] text-fg-dim text-pretty">{item.answer}</p>
+              {/* overflow-hidden so the height tween clips rather than
+                  spilling. Height animates on this wrapper, never on the
+                  paragraph, so the text never reflows mid-animation. */}
+              <div data-faq-panel className="overflow-hidden">
+                <p className="max-w-[62ch] pb-[clamp(1.1rem,2.5vh,1.6rem)] text-fg-dim text-pretty">
+                  {item.answer}
+                </p>
+              </div>
             </details>
           ))}
         </div>

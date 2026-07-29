@@ -22,7 +22,41 @@ export const IDENTITY = {
     handle: 'waleed-jassim-m-k',
     url: 'https://linkedin.com/in/waleed-jassim-m-k',
   },
+  instagram: {
+    handle: 'jassim.m.kabir',
+    url: 'https://www.instagram.com/jassim.m.kabir/',
+  },
+  facebook: {
+    handle: 'waleed.jassim.927',
+    url: 'https://www.facebook.com/waleed.jassim.927',
+  },
 } as const;
+
+/**
+ * The full profile set, shown as round icon buttons in About and Contact.
+ *
+ * Derived from IDENTITY so a URL is never written twice. Both About and
+ * Contact render this same list, so a platform can never appear in one place
+ * and not the other, or with a different handle.
+ */
+export const SOCIALS = [
+  { label: 'GitHub', value: IDENTITY.github.handle, href: IDENTITY.github.url },
+  {
+    label: 'LinkedIn',
+    value: IDENTITY.linkedin.handle,
+    href: IDENTITY.linkedin.url,
+  },
+  {
+    label: 'Instagram',
+    value: IDENTITY.instagram.handle,
+    href: IDENTITY.instagram.url,
+  },
+  {
+    label: 'Facebook',
+    value: IDENTITY.facebook.handle,
+    href: IDENTITY.facebook.url,
+  },
+] as const;
 
 export const SEO = {
   title: 'Jassim, Front-End Engineer',
@@ -32,19 +66,6 @@ export const SEO = {
   url: 'https://jassim-m-kabir.vercel.app',
   locale: 'en_US',
 } as const;
-
-/**
- * Anchor slugs are preserved from the previous site so existing deep links
- * survive. Two are deliberately stale: `#terminal` now holds Proof, and
- * `#services` now holds Capabilities. Do not rename either.
- */
-export const NAV = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  /* Label overridden from "Services". Anchor kept. See MASTER.md. */
-  { label: 'Capabilities', href: '#services' },
-  { label: 'Contact', href: '#contact' },
-] as const;
 
 export const HERO = {
   /** Two lines maximum on desktop. Non-negotiable. */
@@ -83,17 +104,29 @@ export const MARQUEE = [
   'GSAP',
 ] as const;
 
+/**
+ * Eyebrow, statement, first-person intro, resume download.
+ *
+ * The reference this was modelled on reads "passionate about crafting
+ * intuitive, user-centered experiences" and claims "100+ projects". All three
+ * of passionate, crafting and seamless are on the banned list, and the project
+ * count has no basis in the source material, so the structure was taken and the
+ * copy written from the resume instead.
+ *
+ * Every figure below is welded to the mechanism that produced it, which is what
+ * makes it survive the follow-up question in an interview.
+ */
 export const ABOUT = {
-  paragraphs: [
-    'I started at Hamon Technologies in 2022 as a Junior Engineer, building full-stack applications in React and Node and designing the REST APIs behind them.',
-    'At Zartek I led production React and Next.js builds end to end. Now at Innsof I refactor legacy code and rebuild products that underperformed.',
-  ],
-  /** Real artifacts for the drifting right column. */
-  artifacts: [
-    { kind: 'education', label: 'Bachelor of Computer Applications', detail: 'AJK College of Arts and Science, Coimbatore', meta: '2018 to 2022' },
-    { kind: 'location', label: 'Based in Palakkad', detail: 'Kerala, India', meta: 'Remote and hybrid' },
-    { kind: 'focus', label: 'Frontend architecture', detail: 'State management, API integration, performance', meta: '4+ years' },
-  ],
+  eyebrow: 'About me',
+
+  /** Two lines at display-lg. Deliberately not a restatement of the hero. */
+  heading: 'I work on code that already exists',
+
+  intro:
+    "I'm Jassim, a front-end engineer based in Palakkad. Most of my work is on products that are already running and already struggling: cutting page load times 30% with code splitting and API refinement, reducing production defects 25% through structured reviews, and factoring shared components so the next feature ships faster.",
+
+  resumeCta: 'Download resume',
+  socialsLabel: 'Follow me',
 } as const;
 
 export const PROOF = {
@@ -121,22 +154,42 @@ export const CAPABILITIES = [
   {
     title: 'Frontend architecture',
     body: 'Rebuilding underperforming projects around maintainable structure, and factoring shared components so teams move faster on the next feature.',
-    evidence: { value: 25, suffix: '%', label: 'faster UI development', mechanism: 'reusable components and shared design systems' },
+    evidence: {
+      value: 25,
+      suffix: '%',
+      label: 'faster UI development',
+      mechanism: 'reusable components and shared design systems',
+    },
   },
   {
     title: 'Performance optimisation',
     body: 'Finding what the browser actually waits on, then removing it. Splitting bundles at the route boundary and cutting redundant network work.',
-    evidence: { value: 30, suffix: '%', label: 'lower page load times', mechanism: 'code splitting and API refinement' },
+    evidence: {
+      value: 30,
+      suffix: '%',
+      label: 'lower page load times',
+      mechanism: 'code splitting and API refinement',
+    },
   },
   {
     title: 'State management',
     body: 'Picking the smallest tool that fits. Redux Toolkit where the state is genuinely shared and long-lived, Zustand where it is not.',
-    evidence: { value: 20, suffix: '%', label: 'better delivery efficiency', mechanism: 'end to end ownership of production React and Next.js builds' },
+    evidence: {
+      value: 20,
+      suffix: '%',
+      label: 'better delivery efficiency',
+      mechanism: 'end to end ownership of production React and Next.js builds',
+    },
   },
   {
     title: 'API integration',
     body: 'Designing the contract from both sides, then making the client resilient to the parts of it that will change.',
-    evidence: { value: 20, suffix: '+', label: 'REST APIs designed', mechanism: 'improving backend performance by 15%' },
+    evidence: {
+      value: 20,
+      suffix: '+',
+      label: 'REST APIs designed',
+      mechanism: 'improving backend performance by 15%',
+    },
   },
 ] as const;
 
@@ -210,18 +263,20 @@ export const NUMBERS = [
 
 export const CONTACT = {
   email: IDENTITY.email,
-  links: [
-    { label: 'GitHub', value: IDENTITY.github.handle, href: IDENTITY.github.url },
-    { label: 'LinkedIn', value: IDENTITY.linkedin.handle, href: IDENTITY.linkedin.url },
-  ],
-  /** NEEDS INPUT: resume file. Drop it at /public/resume.pdf and set this. */
-  resume: null as string | null,
+  followLabel: 'Follow',
+  resumeCta: 'Download resume',
+  /* The resume link is derived from the filesystem in page.tsx rather than
+     stored here: drop any PDF into /public and both the About button and the
+     contact row appear. */
   /** NEEDS INPUT: include the phone number publicly? Default is no. */
   phone: null as string | null,
 } as const;
 
 export const FOOTER = {
-  builtWith: ['Next.js', 'GSAP', 'Lenis'],
+  /* The year is computed in page.tsx, a server component, and passed down.
+     Calling new Date() during a client render risks a hydration mismatch at a
+     year boundary for a value that only changes once a year. */
+  credit: `Designed and built by ${IDENTITY.fullName}`,
   backToTop: 'Back to top',
 } as const;
 
@@ -237,9 +292,13 @@ export const EDUCATION = {
   institution: 'AJK College of Arts and Science',
   city: 'Coimbatore',
   from: '2018',
-  to: '2022',
+  to: '2021',
   /** NEEDS INPUT: any certifications worth listing, with issuer and year. */
-  certifications: [] as ReadonlyArray<{ name: string; issuer: string; year: string }>,
+  certifications: [] as ReadonlyArray<{
+    name: string;
+    issuer: string;
+    year: string;
+  }>,
 } as const;
 
 /**

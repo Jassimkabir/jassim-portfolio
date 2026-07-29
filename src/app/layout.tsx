@@ -83,7 +83,12 @@ const personJsonLd = {
   jobTitle: IDENTITY.title,
   email: `mailto:${IDENTITY.email}`,
   address: { '@type': 'PostalAddress', addressLocality: 'Palakkad', addressRegion: 'Kerala', addressCountry: 'IN' },
-  sameAs: [IDENTITY.github.url, IDENTITY.linkedin.url],
+  sameAs: [
+    IDENTITY.github.url,
+    IDENTITY.linkedin.url,
+    IDENTITY.instagram.url,
+    IDENTITY.facebook.url,
+  ],
   description: SEO.description,
 };
 

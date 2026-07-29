@@ -1,5 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUp01Icon } from '@hugeicons/core-free-icons';
+
 import { scrollToTop } from '@/lib/scroll';
 import { FOOTER } from '@/content/site';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -16,15 +19,18 @@ import MonoLabel from '@/components/ui/MonoLabel';
  * Grain continues over this section, because it is a single document-level
  * layer rather than anything per-section.
  */
-export default function Footer() {
+export default function Footer({ year }: { year: number }) {
   return (
     <footer id="socials" className="border-t border-pane-edge py-[clamp(2rem,5vh,3rem)]">
       <div className="container-page flex flex-wrap items-center justify-between gap-6">
-        <button type="button" className="tap-44 cursor-pointer text-fg-dim transition-colors duration-200 ease-snap hover:text-fg" onClick={scrollToTop} data-magnetic>
+        <button type="button" className="tap-44 inline-flex cursor-pointer items-center gap-2 text-fg-dim transition-colors duration-200 ease-snap hover:text-fg" onClick={scrollToTop} data-magnetic>
+          <HugeiconsIcon icon={ArrowUp01Icon} size={18} color="currentColor" strokeWidth={2} />
           {FOOTER.backToTop}
         </button>
 
-        <MonoLabel>Built with {FOOTER.builtWith.join(', ')}</MonoLabel>
+        <MonoLabel className="normal-case tracking-[0.08em]">
+          &copy; {year} {FOOTER.credit}
+        </MonoLabel>
 
         <ThemeToggle />
       </div>

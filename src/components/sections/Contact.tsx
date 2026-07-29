@@ -2,7 +2,16 @@
 
 import { useRef } from 'react';
 
-import { CLOSING, CONTACT } from '@/content/site';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Download01Icon,
+  GithubIcon,
+  Linkedin02Icon,
+  InstagramIcon,
+  MetaIcon,
+} from '@hugeicons/core-free-icons';
+
+import { CLOSING, CONTACT, SOCIALS } from '@/content/site';
 import MonoLabel from '@/components/ui/MonoLabel';
 import SplitHeading from '@/components/ui/SplitHeading';
 
@@ -25,7 +34,15 @@ import SplitHeading from '@/components/ui/SplitHeading';
  * it collapse. Either the fill goes or the displacement does, and the fill is
  * the one the design actually depends on.
  */
-export default function Contact() {
+/* Same mapping as About, so a platform never gets two different glyphs. */
+const SOCIAL_ICON: Record<string, typeof GithubIcon> = {
+  GitHub: GithubIcon,
+  LinkedIn: Linkedin02Icon,
+  Instagram: InstagramIcon,
+  Facebook: MetaIcon,
+};
+
+export default function Contact({ resumeHref }: { resumeHref: string | null }) {
   const root = useRef<HTMLElement>(null);
 
   return (
@@ -67,27 +84,64 @@ export default function Contact() {
           {CONTACT.email}
         </a>
 
-        <div className="mt-[clamp(2.5rem,6vh,4rem)] flex flex-wrap gap-[clamp(1.5rem,4vw,3.5rem)]">
-          {CONTACT.links.map((link) => (
-            <a key={link.label} href={link.href} className="grid min-h-11 content-center gap-[0.35rem] transition-colors duration-200 ease-snap hover:text-accent-lift">
-              <MonoLabel>{link.label}</MonoLabel>
-              <span>{link.value}</span>
-            </a>
-          ))}
+        {/*
+          Follow row left, resume right, on one baseline. No rule between this
+          and the address: the space does that job, and a hairline here fought
+          the round controls sitting on it.
+        */}
+        <div className="mt-[clamp(3rem,8vh,5rem)] grid gap-8">
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-6">
+            <div className="flex items-center gap-4">
+              <MonoLabel className="hidden sm:block">{CONTACT.followLabel}</MonoLabel>
 
-          {/* Rendered only once the file exists. A dead download link is worse
-              than no download link. */}
-          {CONTACT.resume ? (
-            <a href={CONTACT.resume} className="grid min-h-11 content-center gap-[0.35rem] transition-colors duration-200 ease-snap hover:text-accent-lift" download>
-              <MonoLabel>Resume</MonoLabel>
-              <span>Download</span>
-            </a>
-          ) : null}
+              <ul className="flex flex-wrap gap-3">
+                {SOCIALS.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`${link.label}, ${link.value}`}
+                      className="icon-round"
+                      data-magnetic
+                    >
+                      <HugeiconsIcon
+                        icon={SOCIAL_ICON[link.label]}
+                        size={20}
+                        color="currentColor"
+                        strokeWidth={1.5}
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Off by default. Publishing a phone number is the owner's call, not
-              a default. */}
+            {/* Rendered only once the file exists. A dead download link is
+                worse than no download link. */}
+            {resumeHref ? (
+              <a
+                href={resumeHref}
+                download="Waleed-Jassim-M-K-CV.pdf"
+                data-magnetic
+                /* An outlined pill rather than an underline, so it joins the
+                   same control family as the round social buttons beside it:
+                   identical border, colour and hover, just wide enough for a
+                   label. The filled accent CTA stays unique to About. */
+                className="inline-flex min-h-11 items-center gap-2.5 rounded-chip border border-pane-edge px-5 font-medium text-fg-dim transition-[color,border-color] duration-200 ease-snap hover:border-accent-lift hover:text-fg"
+              >
+                {CONTACT.resumeCta}
+                <HugeiconsIcon icon={Download01Icon} size={18} color="currentColor" strokeWidth={2} />
+              </a>
+            ) : null}
+          </div>
+
+          {/* Off by default. Publishing a phone number is the owner's call. */}
           {CONTACT.phone ? (
-            <a href={`tel:${CONTACT.phone}`} className="grid min-h-11 content-center gap-[0.35rem] transition-colors duration-200 ease-snap hover:text-accent-lift">
+            <a
+              href={`tel:${CONTACT.phone}`}
+              className="grid min-h-11 w-fit content-center gap-[0.35rem] transition-colors duration-200 ease-snap hover:text-accent-lift"
+            >
               <MonoLabel>Phone</MonoLabel>
               <span>{CONTACT.phone}</span>
             </a>

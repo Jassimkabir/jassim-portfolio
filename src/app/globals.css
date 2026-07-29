@@ -15,7 +15,9 @@
    1. Ten hex literals exist in the whole codebase. They are all below.
       (Both themes share values, so 20 token slots resolve to 10 uniques.)
    2. Exactly three blur values exist. They are all below.
-   3. One radius, plus the chip pill as the single documented exception.
+   3. One radius, plus TWO documented pill exceptions: the availability chip,
+      and the round icon buttons (theme toggle and socials), added at the
+      client's request. Nothing else is pill-shaped.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── runtime theme variables ─────────────────────────────────────────────────
@@ -259,6 +261,34 @@
     top: 50%;
     height: 44px;
     translate: 0 -50%;
+  }
+}
+
+/*
+ * Round icon button. The theme toggle and the social links share it, so they
+ * read as one control family.
+ *
+ * SECOND documented exception to the 20px radius lock, after the availability
+ * chip. Added at the client's request; do not extend it to anything else.
+ * 44px is the tap-target minimum, so these need no tap-44 helper.
+ */
+@utility icon-round {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 1px solid var(--pane-edge);
+  border-radius: var(--radius-chip);
+  color: var(--fg-dim);
+  cursor: pointer;
+  transition:
+    color 200ms var(--ease-snap),
+    border-color 200ms var(--ease-snap);
+
+  &:hover {
+    color: var(--fg);
+    border-color: var(--accent-lift);
   }
 }
 
