@@ -360,6 +360,7 @@ export const FOOTER = {
      it needs the two separately; as a single interpolated string the credit
      broke mid-name on a 375px viewport and left "K" alone on its own line. */
   creditPrefix: 'Designed and built by',
+  quickLinksLabel: 'Quick links',
   backToTop: 'Back to top',
 } as const;
 

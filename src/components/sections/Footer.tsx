@@ -1,61 +1,153 @@
 'use client';
 
+import { useRef } from 'react';
+import { useGSAP } from '@gsap/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowUp01Icon } from '@hugeicons/core-free-icons';
 
-import { scrollToTop } from '@/lib/scroll';
+import { gsap, DUR, EASE } from '@/lib/gsap';
+import { scrollToSection, scrollToTop } from '@/lib/scroll';
+import { NAV_LINKS } from '@/lib/nav';
 import { FOOTER, IDENTITY } from '@/content/site';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
 /**
- * Minimal by design. The footer is the one place on this page where being
- * generic is correct.
+ * Name, quick links, and the bottom bar.
  *
- * Deliberately absent: no local time strip, no city, no weather, no build
- * number, no last-sync timestamp. All banned, and all of them are filler that
- * reads as filler to this audience.
+ * Deliberately absent, and still banned: local time strip, city, weather,
+ * build number, last-sync timestamp. All filler, and filler that reads as
+ * filler to this audience.
+ *
+ * WHERE LENIS IS, and it is the whole reason the quick links are buttons
+ * rather than plain <a href="#work"> anchors. A hash anchor hands the jump to
+ * the browser, which sets the scroll position directly and desynchronises
+ * Lenis: the page teleports, and every ScrollTrigger then recalculates against
+ * a position Lenis never produced. scrollToSection goes through the Lenis
+ * instance instead, easing to the target and offsetting by the live header
+ * height, so a jump from the footer behaves exactly like one from the nav. It
+ * also falls back to native scrolling under reduced motion, where Lenis is
+ * destroyed. See lib/scroll.
  *
  * Grain continues over this section, because it is a single document-level
  * layer rather than anything per-section.
  */
+
+/** Contact is not in NAV_LINKS, which stops at Experience. It belongs here. */
+const QUICK_LINKS = [...NAV_LINKS, { id: 'contact', label: 'Contact' }];
+
 export default function Footer({ year }: { year: number }) {
+  const root = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        /* One trigger for the whole footer. It is the last thing on the page,
+           so it arrives as a block rather than element by element. */
+        const reveal = gsap.from('[data-footer-reveal]', {
+          y: 24,
+          opacity: 0,
+          duration: DUR.base,
+          stagger: 0.06,
+          ease: EASE.glass,
+          scrollTrigger: { trigger: root.current, start: 'top 92%', once: true },
+          /* A `from` tween ends by leaving its end value inline, and an inline
+             opacity would outrank the link hover states underneath it. */
+          clearProps: 'opacity,transform',
+        });
+
+        return () => reveal.scrollTrigger?.kill();
+      });
+
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
+
   return (
-    <footer id="socials" className="border-t border-pane-edge py-[clamp(2rem,5vh,3rem)]">
-      {/*
-        A grid, not flex-wrap. With three items and justify-between, the moment
-        a phone forces a wrap each item lands alone on its own line and
-        justify-between stops doing anything, which is how this ended up as a
-        ragged left-aligned stack.
+    <footer
+      ref={root}
+      id="socials"
+      className="border-t border-pane-edge pt-[clamp(3rem,8vh,5rem)] pb-[clamp(2rem,5vh,3rem)]"
+    >
+      <div className="container-page">
+        {/* Name left, links right. Below md the links drop under the name and
+            run as two columns, which keeps five of them off a tall single
+            stack on a phone. */}
+        <div className="grid gap-[clamp(2.5rem,6vh,4rem)] md:grid-cols-[1fr_auto] md:items-start md:gap-x-[clamp(2rem,6vw,6rem)]">
+          <div className="grid gap-3">
+            {/* text-balance, not a ch measure. max-w-[12ch] forced a wrap that
+                landed after "M" and left "K" alone on its own line, the same
+                orphan the credit had. Balancing splits the name evenly instead,
+                and it only engages when the name genuinely does not fit. */}
+            <SplitHeading as="p" variant="display-lg" className="text-balance">
+              {IDENTITY.fullName}
+            </SplitHeading>
 
-        Explicit placement instead. On a phone the two controls share the top
-        row, pushed to opposite edges, and the credit spans the row beneath
-        them. From md everything sits on one line with the credit centred.
+            <MonoLabel data-footer-reveal>
+              {IDENTITY.title}, {IDENTITY.location}
+            </MonoLabel>
+          </div>
 
-        DOM order is control, control, credit so the two tab stops are adjacent
-        and come before the static text at every width.
-      */}
-      <div className="container-page grid grid-cols-2 items-center gap-x-6 gap-y-5 md:grid-cols-[auto_1fr_auto]">
-        <button
-          type="button"
-          className="tap-44 inline-flex cursor-pointer items-center gap-2 justify-self-start text-fg-dim transition-colors duration-200 ease-snap hover:text-fg md:col-start-1 md:row-start-1"
-          onClick={scrollToTop}
-          data-magnetic
-        >
-          <HugeiconsIcon icon={ArrowUp01Icon} size={18} color="currentColor" strokeWidth={2} />
-          {FOOTER.backToTop}
-        </button>
+          <nav aria-label="Footer" className="md:justify-self-end">
+            <MonoLabel data-footer-reveal tone="accent" className="mb-4 block">
+              {FOOTER.quickLinksLabel}
+            </MonoLabel>
 
-        <div className="justify-self-end md:col-start-3 md:row-start-1">
-          <ThemeToggle />
+            <ul className="grid list-none grid-cols-2 gap-x-[clamp(1.5rem,5vw,3rem)] gap-y-1 md:grid-cols-1">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.id} data-footer-reveal>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection(`#${link.id}`)}
+                    className="tap-44 inline-flex cursor-pointer items-center text-fg-dim transition-colors duration-200 ease-snap hover:text-accent-lift"
+                    data-magnetic
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        <MonoLabel className="col-span-2 normal-case tracking-[0.08em] md:col-span-1 md:col-start-2 md:row-start-1 md:text-center">
-          &copy; {year} {FOOTER.creditPrefix}{' '}
-          {/* The name never breaks. If the line has to wrap it wraps before
-              the name rather than inside it. */}
-          <span className="whitespace-nowrap">{IDENTITY.fullName}</span>
-        </MonoLabel>
+        {/*
+          The bottom bar. A grid, not flex-wrap: with three items and
+          justify-between, the moment a phone forces a wrap each lands alone on
+          its own line and justify-between stops doing anything, which is how
+          this previously collapsed into a ragged left-aligned stack.
+
+          DOM order is control, control, credit, so the two tab stops stay
+          adjacent and come before the static text at every width.
+        */}
+        <div
+          data-footer-reveal
+          className="mt-[clamp(2.5rem,6vh,4rem)] grid grid-cols-2 items-center gap-x-6 gap-y-5 border-t border-pane-edge pt-[clamp(1.5rem,4vh,2.25rem)] md:grid-cols-[auto_1fr_auto]"
+        >
+          <button
+            type="button"
+            className="tap-44 inline-flex cursor-pointer items-center gap-2 justify-self-start text-fg-dim transition-colors duration-200 ease-snap hover:text-fg md:col-start-1 md:row-start-1"
+            onClick={scrollToTop}
+            data-magnetic
+          >
+            <HugeiconsIcon icon={ArrowUp01Icon} size={18} color="currentColor" strokeWidth={2} />
+            {FOOTER.backToTop}
+          </button>
+
+          <div className="justify-self-end md:col-start-3 md:row-start-1">
+            <ThemeToggle />
+          </div>
+
+          <MonoLabel className="col-span-2 normal-case tracking-[0.08em] md:col-span-1 md:col-start-2 md:row-start-1 md:text-center">
+            &copy; {year} {FOOTER.creditPrefix}{' '}
+            {/* The name never breaks. If the line has to wrap it wraps before
+                the name rather than inside it. */}
+            <span className="whitespace-nowrap">{IDENTITY.fullName}</span>
+          </MonoLabel>
+        </div>
       </div>
     </footer>
   );
