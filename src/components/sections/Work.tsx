@@ -52,7 +52,8 @@ import MonoLabel from '@/components/ui/MonoLabel';
  * while the scrub kept restoring it. Small controls keep it. Panels do not.
  */
 
-/** Vertical drift across the viewport. Alternates by index, small on purpose. */
+/** Vertical drift across the viewport. Alternates by index, small on purpose.
+ *  Two columns and up only; see the matchMedia block for why. */
 const DRIFT = 18;
 
 export default function Work() {
@@ -88,12 +89,25 @@ export default function Work() {
           for (const st of batch) st.kill();
         });
 
-        /* The drift. Alternating direction so the grid breathes instead of
-           sliding as one block. 18px: enough to feel alive, not enough to
-           read as a layout bug. */
-        gsap.utils.toArray<HTMLElement>('[data-work-card]').forEach((card, i) => {
+        return () => {
+          for (const k of kills) k();
+        };
+      });
+
+      /*
+       * The drift, TWO COLUMNS AND UP ONLY.
+       *
+       * It alternates direction by index, which is what stops the grid moving
+       * as one slab. In two columns that reads as depth, because the cards it
+       * separates sit side by side. In the single column below 768 the same
+       * alternation puts every card in opposition to the one above it, so the
+       * gaps between them visibly pump open and shut while you scroll. That is
+       * what looked wrong on a phone.
+       */
+      mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+        const drifts = gsap.utils.toArray<HTMLElement>('[data-work-card]').map((card, i) => {
           const dir = i % 2 === 0 ? 1 : -1;
-          const drift = gsap.fromTo(
+          return gsap.fromTo(
             card,
             { y: DRIFT * dir },
             {
@@ -102,14 +116,13 @@ export default function Work() {
               scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: 1 },
             },
           );
-          kills.push(() => {
-            drift.scrollTrigger?.kill();
-            drift.kill();
-          });
         });
 
         return () => {
-          for (const k of kills) k();
+          for (const d of drifts) {
+            d.scrollTrigger?.kill();
+            d.kill();
+          }
         };
       });
 
@@ -218,8 +231,12 @@ export default function Work() {
                    by fractional pixels every frame, and without its own layer
                    the browser re-rasterises all of this card's text at each
                    sub-pixel offset, which shimmers. Promoted, it rasterises
-                   once and the compositor moves it. */
-                'will-change-transform',
+                   once and the compositor moves it.
+
+                   md and up only, matching the drift. Below that nothing
+                   translates the card, and a permanent layer per card would be
+                   memory spent on a phone for no motion at all. */
+                'md:will-change-transform',
                 'transition-[border-color] duration-300 ease-snap hover:border-accent-lift',
               ].join(' ')}
             >
