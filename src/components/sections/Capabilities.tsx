@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
 import { gsap, DUR, EASE } from '@/lib/gsap';
-import { CAPABILITIES } from '@/content/site';
+import { CAPABILITIES, EYEBROWS } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 import Counter from '@/components/ui/Counter';
@@ -57,6 +57,8 @@ export default function Capabilities() {
   return (
     <section ref={root} id="services" className="section-y capabilities">
       <div className="container-page">
+        <MonoLabel tone="accent" className="mb-5 block">{EYEBROWS.capabilities}</MonoLabel>
+
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           What I actually do
         </SplitHeading>

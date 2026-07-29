@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
 import { gsap, DUR, EASE } from '@/lib/gsap';
-import { EDUCATION } from '@/content/site';
+import { EDUCATION, EYEBROWS } from '@/content/site';
 import MonoLabel from '@/components/ui/MonoLabel';
 
 /**
@@ -43,8 +43,8 @@ export default function Education() {
   return (
     <section ref={root} id="education" className="section-y education">
       <div className="container-page grid gap-5 md:grid-cols-[auto_1fr_auto] md:items-baseline md:gap-x-[clamp(2rem,6vw,6rem)]">
-        <MonoLabel data-education>
-          Education
+        <MonoLabel data-education tone="accent">
+          {EYEBROWS.education}
         </MonoLabel>
 
         <div data-education className="grid gap-3">

@@ -83,7 +83,11 @@ export default function Marquee() {
       ref={root}
       id="marquee"
       aria-hidden="true"
-      className="relative overflow-hidden border-y border-pane-edge py-[clamp(1.5rem,4vh,3rem)]"
+      /* A solid oxblood band. The single most prominent use of the accent on
+         the page, and it works here because the type is decorative: bone on
+         oxblood measures 4.86:1 dark and 5.63:1 light, so it passes AA even
+         though nobody has to read it. */
+      className="relative overflow-hidden bg-accent py-[clamp(1.5rem,4vh,3rem)] text-accent-fg"
     >
       <div className="flex w-max">
         {runs.map((run) => (
@@ -96,8 +100,8 @@ export default function Marquee() {
                   // Alternating outline keeps the band from reading as one
                   // solid wall of type.
                   i % 2 === 0
-                    ? 'text-fg'
-                    : 'text-transparent [-webkit-text-stroke:1px_var(--fg-dim)]',
+                    ? 'text-accent-fg'
+                    : 'text-transparent [-webkit-text-stroke:1px_var(--accent-fg)]',
                 ].join(' ')}
               >
                 {item}

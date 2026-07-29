@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { PlusSignIcon, MinusSignIcon } from '@hugeicons/core-free-icons';
 
 import { gsap, DUR, EASE } from '@/lib/gsap';
-import { FAQ } from '@/content/site';
+import { EYEBROWS, FAQ } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
@@ -126,10 +126,12 @@ export default function Faq() {
     <section ref={root} id="faq" className="section-y faq">
       <div className="container-page grid gap-[clamp(2.5rem,6vh,4rem)] lg:grid-cols-[4fr_6fr] lg:items-start lg:gap-x-[clamp(2rem,6vw,6rem)]">
         <div className="grid content-start gap-4">
+          {/* Above the heading, not below it, so it reads as the same
+              eyebrow every other section on the page uses. */}
+          <MonoLabel tone="accent">{EYEBROWS.faq}</MonoLabel>
           <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
             Common questions
           </SplitHeading>
-          <MonoLabel>Straight answers</MonoLabel>
         </div>
 
         <div className="grid">

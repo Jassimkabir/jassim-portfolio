@@ -116,8 +116,34 @@ export const MARQUEE = [
  * Every figure below is welded to the mechanism that produced it, which is what
  * makes it survive the follow-up question in an interview.
  */
+/**
+ * Section eyebrows. One mono-caps line in --accent-lift above every section
+ * heading, naming the section the reader has just scrolled into.
+ *
+ * They live in one object rather than beside each section's own copy, because
+ * the rule is "every section has one" and a single map is the only shape where
+ * a missing entry is visible at a glance.
+ *
+ * Each one is deliberately NOT a restatement of the heading below it: the
+ * eyebrow names the section, the heading makes the claim. "Capabilities" over
+ * "What I actually do", not "What I do" over "What I actually do".
+ *
+ * The hero has none on purpose. An eyebrow tells you where you have arrived,
+ * which is only useful once you have scrolled; above the h1 it would be a
+ * label on the top of the page.
+ */
+export const EYEBROWS = {
+  about: 'About me',
+  proof: 'Writing',
+  capabilities: 'Capabilities',
+  work: 'Selected work',
+  experience: 'Experience',
+  education: 'Education',
+  faq: 'Straight answers',
+  contact: 'Contact',
+} as const;
+
 export const ABOUT = {
-  eyebrow: 'About me',
 
   /** Two lines at display-lg. Deliberately not a restatement of the hero. */
   heading: 'I work on code that already exists',

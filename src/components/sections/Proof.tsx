@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
 import { gsap, SplitText, ScrollTrigger, DUR, EASE } from '@/lib/gsap';
-import { PROOF } from '@/content/site';
+import { EYEBROWS, PROOF } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
@@ -80,6 +80,8 @@ export default function Proof() {
   return (
     <section ref={root} id="terminal" className="section-y proof">
       <div className="container-page">
+        <MonoLabel tone="accent" className="mb-5 block">{EYEBROWS.proof}</MonoLabel>
+
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Written work
         </SplitHeading>

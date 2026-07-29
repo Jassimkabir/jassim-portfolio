@@ -12,7 +12,7 @@ import {
   EASE,
 } from '@/lib/gsap';
 import { lockScroll, unlockScroll } from '@/lib/scroll';
-import { WORK } from '@/content/site';
+import { EYEBROWS, WORK } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
@@ -144,6 +144,8 @@ export default function Work() {
   return (
     <section ref={root} id="work" className="section-y work">
       <div className="container-page mb-[clamp(2.5rem,6vh,4rem)]">
+        <MonoLabel tone="accent" className="mb-5 block">{EYEBROWS.work}</MonoLabel>
+
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Selected work
         </SplitHeading>

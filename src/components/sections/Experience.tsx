@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
 import { gsap, DUR, EASE } from '@/lib/gsap';
-import { EXPERIENCE } from '@/content/site';
+import { EXPERIENCE, EYEBROWS } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
@@ -65,6 +65,8 @@ export default function Experience() {
   return (
     <section ref={root} id="experience" className="section-y experience">
       <div className="container-page">
+        <MonoLabel tone="accent" className="mb-5 block">{EYEBROWS.experience}</MonoLabel>
+
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Where I have worked
         </SplitHeading>

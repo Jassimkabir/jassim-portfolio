@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 
 import { gsap, DUR, EASE } from '@/lib/gsap';
-import { ABOUT, NUMBERS, SOCIALS } from '@/content/site';
+import { ABOUT, EYEBROWS, NUMBERS, SOCIALS } from '@/content/site';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Download01Icon,
@@ -109,7 +109,7 @@ export default function About({ resumeHref }: { resumeHref: string | null }) {
         <div className="grid gap-12 lg:grid-cols-[7fr_4fr] lg:items-start lg:gap-x-[clamp(2rem,6vw,6rem)]">
           {/* ── left: who, and the resume ─────────────────────────────── */}
           <div className="grid gap-6">
-            <MonoLabel data-about-reveal>{ABOUT.eyebrow}</MonoLabel>
+            <MonoLabel data-about-reveal tone="accent">{EYEBROWS.about}</MonoLabel>
 
             <SplitHeading
               as="h2"
@@ -146,7 +146,7 @@ export default function About({ resumeHref }: { resumeHref: string | null }) {
 
           {/* ── right: socials ────────────────────────────────────────── */}
           <div data-about-reveal className="grid content-start gap-5">
-            <MonoLabel>{ABOUT.socialsLabel}</MonoLabel>
+            <MonoLabel tone="accent">{ABOUT.socialsLabel}</MonoLabel>
 
             <ul className="flex flex-wrap gap-3">
               {SOCIALS.map((link) => (

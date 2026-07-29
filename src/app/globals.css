@@ -12,12 +12,44 @@
    design-system/jassim/MASTER.md. Read that before changing anything here.
 
    THREE HARD RULES THIS FILE ENFORCES
-   1. Ten hex literals exist in the whole codebase. They are all below.
+   1. Eleven hex literals exist in the whole codebase. They are all below.
       (Both themes share values, so 20 token slots resolve to 10 uniques.)
    2. Exactly three blur values exist. They are all below.
    3. One radius, plus TWO documented pill exceptions: the availability chip,
       and the round icon buttons (theme toggle and socials), added at the
       client's request. Nothing else is pill-shaped.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WHERE THE ACCENT GOES
+
+   One rule, so placement is a decision the system makes rather than a
+   judgement call per component:
+
+     ACCENT MARKS CHROME AND ACTION. IT NEVER MARKS CONTENT.
+
+   Chrome and action, in --accent as a FILL:
+     primary CTAs (hero, nav, resume), the marquee band, ::selection
+
+   Wayfinding and state, in --accent-lift as TEXT or a 1px RULE:
+     the contact address (the page's primary action), section eyebrows,
+     the scroll progress bar, focus rings, hover affordances
+     (link underlines, pane edges, icon-button borders), the open state of a
+     disclosure, the Experience spine and its list markers
+
+   Never:
+     headings, body copy, figures, metrics, dates, stack tags, handles. Data
+     stays monochrome. The moment a number turns red, the accent stops meaning
+     "act here or look here" and becomes decoration.
+
+   CONTRAST, NOT NEGOTIABLE
+   --accent is 2.68:1 on the dark base and fails AA as text, so it is a FILL
+   only. Anything accent-coloured uses --accent-lift, which clears 4.8:1 in
+   both themes. Grep for `text-accent"` and it should never match.
+
+   --accent-deep is the one exception, and it is narrow: large display text
+   only, at 3.03:1 against the dark base, which is the 3:1 large-text floor and
+   nothing more. Never put it on body copy.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── runtime theme variables ─────────────────────────────────────────────────
@@ -41,6 +73,16 @@
   --accent-press: #902923;
   --accent-lift: #d9605b;
   --accent-fg: #d6d5c9;
+
+  /*
+   * Deep oxblood, for LARGE DISPLAY TEXT ONLY.
+   *
+   * --accent itself is 2.68:1 on this base and fails even the 3:1 large-text
+   * floor, so it can never be text here. This is the darkest point on the same
+   * ramp that clears it: 3.03:1, valid at 24px and above, never for body copy.
+   * Its only consumer is the contact address at display-xl.
+   */
+  --accent-deep: #ac3532;
 
   /* Grain reads stronger on bone, so light needs less of it. */
   --grain-opacity: 0.05;
@@ -67,6 +109,9 @@
   --accent: #902923;
   --accent-press: #7a231e;
   --accent-lift: #a22c29;
+  /* On the bone base the supplied deep oxblood clears 5.63:1 outright, so
+     light mode needs no compensation. */
+  --accent-deep: #902923;
 
   --grain-opacity: 0.038;
 }
@@ -105,6 +150,7 @@
   --color-accent: var(--accent);
   --color-accent-press: var(--accent-press);
   --color-accent-lift: var(--accent-lift);
+  --color-accent-deep: var(--accent-deep);
   --color-accent-fg: var(--accent-fg);
 }
 
@@ -185,6 +231,48 @@
   line-height: 0.94;
 }
 
+/*
+ * display-xl, but never wider than the line it has to fit on.
+ *
+ * Used by the contact address and nothing else. display-xl's 3.25rem floor is
+ * wider than a phone: the address is 7.72em of advance width, so 52px needs
+ * 401px of line and a 375px viewport offers 335px. It wrapped to two lines,
+ * which for the page's single primary action is wrong.
+ *
+ * The second term caps the size at whatever the container can actually hold,
+ * so the address stays on one line at every width instead of at the widths
+ * that happen to work. Above roughly 480px the clamp is the smaller of the two
+ * and this behaves exactly like display-xl.
+ *
+ * 7.78 is the address's own advance width in em, measured at 7.7273 with a
+ * little slack. IT IS SPECIFIC TO THE STRING: if CONTACT.email in
+ * content/site.ts changes, remeasure it, or the address wraps again.
+ *
+ * font-optical-sizing: none is what makes that one number valid at all.
+ * Bricolage Grotesque has an opsz axis, and left on auto the letterforms widen
+ * as the size drops: the same string measures 7.72em at 130px but 9.13em at
+ * 24px. A fixed divisor cannot describe that, and worse, it is a feedback
+ * loop, since shrinking the text to fit makes it proportionally wider. Pinning
+ * opsz flattens the ratio to 7.71 to 7.73 at every size.
+ *
+ * This costs nothing at display sizes: above about 80px auto and none measure
+ * identically (7.7154em at 130px either way), so the desktop rendering is
+ * untouched. It only changes the phone, where it also buys roughly 6px of type
+ * because the narrower cut fits at a larger size.
+ *
+ * cqw, not vw, so the divisor is the real container width and this does not
+ * have to duplicate gutter-x's clamp. Requires container-type on the wrapper.
+ */
+@utility display-address {
+  font-family: var(--font-display);
+  font-size: min(clamp(3.25rem, 9vw, 8.5rem), calc(100cqw / 7.78));
+  font-weight: 700;
+  font-optical-sizing: none;
+  font-variation-settings: 'wdth' 78;
+  letter-spacing: -0.04em;
+  line-height: 0.94;
+}
+
 @utility display-lg {
   font-family: var(--font-display);
   font-size: clamp(2.25rem, 5.5vw, 4.5rem);
@@ -221,6 +309,21 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg-dim);
+}
+
+/* Eyebrow variant of the label. A separate utility rather than `label` plus a
+   text colour, because both are utilities and which one wins depends on
+   emit order rather than on intent. */
+@utility label-accent {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  @media (width >= 64rem) {
+    font-size: 0.72rem;
+  }
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
 }
 
 /* Page shell and section rhythm. Repeated on every section, so a utility

@@ -32,9 +32,9 @@
 
 ### Color Palette — one accent hue, three values
 
-Ten hex literals exist in this codebase. The two themes share several values, so 20 token slots resolve to 10 uniques. `grep -rhoE '#[0-9a-fA-F]{3,8}' src/ | sort -u` must return exactly this set:
+Eleven hex literals exist in this codebase. `grep -rhoE '#[0-9a-fA-F]{3,8}' src/ | sort -u` must return exactly this set:
 
-`#0a100d` `#141b17` `#59594e` `#7a231e` `#902923` `#a22c29` `#b9baa3` `#d6d5c9` `#d9605b` `#e4e3da`
+`#0a100d` `#141b17` `#59594e` `#7a231e` `#902923` `#a22c29` `#ac3532` `#b9baa3` `#d6d5c9` `#d9605b` `#e4e3da`
 
 | Token | Dark (default) | Light | Use |
 |---|---|---|---|
@@ -47,6 +47,7 @@ Ten hex literals exist in this codebase. The two themes share several values, so
 | `--accent` | `#A22C29` | `#902923` | The only accent. Oxblood. |
 | `--accent-press` | `#902923` | `#7A231E` | Pressed and active states |
 | `--accent-lift` | `#D9605B` | `#A22C29` | Accent-as-text and hairlines |
+| `--accent-deep` | `#AC3532` | `#902923` | **Large display text only.** 3.03:1 dark, 5.63:1 light. Sole consumer: the contact address. Never body copy. |
 | `--accent-fg` | `#D6D5C9` | `#D6D5C9` | Text on accent fills |
 
 **Measured contrast. Do not re-derive these by eye.**
@@ -69,7 +70,24 @@ Ten hex literals exist in this codebase. The two themes share several values, so
 
 **The dark-mode accent rule, non-negotiable.** `#A22C29` is a **fill** in dark mode, never text and never a lone hairline. Bone on oxblood passes at 4.86:1. Where the accent must be text or a hairline against the dark base, use `--accent-lift`. In light mode `#902923` works as text directly.
 
-Accent appears in exactly these places and nowhere else: hero CTA fill, link underlines, contact headline fill, pane edge sheen on hover, focus rings, scroll progress hairline.
+**Where the accent goes.** One rule, so placement is systematic rather than decided per component:
+
+> **Accent marks chrome and action. It never marks content.**
+
+| | |
+|---|---|
+| `--accent` as a **fill** | primary CTAs (hero, nav, resume), the marquee band, `::selection` |
+| `--accent-lift` as **text or a 1px rule** | section eyebrows, scroll progress bar, focus rings, hover affordances (link underlines, pane edges, icon-button borders), disclosure open state, the Experience spine and its markers |
+| `--accent-deep` as **large display text only** | the contact address, and nothing else |
+| **never** | headings, body copy, figures, metrics, dates, stack tags, handles |
+
+Data stays monochrome. The moment a number turns red the accent stops meaning "act here or look here" and becomes decoration.
+
+**Section eyebrows.** Every section carries exactly one: a mono-caps line in `--accent-lift`, sitting **above** the heading, sourced from `EYEBROWS` in `src/content/site.ts`. They live in one object rather than beside each section's own copy, because the rule is "every section has one" and a single map is the only shape where a missing entry is visible at a glance.
+
+Two constraints on the copy. An eyebrow never restates the heading beneath it: the eyebrow names the section, the heading makes the claim ("Capabilities" over "What I actually do"). And they are never numbered; `01 / ABOUT` stays on the ban list.
+
+The hero is the one section without one, deliberately. An eyebrow tells you where you have arrived, which is only useful once you have scrolled. Above the `h1` it is a label on the top of the page.
 
 **Light mode risk.** Warm bone plus clay red sits near the cream-and-terracotta generated-design default. Push contrast harder than instinct: heavier weights, tighter tracking, more `#0A100D` structure, accent sparingly and as fill. If light mode starts reading like a wellness brand, the sizing and weight are wrong, not the colors.
 
@@ -104,7 +122,9 @@ Geist_Mono({ subsets:['latin'], weight:'variable', variable:'--font-mono' })
 
 ### Shape Consistency Lock
 
-`border-radius: 20px` on every pane, card, image, input, and button. `9999px` on the availability chip only, the single documented exception. Nothing on this page is square-cornered.
+`border-radius: 20px` on every pane, card, image, input, and button. Nothing on this page is square-cornered.
+
+**Two documented pill exceptions, and only two:** the availability chip, and the round icon buttons (`icon-round`: theme toggle, social links, and the Contact resume pill). The second was added at the client's request. Do not extend the pill radius to anything else.
 
 ### Blur — exactly three values
 
