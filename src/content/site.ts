@@ -105,18 +105,6 @@ export const MARQUEE = [
 ] as const;
 
 /**
- * Eyebrow, statement, first-person intro, resume download.
- *
- * The reference this was modelled on reads "passionate about crafting
- * intuitive, user-centered experiences" and claims "100+ projects". All three
- * of passionate, crafting and seamless are on the banned list, and the project
- * count has no basis in the source material, so the structure was taken and the
- * copy written from the resume instead.
- *
- * Every figure below is welded to the mechanism that produced it, which is what
- * makes it survive the follow-up question in an interview.
- */
-/**
  * Section eyebrows. One mono-caps line in --accent-lift above every section
  * heading, naming the section the reader has just scrolled into.
  *
@@ -136,15 +124,27 @@ export const EYEBROWS = {
   about: 'About me',
   proof: 'Writing',
   capabilities: 'Capabilities',
-  work: 'Selected work',
+  work: 'Client work',
   experience: 'Experience',
   education: 'Education',
   faq: 'Straight answers',
   contact: 'Contact',
 } as const;
 
+/**
+ * Statement, first-person intro, resume download. The eyebrow lives in
+ * EYEBROWS with every other section's.
+ *
+ * The reference this was modelled on reads "passionate about crafting
+ * intuitive, user-centered experiences" and claims "100+ projects". All three
+ * of passionate, crafting and seamless are on the banned list, and the project
+ * count has no basis in the source material, so the structure was taken and the
+ * copy written from the resume instead.
+ *
+ * Every figure below is welded to the mechanism that produced it, which is what
+ * makes it survive the follow-up question in an interview.
+ */
 export const ABOUT = {
-
   /** Two lines at display-lg. Deliberately not a restatement of the hero. */
   heading: 'I work on code that already exists',
 
@@ -231,18 +231,62 @@ export const CAPABILITIES = [
 
 export const WORK = {
   /**
-   * BLOCKED. No client names, product names, live URLs, or repo links were
-   * supplied. Build the shell, ship nothing here.
+   * Four shipped client sites.
    *
-   * NEEDS INPUT: 3 to 5 projects, each with name, one-line problem, stack,
-   * one outcome, live URL, repo URL. If the work is all under NDA, say so and
-   * this becomes anonymised case notes with that stated on the page.
+   * Every stack list below was read off the live site rather than recalled:
+   * response headers plus build fingerprints in the served HTML. Nothing is
+   * listed that could not be confirmed that way, which is why the lists are
+   * shorter than the real toolchains almost certainly are.
+   *
+   * NEEDS INPUT, per project: one outcome, and a repo URL where the repo is
+   * public. `metric` is null on all four rather than carrying a plausible
+   * number, because an invented outcome on the section a hiring manager reads
+   * most carefully is the worst possible place to be caught. The card renders
+   * without it.
    */
-  projects: [] as ReadonlyArray<{
+  projects: [
+    {
+      name: 'Beyond Smiles Dentistry',
+      problem:
+        'Clinic site for a dental practice in Palakkad, covering its specialists, treatment galleries and an appointment request form.',
+      stack: ['Next.js', 'React', 'Vercel'],
+      metric: null,
+      liveUrl: 'https://www.draryasbeyondsmiles.com/',
+      repoUrl: null,
+    },
+    {
+      name: 'SugarWho',
+      problem:
+        'Direct to consumer storefront for a monk fruit sweetener brand, with catalog, cart and cash on delivery across India.',
+      stack: ['Shopify Hydrogen', 'React', 'Vite', 'Tailwind CSS', 'Oxygen'],
+      metric: null,
+      liveUrl: 'https://sugarwho.in/',
+      repoUrl: null,
+    },
+    {
+      name: 'Orbinoz Event Planners',
+      problem:
+        'Site for a corporate event company in Kochi, built around a work gallery, client logos and an enquiry form that routes by event type.',
+      stack: ['Next.js', 'React', 'Vercel'],
+      metric: null,
+      liveUrl: 'https://www.orbinozevents.com/',
+      repoUrl: null,
+    },
+    {
+      name: 'Ragooty Sasidharan',
+      problem:
+        'Photography portfolio built around the gallery, with the work as the only thing on screen.',
+      stack: ['Next.js', 'React', 'Vercel'],
+      metric: null,
+      liveUrl: 'https://ragootysasidharan.com/',
+      repoUrl: null,
+    },
+  ] as ReadonlyArray<{
     name: string;
     problem: string;
     stack: readonly string[];
-    metric: string;
+    /* Null until a real outcome exists. Never a placeholder number. */
+    metric: string | null;
     liveUrl: string | null;
     repoUrl: string | null;
   }>,

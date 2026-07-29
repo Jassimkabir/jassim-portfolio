@@ -1,39 +1,62 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 
-import {
-  gsap,
-  ScrollTrigger,
-  Draggable,
-  Flip,
-  DUR,
-  EASE,
-} from '@/lib/gsap';
-import { lockScroll, unlockScroll } from '@/lib/scroll';
+import { gsap, ScrollTrigger, DUR, EASE } from '@/lib/gsap';
 import { EYEBROWS, WORK } from '@/content/site';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
 
-type Project = (typeof WORK.projects)[number];
-
 /**
- * Pinned horizontal pan. PIN 2 OF 2 on the page; the other is About.
+ * Four cards, two up. Everything interesting here is motion.
  *
- * CONTENT BLOCKED. No client names, product names, live URLs or repo links
- * have been supplied. The shell below is complete and starts working the
- * moment WORK.projects is populated. Nothing here is invented.
+ * EARLIER VERSIONS THAT ARE NOT COMING BACK: a pinned horizontal pan, which
+ * hijacked the scrollbar to move sideways for four items; a cursor-tracked
+ * screenshot preview; and a full-width screenshot beside a counter-scrolling
+ * pane. The last two leaned on captured images of the live sites, and those
+ * are gone from /public along with them.
  *
- * THE BUG TO NOT REINTRODUCE: every ScrollTrigger attached to an element
- * INSIDE this track must pass `containerAnimation`. Without it they fire at
- * the wrong scroll position and it looks like the animations are simply
- * broken. It is the single most common failure in pinned horizontal sections.
+ * With no imagery the cards have to earn attention some other way, and the two
+ * things doing that are both real uses of the stack rather than decoration:
+ *
+ *  - A glow that tracks the pointer inside the hovered card. Driven by
+ *    gsap.quickTo into two CSS custom properties, so the gradient moves on the
+ *    compositor and React never re-renders.
+ *  - A per-card vertical drift, scrubbed as the grid crosses the viewport, at
+ *    alternating rates so the four never sit as one static block.
+ *
+ * WHERE LENIS IS. Not bolted on. Lenis owns the scroll position and
+ * ScrollTrigger reads from it, so that drift is scrubbed against smoothed
+ * scroll rather than raw wheel deltas. On a static grid that is the whole
+ * difference between cards that glide and cards that step. See lib/lenis for
+ * the single instance driving the GSAP ticker.
+ *
+ * NOT PINNED. The page has had no pinned section since the pan went.
  */
+
+/*
+ * NO data-magnetic ON THESE CARDS, and do not add it back.
+ *
+ * The cursor writes x and y to every [data-magnetic] element, and the drift
+ * below writes y to the card. Two writers on one transform fight frame by
+ * frame, which showed up as the cards shaking whenever the pointer was over
+ * one after a scroll.
+ *
+ * Magnetism is also simply the wrong tool at this size. It measures from the
+ * element's centre with a 100px radius and 8px of travel, which is tuned for
+ * icon buttons and links; on a 632px card the pointer sits outside that radius
+ * nearly everywhere, so the magnet spent its time snapping y back to zero
+ * while the scrub kept restoring it. Small controls keep it. Panels do not.
+ */
+
+/** Vertical drift across the viewport. Alternates by index, small on purpose. */
+const DRIFT = 18;
+
 export default function Work() {
   const root = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState<Project | null>(null);
 
   useGSAP(
     () => {
@@ -41,81 +64,110 @@ export default function Work() {
 
       const mm = gsap.matchMedia();
 
-      /* Desktop and tablet pin and pan. Mobile falls through to the native
-         scroll-snap carousel defined in CSS, because pinning fights touch
-         scroll and costs more than it returns on a small viewport. */
-      mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
-        const el = track.current;
-        if (!el) return;
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const kills: Array<() => void> = [];
 
-        const distance = () => el.scrollWidth - window.innerWidth;
-
-        const pan = gsap.to(el, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: root.current,
-            start: 'top top',
-            end: () => `+=${distance()}`,
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
+        /* Cards rise on arrival. One batched trigger, not one per card. */
+        const batch = ScrollTrigger.batch('[data-work-card]', {
+          start: 'top 88%',
+          once: true,
+          onEnter: (targets) =>
+            gsap.from(targets, {
+              y: 36,
+              opacity: 0,
+              duration: DUR.base,
+              stagger: 0.08,
+              ease: EASE.glass,
+              /* clearProps is load bearing. A `from` tween finishes by leaving
+                 its end value inline, and an inline opacity or transform would
+                 outrank both the hover state and the drift below. */
+              clearProps: 'opacity,transform',
+            }),
+        });
+        kills.push(() => {
+          for (const st of batch) st.kill();
         });
 
-        /* Per-card depth. These are the triggers that need containerAnimation,
-           because their elements move horizontally rather than vertically. */
-        const depths = gsap.utils.toArray<HTMLElement>('[data-work-card]').map((card, i) =>
-          gsap.to(card, {
-            yPercent: [-6, 4, -10, 2][i % 4],
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: pan,
-              start: 'left right',
-              end: 'right left',
-              scrub: 1,
+        /* The drift. Alternating direction so the grid breathes instead of
+           sliding as one block. 18px: enough to feel alive, not enough to
+           read as a layout bug. */
+        gsap.utils.toArray<HTMLElement>('[data-work-card]').forEach((card, i) => {
+          const dir = i % 2 === 0 ? 1 : -1;
+          const drift = gsap.fromTo(
+            card,
+            { y: DRIFT * dir },
+            {
+              y: -DRIFT * dir,
+              ease: 'none',
+              scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: 1 },
             },
-          }),
-        );
-
-        /* Trackpad and touch drag, with inertia handing back to ScrollTrigger
-           rather than fighting it for control of the same scroll position. */
-        const [draggable] = Draggable.create(el, {
-          type: 'x',
-          inertia: true,
-          bounds: { minX: -distance(), maxX: 0 },
-          onDrag: () => ScrollTrigger.update(),
-          onThrowUpdate: () => ScrollTrigger.update(),
+          );
+          kills.push(() => {
+            drift.scrollTrigger?.kill();
+            drift.kill();
+          });
         });
 
         return () => {
-          draggable?.kill();
-          for (const d of depths) d.scrollTrigger?.kill();
-          pan.scrollTrigger?.kill();
-          pan.kill();
+          for (const k of kills) k();
         };
       });
 
-      /* Stack tags scramble on hover. Hover-only and hover-capable only, so it
-         never runs unprompted. This is not a fake terminal, which stays banned;
-         it is a hover state on real data. */
+      /*
+       * The pointer glow. Hover-capable, fine-pointer devices only, since a
+       * touch device has no pointer to follow and would just pay the cost.
+       */
       mm.add('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
-        const tags = gsap.utils.toArray<HTMLElement>('[data-stack-tag]');
-        const handlers = tags.map((tag) => {
-          const text = tag.textContent ?? '';
-          const enter = () =>
-            gsap.to(tag, {
-              duration: DUR.fast,
-              scrambleText: { text, chars: 'upperCase', speed: 0.6 },
-            });
-          tag.addEventListener('pointerenter', enter);
-          return () => tag.removeEventListener('pointerenter', enter);
+        const cards = gsap.utils.toArray<HTMLElement>('[data-work-card]');
+        const offs = cards.map((card) => {
+          const glow = card.querySelector<HTMLElement>('[data-work-glow]');
+          if (!glow) return () => {};
+
+          /*
+           * THE GLOW MOVES, THE GRADIENT DOES NOT. This used to animate the
+           * gradient's position through two CSS custom properties, which is a
+           * paint operation: custom properties are not compositor animatable,
+           * so every frame repainted a 288px radial gradient across the card
+           * and the text sitting on it. That was half the jitter.
+           *
+           * Now the gradient is fixed inside a element that is translated
+           * instead. Same picture, but it rides the compositor and paints once.
+           *
+           * quickTo, not a tween per pointermove: one tween per axis is reused
+           * and retargeted rather than allocating on every mouse event.
+           */
+          gsap.set(glow, {
+            xPercent: -50,
+            yPercent: -50,
+            x: card.offsetWidth / 2,
+            y: card.offsetHeight / 2,
+          });
+
+          const xTo = gsap.quickTo(glow, 'x', { duration: 0.5, ease: 'power3' });
+          const yTo = gsap.quickTo(glow, 'y', { duration: 0.5, ease: 'power3' });
+
+          const move = (e: PointerEvent) => {
+            const r = card.getBoundingClientRect();
+            xTo(e.clientX - r.left);
+            yTo(e.clientY - r.top);
+          };
+          /* Seeded at the entry point so the glow does not sweep in from
+             wherever the last hover left it. */
+          const enter = (e: PointerEvent) => {
+            const r = card.getBoundingClientRect();
+            gsap.set(glow, { x: e.clientX - r.left, y: e.clientY - r.top });
+          };
+
+          card.addEventListener('pointerenter', enter);
+          card.addEventListener('pointermove', move);
+          return () => {
+            card.removeEventListener('pointerenter', enter);
+            card.removeEventListener('pointermove', move);
+          };
         });
 
         return () => {
-          for (const off of handlers) off();
+          for (const off of offs) off();
         };
       });
 
@@ -124,27 +176,12 @@ export default function Work() {
     { scope: root },
   );
 
-  /* Lenis does not respect overflow: hidden, so the detail view stops it
-     explicitly rather than relying on a CSS lock that would do nothing. */
-  const openDetail = useCallback((project: Project) => {
-    const cards = gsap.utils.toArray<HTMLElement>('[data-work-card]');
-    const state = Flip.getState(cards);
-    setOpen(project);
-    lockScroll();
-    requestAnimationFrame(() => {
-      Flip.from(state, { duration: DUR.base, ease: EASE.glass, absolute: true, zIndex: 200 });
-    });
-  }, []);
-
-  const closeDetail = useCallback(() => {
-    setOpen(null);
-    unlockScroll();
-  }, []);
-
   return (
     <section ref={root} id="work" className="section-y work">
-      <div className="container-page mb-[clamp(2.5rem,6vh,4rem)]">
-        <MonoLabel tone="accent" className="mb-5 block">{EYEBROWS.work}</MonoLabel>
+      <div className="container-page mb-[clamp(2.5rem,7vh,4.5rem)]">
+        <MonoLabel tone="accent" className="mb-5 block">
+          {EYEBROWS.work}
+        </MonoLabel>
 
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Selected work
@@ -165,70 +202,80 @@ export default function Work() {
           </div>
         </div>
       ) : (
-        <div
-          ref={track}
-          /* Mobile drops the pin entirely for a native snap carousel: pinning
-             fights touch scroll and costs more than it returns there. */
-          className={[
-            'flex w-max gutter-x gap-[clamp(1.5rem,3vw,2.5rem)] will-change-transform',
-            'max-md:w-auto max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:will-change-auto',
-          ].join(' ')}
-        >
+        <div className="container-page grid gap-[clamp(1.25rem,2.5vw,2rem)] md:grid-cols-2">
           {WORK.projects.map((project) => (
-            <article key={project.name} data-work-card className="pane grid w-[min(80vw,30rem)] flex-none content-start gap-4 p-[clamp(1.5rem,3vw,2.5rem)] backdrop-blur-pane max-md:snap-center">
-              <h3 className="heading">{project.name}</h3>
-              <p className="text-fg-dim">{project.problem}</p>
+            <a
+              key={project.name}
+              data-work-card
+              href={project.liveUrl ?? undefined}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${project.name}, opens the live site in a new tab`}
+              className={[
+                'pane group relative isolate flex flex-col gap-4 overflow-hidden',
+                'p-[clamp(1.5rem,3vw,2.5rem)]',
+                /* The other half of the jitter. The drift translates the card
+                   by fractional pixels every frame, and without its own layer
+                   the browser re-rasterises all of this card's text at each
+                   sub-pixel offset, which shimmers. Promoted, it rasterises
+                   once and the compositor moves it. */
+                'will-change-transform',
+                'transition-[border-color] duration-300 ease-snap hover:border-accent-lift',
+              ].join(' ')}
+            >
+              {/* The glow. Under the content so it never tints the type, and
+                  clipped by the card's overflow-hidden. Accent as a fill, its
+                  only AA-passing use against the dark base.
 
-              <ul className="flex list-none flex-wrap gap-2">
+                  Fixed size and fixed gradient: it is positioned by transform
+                  alone, which is what keeps it off the paint path. */}
+              <span
+                aria-hidden="true"
+                data-work-glow
+                className={[
+                  'pointer-events-none absolute top-0 left-0 -z-10 h-[32rem] w-[32rem] rounded-full',
+                  'opacity-0 transition-opacity duration-500 ease-snap will-change-transform',
+                  'group-hover:opacity-100 group-focus-visible:opacity-100',
+                  'bg-[radial-gradient(circle,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_70%)]',
+                ].join(' ')}
+              />
+
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="heading transition-colors duration-300 ease-snap group-hover:text-accent-lift">
+                  {project.name}
+                </h3>
+
+                <span
+                  aria-hidden="true"
+                  className="icon-round shrink-0 transition-[color,border-color,translate] duration-300 ease-snap group-hover:-translate-y-1 group-hover:border-accent-lift group-hover:text-accent-lift"
+                >
+                  <HugeiconsIcon
+                    icon={ArrowUpRight01Icon}
+                    size={20}
+                    color="currentColor"
+                    strokeWidth={1.5}
+                  />
+                </span>
+              </div>
+
+              <p className="max-w-[46ch] text-fg-dim">{project.problem}</p>
+
+              <ul className="mt-auto flex list-none flex-wrap gap-2 pt-2">
                 {project.stack.map((tech) => (
-                  <li key={tech}>
-                    <MonoLabel>
-                      <span data-stack-tag>{tech}</span>
-                    </MonoLabel>
+                  <li
+                    key={tech}
+                    className="inline-flex items-center rounded-chip border border-pane-edge px-2.5 py-1"
+                  >
+                    <MonoLabel>{tech}</MonoLabel>
                   </li>
                 ))}
               </ul>
 
-              <MonoLabel>{project.metric}</MonoLabel>
-
-              <div className="mt-2 flex gap-5 [&_a]:border-b [&_a]:border-transparent [&_a]:text-accent-lift [&_a]:transition-[border-color] [&_a]:duration-200 [&_a]:ease-snap hover:[&_a]:border-accent-lift [&_button]:min-h-11 [&_button]:cursor-pointer [&_button]:border-b [&_button]:border-transparent [&_button]:text-accent-lift [&_button]:transition-[border-color] [&_button]:duration-200 [&_button]:ease-snap hover:[&_button]:border-accent-lift">
-                <button type="button" onClick={() => openDetail(project)}>
-                  View details
-                </button>
-                {project.liveUrl ? <a href={project.liveUrl}>Live</a> : null}
-                {project.repoUrl ? <a href={project.repoUrl}>Repo</a> : null}
-              </div>
-            </article>
+              {project.metric ? <MonoLabel>{project.metric}</MonoLabel> : null}
+            </a>
           ))}
         </div>
       )}
-
-      {open ? (
-        <div
-          /* Level 3 elevation. Now the only consumer of the deep blur tier,
-             since the hero front pane it was shared with was removed. */
-          className={[
-            'fixed inset-0 z-[200] grid content-center overflow-y-auto',
-            'py-[clamp(4rem,12vh,8rem)] backdrop-blur-deep',
-            // Translucent, not solid: a deep blur over an opaque fill is cost
-            // with no payoff, and the page behind should stay faintly legible.
-            'bg-[color-mix(in_srgb,var(--bg)_82%,transparent)]',
-          ].join(' ')}
-          role="dialog"
-          aria-modal="true"
-          aria-label={open.name}
-          data-lenis-prevent
-        >
-          <button type="button" className="absolute top-6 right-[clamp(1.25rem,5vw,5rem)] cursor-pointer" onClick={closeDetail}>
-            Close
-          </button>
-          <div className="container-page">
-            <h3 className="display-lg">{open.name}</h3>
-            <p className="body-lg">{open.problem}</p>
-            <MonoLabel>{open.metric}</MonoLabel>
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }
