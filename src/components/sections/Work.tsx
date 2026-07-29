@@ -37,6 +37,21 @@ import MonoLabel from '@/components/ui/MonoLabel';
  * NOT PINNED. The page has had no pinned section since the pan went.
  */
 
+/*
+ * NO data-magnetic ON THESE CARDS, and do not add it back.
+ *
+ * The cursor writes x and y to every [data-magnetic] element, and the drift
+ * below writes y to the card. Two writers on one transform fight frame by
+ * frame, which showed up as the cards shaking whenever the pointer was over
+ * one after a scroll.
+ *
+ * Magnetism is also simply the wrong tool at this size. It measures from the
+ * element's centre with a 100px radius and 8px of travel, which is tuned for
+ * icon buttons and links; on a 632px card the pointer sits outside that radius
+ * nearly everywhere, so the magnet spent its time snapping y back to zero
+ * while the scrub kept restoring it. Small controls keep it. Panels do not.
+ */
+
 /** Vertical drift across the viewport. Alternates by index, small on purpose. */
 const DRIFT = 18;
 
@@ -197,7 +212,6 @@ export default function Work() {
               /* Seeded so the gradient is centred before the first pointermove,
                  which matters for the keyboard focus state below. */
               style={{ ['--glow-x' as string]: 50, ['--glow-y' as string]: 50 }}
-              data-magnetic
             >
               {/* The glow. Its own layer under the content, so it never tints
                   the type. Accent as a fill, which is its only AA-passing use
