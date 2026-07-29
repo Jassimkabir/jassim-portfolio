@@ -356,7 +356,10 @@ export const FOOTER = {
   /* The year is computed in page.tsx, a server component, and passed down.
      Calling new Date() during a client render risks a hydration mismatch at a
      year boundary for a value that only changes once a year. */
-  credit: `Designed and built by ${IDENTITY.fullName}`,
+  /* Split from the name on purpose. The footer keeps the name on one line, so
+     it needs the two separately; as a single interpolated string the credit
+     broke mid-name on a 375px viewport and left "K" alone on its own line. */
+  creditPrefix: 'Designed and built by',
   backToTop: 'Back to top',
 } as const;
 
