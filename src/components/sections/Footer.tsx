@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowUp01Icon } from '@hugeicons/core-free-icons';
@@ -12,6 +12,7 @@ import { FOOTER, IDENTITY } from '@/content/site';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import SplitHeading from '@/components/ui/SplitHeading';
 import MonoLabel from '@/components/ui/MonoLabel';
+import TravellingUnderline from '@/components/ui/TravellingUnderline';
 
 /**
  * Name, quick links, and the bottom bar.
@@ -39,6 +40,10 @@ const QUICK_LINKS = [...NAV_LINKS, { id: 'contact', label: 'Contact' }];
 
 export default function Footer({ year }: { year: number }) {
   const root = useRef<HTMLElement>(null);
+  /* Cleared on leaving the LIST, not the link. The links have real gaps
+     between them and clearing per link makes the rule blink at every
+     crossing; see TravellingUnderline. */
+  const [hovered, setHovered] = useState<string | null>(null);
 
   useGSAP(
     () => {
@@ -100,19 +105,40 @@ export default function Footer({ year }: { year: number }) {
               {FOOTER.quickLinksLabel}
             </MonoLabel>
 
-            <ul className="grid list-none grid-cols-2 gap-x-[clamp(1.5rem,5vw,3rem)] gap-y-1 md:grid-cols-1">
+            {/* relative so the rule has somewhere to sit before it has
+                travelled into a link. */}
+            <ul
+              className="relative grid list-none grid-cols-2 gap-x-[clamp(1.5rem,5vw,3rem)] gap-y-1 md:grid-cols-1"
+              onMouseLeave={() => setHovered(null)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(null);
+              }}
+            >
               {QUICK_LINKS.map((link) => (
                 <li key={link.id} data-footer-reveal>
                   <button
                     type="button"
+                    data-footer-link={link.id}
                     onClick={() => scrollToSection(`#${link.id}`)}
+                    onMouseEnter={() => setHovered(link.id)}
+                    onFocus={() => setHovered(link.id)}
+                    /* tap-44 is what makes this position: relative, which the
+                       rule measures against once reparented. */
+                    /* NO data-magnetic HERE, and it is not only taste. The
+                       cursor writes x and y to a magnetised element, and the
+                       rule is a child of the link it has travelled into. Flip
+                       captures viewport rects, so leaving a link that is
+                       mid-pull records the offset position and the travel then
+                       animates toward a target that is still moving. The
+                       effect this list was given is smoother without it. */
                     className="tap-44 inline-flex cursor-pointer items-center text-fg-dim transition-colors duration-200 ease-snap hover:text-accent-lift"
-                    data-magnetic
                   >
                     {link.label}
                   </button>
                 </li>
               ))}
+
+              <TravellingUnderline hovered={hovered} attr="data-footer-link" />
             </ul>
           </nav>
         </div>

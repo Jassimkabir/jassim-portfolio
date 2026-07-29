@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 
-import { gsap, Flip, SplitText, DUR, EASE } from '@/lib/gsap';
+import { gsap, SplitText, DUR, EASE } from '@/lib/gsap';
 import { scrollState, scrollToSection, lockScroll, unlockScroll } from '@/lib/scroll';
 import { NAV_LINKS } from '@/lib/nav';
 import { IDENTITY, HERO } from '@/content/site';
+import TravellingUnderline from '@/components/ui/TravellingUnderline';
 
 const MOBILE_QUERY = '(max-width: 767px)';
 
@@ -27,7 +28,6 @@ const MOBILE_QUERY = '(max-width: 767px)';
  */
 export default function Nav() {
   const ref = useRef<HTMLElement>(null);
-  const underline = useRef<HTMLSpanElement>(null);
   const burger = useRef<HTMLButtonElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
 
@@ -78,44 +78,6 @@ export default function Nav() {
       return () => mm.revert();
     },
     { scope: ref },
-  );
-
-  /* ── hover underline, travelling via Flip ───────────────────────────────── */
-  useGSAP(
-    () => {
-      const bar = underline.current;
-      if (!bar) return;
-
-      if (!hovered) {
-        gsap.to(bar, { opacity: 0, duration: 0.18, ease: EASE.snap });
-        return;
-      }
-
-      const target = document.querySelector<HTMLElement>(`[data-nav-link="${hovered}"]`);
-      if (!target) return;
-
-      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (target === bar.parentElement) {
-        gsap.to(bar, { opacity: 1, duration: 0.18, ease: EASE.snap });
-        return;
-      }
-
-      if (reduced) {
-        target.appendChild(bar);
-        gsap.set(bar, { opacity: 1 });
-        return;
-      }
-
-      /* Flip so the rule travels between links instead of fading out and in.
-         This is Flip's third job, after the Work card morph and the theme
-         toggle settle. */
-      const state = Flip.getState(bar);
-      target.appendChild(bar);
-      gsap.set(bar, { opacity: 1 });
-      Flip.from(state, { duration: 0.34, ease: EASE.snap, absolute: true });
-    },
-    { dependencies: [hovered], scope: ref },
   );
 
   /* ── wordmark width axis on hover ───────────────────────────────────────── */
@@ -311,7 +273,26 @@ export default function Nav() {
           </a>
 
           <nav aria-label="Main" className="relative ml-auto flex-none max-md:hidden">
-            <ul className="flex list-none items-center gap-6 lg:gap-8">
+            {/*
+              LEAVE IS HANDLED HERE, NOT ON THE LINKS, and putting it back on
+              them reintroduces a real bug. The links are separated by 32px of
+              gap, so a pointer moving from one to the next passes through dead
+              space. With onMouseLeave per link that cleared the hover every
+              time, and the rule faded to 0 and snapped back on at the next
+              link. Measured: opacity ran 1 to 0 and back to 1 on every
+              crossing. Scoped to the list, crossing a gap changes nothing.
+
+              onBlur is here for the same reason and checks relatedTarget,
+              because React bubbles blur where the DOM does not: tabbing from
+              one link to the next would otherwise clear it too.
+            */}
+            <ul
+              className="flex list-none items-center gap-6 lg:gap-8"
+              onMouseLeave={() => setHovered(null)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(null);
+              }}
+            >
               {NAV_LINKS.map((item) => (
                 <li key={item.id}>
                   <a
@@ -319,9 +300,7 @@ export default function Nav() {
                     data-nav-link={item.id}
                     className="label tap-44 inline-block py-[0.35rem] transition-colors duration-200 ease-snap hover:text-fg focus-visible:text-fg"
                     onMouseEnter={() => setHovered(item.id)}
-                    onMouseLeave={() => setHovered(null)}
                     onFocus={() => setHovered(item.id)}
-                    onBlur={() => setHovered(null)}
                     onClick={(e) => {
                       e.preventDefault();
                       go(item.id);
@@ -332,14 +311,7 @@ export default function Nav() {
                 </li>
               ))}
             </ul>
-            {/* Travels into whichever link is hovered. Hidden otherwise. */}
-            {/* Hover affordance only, no active state. Accent as a 1px hairline
-                needs the lift value on the dark base. */}
-            <span
-              ref={underline}
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-accent-lift opacity-0"
-            />
+            <TravellingUnderline hovered={hovered} attr="data-nav-link" />
           </nav>
 
           <a
