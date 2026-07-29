@@ -276,15 +276,29 @@ export default function Nav() {
 
   return (
     <>
-      <a href="#main" className="skip-link">
+      <a
+        href="#main"
+        className="fixed top-2 left-2 z-[200] -translate-y-[200%] rounded-pane bg-accent px-5 py-3 text-accent-fg transition-transform duration-200 ease-snap focus-visible:translate-y-0"
+      >
         Skip to content
       </a>
 
-      <header ref={ref} className="nav">
-        <div className="nav__row">
+      <header
+        ref={ref}
+        /* z-160 puts it ABOVE the overlay (150): the burger is the close
+           control too, so it must stay visible and clickable while the overlay
+           is open, and the bars must animate into the X in place.
+           backdrop-blur is deliberately absent from the transition: `none` and
+           a blur function are not interpolable, and including it made the
+           browser reject the whole declaration. */
+        className="fixed top-0 right-0 left-0 z-[160] h-[var(--nav-h)] bg-[color-mix(in_srgb,var(--bg)_72%,transparent)] backdrop-blur-veil transition-[background-color] duration-300 ease-snap"
+      >
+        <div className="mx-auto flex h-full max-w-[var(--container-page)] items-center gap-[clamp(1rem,3vw,2rem)] gutter-x">
           <a
             href="#home"
-            className="nav__wordmark"
+            /* The wordmark belongs to the display system, not the body system, so it
+               reads as an identity rather than a label. */
+            className="tap-44 flex-none font-display text-[1.15rem] leading-none font-semibold tracking-[-0.02em] [font-variation-settings:'wdth'_75]"
             data-wdth="75"
             onMouseEnter={(e) => wordmarkAxis(e.currentTarget, 88)}
             onMouseLeave={(e) => wordmarkAxis(e.currentTarget, 75)}
@@ -296,13 +310,14 @@ export default function Nav() {
             {IDENTITY.shortName}
           </a>
 
-          <nav aria-label="Main" className="nav__links">
-            <ul>
+          <nav aria-label="Main" className="relative ml-auto flex-none max-md:hidden">
+            <ul className="flex list-none items-center gap-6 lg:gap-8">
               {NAV_LINKS.map((item) => (
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
                     data-nav-link={item.id}
+                    className="label tap-44 inline-block py-[0.35rem] transition-colors duration-200 ease-snap hover:text-fg focus-visible:text-fg"
                     onMouseEnter={() => setHovered(item.id)}
                     onMouseLeave={() => setHovered(null)}
                     onFocus={() => setHovered(item.id)}
@@ -318,12 +333,18 @@ export default function Nav() {
               ))}
             </ul>
             {/* Travels into whichever link is hovered. Hidden otherwise. */}
-            <span ref={underline} className="nav__underline" aria-hidden="true" />
+            {/* Hover affordance only, no active state. Accent as a 1px hairline
+                needs the lift value on the dark base. */}
+            <span
+              ref={underline}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-accent-lift opacity-0"
+            />
           </nav>
 
           <a
             href="#contact"
-            className="btn-primary nav__cta"
+            className="flex-none inline-flex items-center justify-center rounded-pane bg-accent px-[1.1rem] min-h-11 py-[0.6rem] text-[0.85rem] font-semibold text-accent-fg cursor-pointer max-md:hidden transition-[background-color,transform] duration-200 ease-snap hover:bg-accent-press active:translate-y-px"
             data-magnetic
             onClick={(e) => {
               e.preventDefault();
@@ -336,14 +357,14 @@ export default function Nav() {
           <button
             ref={burger}
             type="button"
-            className="nav__burger"
+            className="ml-auto hidden size-11 flex-none place-items-center content-center gap-[5px] max-md:grid"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((v) => !v)}
           >
-            <span data-burger-top aria-hidden="true" />
-            <span data-burger-bottom aria-hidden="true" />
+            <span data-burger-top aria-hidden="true" className="block h-[1.5px] w-[22px] rounded-sm bg-fg" />
+            <span data-burger-bottom aria-hidden="true" className="block h-[1.5px] w-[22px] rounded-sm bg-fg" />
           </button>
         </div>
       </header>
@@ -351,17 +372,17 @@ export default function Nav() {
       <div
         id="mobile-menu"
         ref={overlay}
-        className="nav__overlay"
+        className="fixed inset-0 z-[150] hidden flex-col justify-center gap-[clamp(2rem,6vh,4rem)] overflow-y-auto bg-[color-mix(in_srgb,var(--bg)_96%,transparent)] pt-[calc(var(--nav-h)+2rem)] pb-8 backdrop-blur-deep gutter-x data-[open=true]:flex"
         data-open={open ? 'true' : 'false'}
         aria-hidden={open ? undefined : true}
         data-lenis-prevent
       >
-        <ul className="nav__overlay-list">
+        <ul className="grid list-none gap-[clamp(1rem,3vh,2rem)]">
           {NAV_LINKS.map((item) => (
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                className="display-lg"
+                className="display-lg inline-block min-h-11"
                 data-overlay-line
                 onClick={(e) => {
                   e.preventDefault();
@@ -377,7 +398,7 @@ export default function Nav() {
         <a
           href="#contact"
           data-overlay-cta
-          className="btn-primary nav__overlay-cta"
+          className="mt-auto w-full inline-flex items-center justify-center px-7 py-3.5 bg-accent text-accent-fg rounded-pane font-semibold cursor-pointer transition-[background-color,transform] duration-200 ease-snap hover:bg-accent-press active:translate-y-px"
           onClick={(e) => {
             e.preventDefault();
             go('contact');

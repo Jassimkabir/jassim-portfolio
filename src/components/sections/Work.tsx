@@ -142,8 +142,8 @@ export default function Work() {
   }, []);
 
   return (
-    <section ref={root} id="work" className="section work">
-      <div className="container work__head">
+    <section ref={root} id="work" className="section-y work">
+      <div className="container-page mb-[clamp(2.5rem,6vh,4rem)]">
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Selected work
         </SplitHeading>
@@ -152,8 +152,8 @@ export default function Work() {
       {WORK.projects.length === 0 ? (
         /* Honest empty state. A placeholder project would be a lie, and this
            is the section a hiring manager reads most carefully. */
-        <div className="container">
-          <div className="pane work__pending">
+        <div className="container-page">
+          <div className="pane grid max-w-[60ch] gap-4 p-[clamp(1.75rem,4vw,3rem)]">
             <MonoLabel>Needs input</MonoLabel>
             <p className="body-lg">
               Three to five projects, each with a name, a one-line problem, its stack, one
@@ -163,25 +163,33 @@ export default function Work() {
           </div>
         </div>
       ) : (
-        <div ref={track} className="work__track">
+        <div
+          ref={track}
+          /* Mobile drops the pin entirely for a native snap carousel: pinning
+             fights touch scroll and costs more than it returns there. */
+          className={[
+            'flex w-max gutter-x gap-[clamp(1.5rem,3vw,2.5rem)] will-change-transform',
+            'max-md:w-auto max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:will-change-auto',
+          ].join(' ')}
+        >
           {WORK.projects.map((project) => (
-            <article key={project.name} data-work-card className="pane is-pane-blur work__card">
+            <article key={project.name} data-work-card className="pane grid w-[min(80vw,30rem)] flex-none content-start gap-4 p-[clamp(1.5rem,3vw,2.5rem)] backdrop-blur-pane max-md:snap-center">
               <h3 className="heading">{project.name}</h3>
-              <p className="work__problem">{project.problem}</p>
+              <p className="text-fg-dim">{project.problem}</p>
 
-              <ul className="work__stack">
+              <ul className="flex list-none flex-wrap gap-2">
                 {project.stack.map((tech) => (
                   <li key={tech}>
-                    <MonoLabel className="work__tag">
+                    <MonoLabel>
                       <span data-stack-tag>{tech}</span>
                     </MonoLabel>
                   </li>
                 ))}
               </ul>
 
-              <MonoLabel className="work__metric">{project.metric}</MonoLabel>
+              <MonoLabel>{project.metric}</MonoLabel>
 
-              <div className="work__links">
+              <div className="mt-2 flex gap-5 [&_a]:border-b [&_a]:border-transparent [&_a]:text-accent-lift [&_a]:transition-[border-color] [&_a]:duration-200 [&_a]:ease-snap hover:[&_a]:border-accent-lift [&_button]:min-h-11 [&_button]:cursor-pointer [&_button]:border-b [&_button]:border-transparent [&_button]:text-accent-lift [&_button]:transition-[border-color] [&_button]:duration-200 [&_button]:ease-snap hover:[&_button]:border-accent-lift">
                 <button type="button" onClick={() => openDetail(project)}>
                   View details
                 </button>
@@ -197,16 +205,22 @@ export default function Work() {
         <div
           /* Level 3 elevation. Now the only consumer of the deep blur tier,
              since the hero front pane it was shared with was removed. */
-          className="work__detail is-deep"
+          className={[
+            'fixed inset-0 z-[200] grid content-center overflow-y-auto',
+            'py-[clamp(4rem,12vh,8rem)] backdrop-blur-deep',
+            // Translucent, not solid: a deep blur over an opaque fill is cost
+            // with no payoff, and the page behind should stay faintly legible.
+            'bg-[color-mix(in_srgb,var(--bg)_82%,transparent)]',
+          ].join(' ')}
           role="dialog"
           aria-modal="true"
           aria-label={open.name}
           data-lenis-prevent
         >
-          <button type="button" className="work__close" onClick={closeDetail}>
+          <button type="button" className="absolute top-6 right-[clamp(1.25rem,5vw,5rem)] cursor-pointer" onClick={closeDetail}>
             Close
           </button>
-          <div className="container">
+          <div className="container-page">
             <h3 className="display-lg">{open.name}</h3>
             <p className="body-lg">{open.problem}</p>
             <MonoLabel>{open.metric}</MonoLabel>

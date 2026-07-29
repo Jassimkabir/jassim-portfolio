@@ -63,15 +63,15 @@ export default function Experience() {
   );
 
   return (
-    <section ref={root} id="experience" className="section experience">
-      <div className="container">
+    <section ref={root} id="experience" className="section-y experience">
+      <div className="container-page">
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Where I have worked
         </SplitHeading>
 
-        <div className="experience__timeline">
+        <div className="relative mt-[clamp(2.5rem,6vh,4rem)]">
           <svg
-            className="experience__spine"
+            className="absolute top-0 bottom-0 left-0 h-full w-0.5 overflow-visible md:left-1/2 md:-translate-x-1/2"
             viewBox="0 0 2 100"
             preserveAspectRatio="none"
             aria-hidden="true"
@@ -88,22 +88,27 @@ export default function Experience() {
             />
           </svg>
 
-          <ol className="experience__list">
+          <ol className="grid list-none gap-[clamp(2.5rem,7vh,5rem)]">
             {EXPERIENCE.map((role, i) => (
               <li
                 key={role.company}
                 data-experience-entry
-                className={i % 2 === 0 ? 'experience__entry' : 'experience__entry is-right'}
+                className={[
+                  'pl-8 md:w-1/2 md:pl-0',
+                  i % 2 === 0
+                    ? 'md:pr-[clamp(2rem,4vw,4rem)]'
+                    : 'md:ml-[50%] md:pr-0 md:pl-[clamp(2rem,4vw,4rem)]',
+                ].join(' ')}
               >
-                <div className="experience__card">
+                <div className="grid gap-[0.6rem]">
                   <MonoLabel>
                     {role.from} to {role.to}
                   </MonoLabel>
                   <h3 className="heading">{role.company}</h3>
-                  <p className="experience__role">
+                  <p className="text-fg-dim">
                     {role.role}, {role.city}
                   </p>
-                  <ul className="experience__bullets">
+                  <ul className="mt-[0.4rem] grid gap-2 pl-[1.1rem] text-fg-dim marker:text-accent-lift">
                     {role.bullets.map((b) => (
                       <li key={b}>{b}</li>
                     ))}

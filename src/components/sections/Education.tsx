@@ -41,30 +41,30 @@ export default function Education() {
   );
 
   return (
-    <section ref={root} id="education" className="section education">
-      <div className="container education__grid">
-        <MonoLabel data-education className="education__eyebrow">
+    <section ref={root} id="education" className="section-y education">
+      <div className="container-page grid gap-5 md:grid-cols-[auto_1fr_auto] md:items-baseline md:gap-x-[clamp(2rem,6vw,6rem)]">
+        <MonoLabel data-education>
           Education
         </MonoLabel>
 
-        <div data-education className="education__body">
-          <h2 className="display-lg education__degree">{EDUCATION.degree}</h2>
-          <p className="body-lg education__institution">
+        <div data-education className="grid gap-3">
+          <h2 className="display-lg max-w-[20ch]">{EDUCATION.degree}</h2>
+          <p className="body-lg text-fg-dim">
             {EDUCATION.institution}, {EDUCATION.city}
           </p>
         </div>
 
-        <MonoLabel data-education className="education__dates">
+        <MonoLabel data-education>
           {EDUCATION.from} to {EDUCATION.to}
         </MonoLabel>
 
         {/* Renders only when real certifications exist. An empty "coming soon"
             row would be worse than nothing. */}
         {EDUCATION.certifications.length > 0 ? (
-          <ul data-education className="education__certs">
+          <ul data-education className="col-span-full mt-[clamp(2rem,5vh,3rem)] grid list-none gap-4">
             {EDUCATION.certifications.map((cert) => (
-              <li key={cert.name}>
-                <span className="education__cert-name">{cert.name}</span>
+              <li key={cert.name} className="grid gap-[0.3rem]">
+                <span className="font-display text-[1.05rem] font-medium">{cert.name}</span>
                 <MonoLabel>
                   {cert.issuer}, {cert.year}
                 </MonoLabel>

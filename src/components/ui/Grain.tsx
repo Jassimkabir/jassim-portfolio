@@ -11,7 +11,20 @@
  */
 export default function Grain() {
   return (
-    <svg className="grain" aria-hidden="true" focusable="false">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      className={[
+        // Oversized so the stepped translate never exposes an edge.
+        'pointer-events-none fixed -inset-[60px] z-[9999] mix-blend-overlay',
+        'opacity-[var(--grain-opacity)]',
+        // Own compositor layer, so the blend composites once rather than
+        // forcing a whole-screen re-composite every scroll frame. Commit
+        // dde66e5 hit exactly that bug; see MASTER.md before removing it.
+        'transform-gpu will-change-transform',
+        'animate-grain motion-reduce:animate-none motion-reduce:will-change-auto',
+      ].join(' ')}
+    >
       <filter id="grain-filter">
         <feTurbulence
           type="fractalNoise"

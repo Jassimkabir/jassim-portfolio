@@ -118,5 +118,19 @@ export default function Cursor() {
     return () => mm.revert();
   }, []);
 
-  return <div ref={ref} className="cursor" aria-hidden="true" />;
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className={[
+        'pointer-events-none fixed top-0 left-0 z-[9997] -mt-1.5 -ml-1.5 size-3',
+        'rounded-chip border border-accent-lift opacity-0',
+        'transition-[opacity,scale] duration-200 ease-snap',
+        'data-[active=true]:opacity-100',
+        // Never the only affordance for anything, so it only ever scales.
+        'data-[hovering=true]:scale-[2.2]',
+        'motion-reduce:hidden',
+      ].join(' ')}
+    />
+  );
 }

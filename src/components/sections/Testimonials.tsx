@@ -61,28 +61,29 @@ export default function Testimonials() {
   const [lead, ...rest] = TESTIMONIALS;
 
   return (
-    <section ref={root} id="testimonials" className="section testimonials">
-      <div className="container">
+    <section ref={root} id="testimonials" className="section-y testimonials">
+      <div className="container-page">
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           What people say
         </SplitHeading>
 
-        <figure data-testimonial className="testimonials__lead">
-          <blockquote className="heading">{lead.quote}</blockquote>
+        <figure data-testimonial className="mt-[clamp(2.5rem,6vh,4rem)] grid max-w-[46rem] gap-6">
+          <blockquote className="heading text-pretty">{lead.quote}</blockquote>
           <figcaption>
-            <span className="testimonials__name">{lead.name}</span>
+            <span className="mb-1 block font-display font-medium">{lead.name}</span>
             <MonoLabel>
               {lead.role}, {lead.company}
             </MonoLabel>
           </figcaption>
         </figure>
 
-        <div className="testimonials__rest">
+        <div className="mt-[clamp(2.5rem,6vh,4rem)] grid gap-[clamp(1.25rem,3vw,2rem)] md:grid-cols-2 md:items-start">
           {rest.map((item) => (
-            <figure key={item.name} data-testimonial className="pane testimonials__item">
-              <blockquote>{item.quote}</blockquote>
+            <figure key={item.name} data-testimonial /* Broken alignment so the pair never reads as a two-card row. */
+              className="pane grid gap-5 p-[clamp(1.5rem,3vw,2.25rem)] md:even:mt-[clamp(2rem,5vh,4rem)]">
+              <blockquote className="text-fg-dim text-pretty">{item.quote}</blockquote>
               <figcaption>
-                <span className="testimonials__name">{item.name}</span>
+                <span className="mb-1 block font-display font-medium">{item.name}</span>
                 <MonoLabel>
                   {item.role}, {item.company}
                 </MonoLabel>

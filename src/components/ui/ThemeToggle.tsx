@@ -98,7 +98,12 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={`Switch to ${nextLabel} theme`}
-      className="theme-toggle"
+      className={[
+        'grid size-11 cursor-pointer place-items-center rounded-pane',
+        'border border-pane-edge text-fg-dim',
+        'transition-[color,border-color] duration-200 ease-snap',
+        'hover:border-accent-lift hover:text-fg',
+      ].join(' ')}
       data-magnetic
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}

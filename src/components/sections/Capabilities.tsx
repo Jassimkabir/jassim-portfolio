@@ -55,32 +55,39 @@ export default function Capabilities() {
   );
 
   return (
-    <section ref={root} id="services" className="section capabilities">
-      <div className="container">
+    <section ref={root} id="services" className="section-y capabilities">
+      <div className="container-page">
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           What I actually do
         </SplitHeading>
 
-        <div className="capabilities__list">
+        <div className="mt-[clamp(2.5rem,6vh,4rem)] grid gap-[clamp(2.5rem,7vh,5.5rem)]">
           {CAPABILITIES.map((cap, i) => (
             <article
               key={cap.title}
               data-capability
-              className={i % 2 === 0 ? 'capabilities__row' : 'capabilities__row is-flipped'}
+              /* Widths flip 60/40 to 40/60 down the column. Not three equal
+                 cards, and no border-t plus border-b list. */
+              className={[
+                'grid gap-6 md:items-center md:gap-[clamp(2rem,5vw,4rem)]',
+                i % 2 === 0
+                  ? 'md:grid-cols-[6fr_4fr]'
+                  : 'md:grid-cols-[4fr_6fr] md:[&>*:first-child]:order-2',
+              ].join(' ')}
             >
-              <div className="capabilities__body">
+              <div className="grid gap-[0.85rem]">
                 <h3 className="heading">{cap.title}</h3>
-                <p className="capabilities__text">{cap.body}</p>
+                <p className="max-w-[52ch] text-fg-dim">{cap.body}</p>
               </div>
 
-              <div className="pane capabilities__evidence">
-                <span className="capabilities__figure">
+              <div className="pane grid content-center gap-[0.4rem] p-[clamp(1.5rem,3vw,2.25rem)]">
+                <span className="font-display text-[clamp(2.5rem,5vw,4rem)] font-bold leading-none tracking-[-0.03em]">
                   <Counter value={cap.evidence.value} suffix={cap.evidence.suffix} />
                 </span>
-                <span className="capabilities__evidence-label">{cap.evidence.label}</span>
+                <span className="text-fg-dim">{cap.evidence.label}</span>
                 {/* The mechanism sits with the number. This is the whole point
                     of the section. */}
-                <MonoLabel className="capabilities__mechanism">
+                <MonoLabel className="mt-2 leading-normal tracking-[0.04em] normal-case">
                   {cap.evidence.mechanism}
                 </MonoLabel>
               </div>

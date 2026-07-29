@@ -61,16 +61,20 @@ export default function Numbers() {
   );
 
   return (
-    <section ref={root} id="stats" className="section numbers">
-      <div className="container numbers__grid">
+    <section ref={root} id="stats" className="section-y numbers">
+      <div className="container-page grid grid-cols-2 gap-[clamp(1rem,3vw,2rem)] lg:grid-cols-4 lg:items-start">
         {NUMBERS.map((item, i) => (
           <div
             key={item.label}
             data-number
-            className="pane numbers__item"
-            style={{ '--depth': i } as React.CSSProperties}
+            /* Vertical offsets so the four never sit on one baseline, which
+               is what lets the parallax read as depth rather than as drift. */
+            className={[
+              'pane grid gap-2 p-[clamp(1.25rem,3vw,2rem)]',
+              ['', 'lg:mt-16', 'lg:mt-6', 'lg:mt-22'][i % 4],
+            ].join(' ')}
           >
-            <span className="display-lg numbers__figure">
+            <span className="display-lg block">
               {/* The one CustomWiggle on the page. Nothing else overshoots. */}
               <Counter value={item.value} suffix={item.suffix} overshoot />
             </span>

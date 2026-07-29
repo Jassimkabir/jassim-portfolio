@@ -100,30 +100,32 @@ export default function About() {
   );
 
   return (
-    <section ref={root} id="about" className="section about">
-      <div className="container about__grid">
-        <div data-about-column className="about__column">
+    <section ref={root} id="about" className="section-y about">
+      <div className="container-page grid grid-cols-1 gap-[clamp(3rem,8vw,7rem)] lg:grid-cols-[40%_1fr] lg:items-start">
+        <div data-about-column className="grid content-start gap-6">
           <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
             Three companies, one direction
           </SplitHeading>
 
           {ABOUT.paragraphs.map((p) => (
-            <p key={p} data-about-para className="body-lg about__para">
+            <p key={p} data-about-para className="body-lg max-w-[42ch] text-fg-dim">
               {p}
             </p>
           ))}
         </div>
 
-        <div className="about__artifacts">
+        <div className="grid gap-[clamp(2rem,6vh,5rem)]">
           {ABOUT.artifacts.map((a) => (
             <article
               key={a.label}
               data-about-artifact
-              className="pane about__artifact"
+              /* Staggered horizontally so the column reads as drifting rather
+                 than as a second list. */
+              className="pane grid max-w-[32rem] gap-[0.65rem] p-[clamp(1.5rem,3vw,2.25rem)] nth-2:justify-self-end nth-3:justify-self-center"
             >
               <MonoLabel>{a.meta}</MonoLabel>
               <h3 className="heading">{a.label}</h3>
-              <p className="about__artifact-detail">{a.detail}</p>
+              <p className="text-fg-dim">{a.detail}</p>
             </article>
           ))}
         </div>

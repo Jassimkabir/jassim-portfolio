@@ -78,46 +78,53 @@ export default function Proof() {
   );
 
   return (
-    <section ref={root} id="terminal" className="section proof">
-      <div className="container">
+    <section ref={root} id="terminal" className="section-y proof">
+      <div className="container-page">
         <SplitHeading as="h2" variant="display-lg" widthAxis={{ from: 92, to: 100 }}>
           Written work
         </SplitHeading>
 
         {/* Without assets the article pane runs full width rather than sitting
             next to empty placeholder boxes. */}
-        <div className={hasAssets ? 'proof__grid' : 'proof__grid is-solo'}>
-          <article data-proof-item className="pane is-pane-blur proof__article">
+        <div
+          className={[
+            'mt-[clamp(2.5rem,6vh,4rem)] grid gap-6 lg:items-start',
+            // Without assets the article runs full width rather than sitting
+            // beside an empty column.
+            hasAssets ? 'lg:grid-cols-[7fr_3fr]' : 'lg:grid-cols-1',
+          ].join(' ')}
+        >
+          <article data-proof-item className="pane grid gap-5 p-[clamp(1.75rem,4vw,3.25rem)] backdrop-blur-pane">
             <MonoLabel>Article</MonoLabel>
 
-            <h3 className="heading proof__title">{PROOF.article.title}</h3>
+            <h3 className="heading max-w-[24ch]">{PROOF.article.title}</h3>
 
             {hasExcerpt ? (
-              <p ref={excerpt} className="body-lg proof__excerpt">
+              <p ref={excerpt} className="body-lg max-w-[62ch] text-fg-dim">
                 {PROOF.article.excerpt}
               </p>
             ) : (
               /* No excerpt supplied. The pane ships without prose rather than
                  with prose invented from the title. */
-              <p className="proof__pending">
+              <p className="font-mono text-[0.85rem] text-fg-dim">
                 NEEDS INPUT: published URL and four to five lines of the real opening.
               </p>
             )}
 
             {PROOF.article.url ? (
-              <a href={PROOF.article.url} className="proof__link" data-magnetic>
+              <a href={PROOF.article.url} className="tap-44 justify-self-start border-b border-accent-lift pb-0.5 text-accent-lift transition-[color,border-color] duration-200 ease-snap hover:border-fg hover:text-fg" data-magnetic>
                 {PROOF.article.cta}
               </a>
             ) : null}
           </article>
 
           {hasAssets ? (
-            <div className="proof__assets">
+            <div className="grid gap-6">
               {PROOF.assets.map((asset) => (
-                <figure key={asset.src} data-proof-item className="pane proof__asset">
+                <figure key={asset.src} data-proof-item className="pane overflow-hidden p-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={asset.src} alt={asset.alt} />
-                  <figcaption>
+                  <figcaption className="p-4">
                     <MonoLabel>{asset.caption}</MonoLabel>
                   </figcaption>
                 </figure>

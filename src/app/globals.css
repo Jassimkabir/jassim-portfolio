@@ -1,10 +1,12 @@
 @import 'tailwindcss';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   DARKROOM token system
+   DARKROOM token system, Tailwind v4
 
-   Custom tokens, not Material and not Carbon. This is an aesthetic brief with
-   no design-system mandate, so the scale is bespoke and labelled as such.
+   This file is deliberately small. It holds only what utilities cannot express:
+   runtime theme variables, the @theme token mapping, a handful of @utility
+   definitions for design-token-level abstractions, base element styles, and one
+   keyframe set. Everything else is utilities in the markup.
 
    Full rationale, measured contrast tables and the locks live in
    design-system/jassim/MASTER.md. Read that before changing anything here.
@@ -16,14 +18,17 @@
    3. One radius, plus the chip pill as the single documented exception.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ── runtime theme variables ─────────────────────────────────────────────────
+   These stay hand-written rather than living in @theme, because they are
+   swapped at runtime by the theme toggle. @theme values are static. */
+
 :root {
   color-scheme: dark;
 
   --bg: #0a100d;
   --bg-raised: #141b17;
-  /* Lifted from 0.05 / 0.13. At the original values a pane sitting over the
-     flat base was a barely-there smudge rather than a surface, and the whole
-     page read as unstyled. Still hairline, now legible. */
+  /* Hairline, but legible. At lower alpha a pane over the flat base was a
+     smudge rather than a surface and the page read as unstyled. */
   --pane: rgba(214, 213, 201, 0.07);
   --pane-edge: rgba(214, 213, 201, 0.2);
   --fg: #d6d5c9;
@@ -38,26 +43,7 @@
   /* Grain reads stronger on bone, so light needs less of it. */
   --grain-opacity: 0.05;
 
-  /* The only three blur values. */
-  --blur-veil: 12px;
-  --blur-pane: 22px;
-  --blur-deep: 36px;
-
-  --radius: 20px;
-  --radius-pill: 9999px;
-
-  /* CSS mirrors of the two CustomEase curves in src/lib/gsap.ts. */
-  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-snap: cubic-bezier(0.65, 0, 0.35, 1);
-
   --nav-h: 72px;
-  --container: 1440px;
-  --gutter: clamp(1.25rem, 5vw, 5rem);
-  --section-rhythm: clamp(7rem, 13vh, 11rem);
-
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 [data-theme='light'] {
@@ -73,8 +59,6 @@
    * The value the brief proposed here measured 4.28:1 on the bone base and
    * failed AA for normal text. This is the same supplied sage darkened
    * further: 4.80:1 on --bg, 5.50:1 on --bg-raised. Do not lighten it.
-   * The rejected value is recorded in design-system/jassim/MASTER.md; it is
-   * not repeated here so hex greps stay clean.
    */
   --fg-dim: #59594e;
 
@@ -85,8 +69,30 @@
   --grain-opacity: 0.038;
 }
 
-/* Tailwind v4 utilities point at the runtime variables, so theme switching
-   works without rebuilding the utility classes. */
+/* Blur tiers are runtime variables too, because mobile drops each one a step
+   and @theme cannot be overridden inside a media query. Non-inline @theme below
+   makes the utilities reference these by var(), so the override propagates. */
+:root {
+  --blur-veil: 12px;
+  --blur-pane: 22px;
+  --blur-deep: 36px;
+}
+
+@media (width < 48rem) {
+  :root {
+    /* Header zone shrinks with the breakpoint. The Lenis scroll offset reads
+       this same variable, so anchors cannot drift from the rendered height. */
+    --nav-h: 64px;
+    --blur-veil: 12px;
+    --blur-pane: 16px;
+    --blur-deep: 22px;
+  }
+}
+
+/* ── theme ───────────────────────────────────────────────────────────────── */
+
+/* `inline` so the colour utilities emit var(--bg) directly and follow the
+   runtime theme swap instead of freezing a value at build time. */
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-raised: var(--bg-raised);
@@ -98,101 +104,77 @@
   --color-accent-press: var(--accent-press);
   --color-accent-lift: var(--accent-lift);
   --color-accent-fg: var(--accent-fg);
-
-  --radius-pane: var(--radius);
-  --radius-chip: var(--radius-pill);
 }
 
-/* ── base ────────────────────────────────────────────────────────────────── */
+/* Not inline: these must resolve through var() so the mobile blur override and
+   the font variables set by next/font are picked up at runtime. */
+@theme {
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  --radius-pane: 20px;
+  --radius-chip: 9999px;
 
-html {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  /* Lenis owns scroll. Native smooth scrolling would fight it. */
-  scroll-behavior: auto;
-  /* `clip`, not `hidden`. overflow-x: hidden on body alone makes body a scroll
-     container whose scrollWidth still propagates up, so html kept a horizontal
-     scrollbar at 768 and 375. `clip` clips without creating a scroll container
-     and leaves vertical scrolling (and therefore Lenis) untouched. */
-  overflow-x: clip;
-}
+  --blur-veil: 12px;
+  --blur-pane: 22px;
+  --blur-deep: 36px;
 
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.6;
-  overflow-x: clip;
-  transition:
-    background 320ms var(--ease-snap),
-    color 320ms var(--ease-snap);
-}
+  /* CSS mirrors of the two CustomEase curves in src/lib/gsap.ts. Change both
+     together or the page desyncs from its own motion. */
+  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.65, 0, 0.35, 1);
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
+  --container-page: 1440px;
 
-a {
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-}
+  /* Eight offsets at 8fps. Smoothly moving grain looks like a dirty screen.
+     Stepped grain looks like film. */
+  --animate-grain: grain-shift 1s steps(1, end) infinite;
 
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-::selection {
-  background: var(--accent);
-  color: var(--accent-fg);
-}
-
-/* Accent as a hairline fails on the dark base, so focus rings use the lift
-   value in both themes. Never carry an affordance on --accent alone. */
-:focus-visible {
-  outline: 2px solid var(--accent-lift);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* Hide the pointer only where the custom cursor actually replaces it. */
-@media (hover: hover) and (pointer: fine) {
-  body[data-cursor='custom'] {
-    cursor: none;
+  @keyframes grain-shift {
+    0% { transform: translate3d(0, 0, 0); }
+    12.5% { transform: translate3d(-14px, 8px, 0); }
+    25% { transform: translate3d(9px, -16px, 0); }
+    37.5% { transform: translate3d(-19px, -6px, 0); }
+    50% { transform: translate3d(16px, 11px, 0); }
+    62.5% { transform: translate3d(-7px, 18px, 0); }
+    75% { transform: translate3d(13px, -11px, 0); }
+    87.5% { transform: translate3d(-16px, -14px, 0); }
   }
 }
 
-/* ── layout primitives ───────────────────────────────────────────────────── */
+/* ── custom variants ─────────────────────────────────────────────────────── */
 
-.container {
-  width: 100%;
-  max-width: var(--container);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
+/* Free Lenis hook. Suspending hover transitions during fast scroll removes a
+   real and commonly missed jank source. Usage: `scrolling:transition-none`. */
+@custom-variant scrolling (&:where(:root.lenis-scrolling *));
 
-.section {
-  padding-block: var(--section-rhythm);
-}
+/* Short laptops: the figure yields before the CTA does, so the primary action
+   stays visible without scrolling at every breakpoint. */
+@custom-variant short (@media (width >= 48rem) and (height <= 45rem));
 
-/* ── type scale ──────────────────────────────────────────────────────────── */
+/* For the rare case a component needs to diverge by theme beyond a token. */
+@custom-variant light (&:where([data-theme='light'] *));
 
-.display-xl {
+/*
+ * Tall tablets: 1024 wide and up, but in portrait orientation.
+ *
+ * The desktop hero pins the headline to 58vh, which is right on a 900px-tall
+ * laptop and wrong on a 1366px-tall iPad, where it leaves the entire upper left
+ * quadrant empty. Portrait screens get the stacked treatment instead: text at
+ * the top, figure anchored to the bottom.
+ *
+ * Declared last so its rules emit after max-xl and max-lg and win when both
+ * media queries match, since they have equal specificity.
+ */
+@custom-variant tall (@media (width >= 64rem) and (orientation: portrait));
+
+/* ── utilities ───────────────────────────────────────────────────────────── */
+
+/* The type scale. These are design tokens rather than one-off styling, so they
+   are @utility definitions and work with every variant. */
+
+@utility display-xl {
   font-family: var(--font-display);
   font-size: clamp(3.25rem, 9vw, 8.5rem);
   font-weight: 700;
@@ -201,7 +183,7 @@ button {
   line-height: 0.94;
 }
 
-.display-lg {
+@utility display-lg {
   font-family: var(--font-display);
   font-size: clamp(2.25rem, 5.5vw, 4.5rem);
   font-weight: 600;
@@ -209,7 +191,7 @@ button {
   line-height: 1;
 }
 
-.heading {
+@utility heading {
   font-family: var(--font-display);
   font-size: clamp(1.4rem, 2.4vw, 2.25rem);
   font-weight: 500;
@@ -217,1415 +199,167 @@ button {
   line-height: 1.15;
 }
 
-.body-lg {
+@utility body-lg {
   font-size: clamp(1.05rem, 1.25vw, 1.3rem);
   line-height: 1.55;
 }
 
 /* Mono is for real data only: stack tags, dates, metrics. Never texture. */
-.label {
+@utility label {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  /* 0.72rem is 11.5px, which is below a comfortable floor on anything held in
+     the hand. Mono at this tracking is the hardest text on the page to read
+     small, so it steps up on phones AND tablets and only drops to the desktop
+     token at 1024, where the viewing distance is longer. */
+  font-size: 0.8rem;
+  @media (width >= 64rem) {
+    font-size: 0.72rem;
+  }
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg-dim);
 }
 
-/* ── glass pane ──────────────────────────────────────────────────────────── */
+/* Page shell and section rhythm. Repeated on every section, so a utility
+   rather than the same four utilities copied fourteen times. */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 5rem);
+}
 
-.pane {
+@utility gutter-x {
+  padding-inline: clamp(1.25rem, 5vw, 5rem);
+}
+
+@utility section-y {
+  /* Mobile gets a tighter rhythm. The desktop value is generous by design, but
+     on a phone it stacks into hundreds of pixels of dead scroll between every
+     section and makes the page feel empty rather than spacious. */
+  padding-block: clamp(4rem, 9vh, 6rem);
+  @media (width >= 48rem) {
+    padding-block: clamp(7rem, 13vh, 11rem);
+  }
+}
+
+/*
+ * Expands an element's hit area to the 44px minimum without changing its
+ * layout box. Used on small inline controls whose visual size is correct but
+ * whose touch area is not: padding them would move the things around them.
+ */
+@utility tap-44 {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 44px;
+    translate: 0 -50%;
+  }
+}
+
+/* The glass pane. Fill, hairline and radius together, because they are one
+   material rather than three independent choices. Blur is NOT included: it is
+   opt-in per instance via backdrop-blur-*, which keeps the six-per-viewport
+   ceiling countable by grepping the markup. */
+@utility pane {
   background: var(--pane);
   border: 1px solid var(--pane-edge);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pane);
   transition: border-color 220ms var(--ease-snap);
-}
 
-/* Blur is only applied where something is actually behind the pane. These
-   classes are opt-in per instance, never a default, so the six-per-viewport
-   ceiling stays countable by grepping for them. */
-.is-veil {
-  -webkit-backdrop-filter: blur(var(--blur-veil));
-  backdrop-filter: blur(var(--blur-veil));
-}
-.is-pane-blur {
-  -webkit-backdrop-filter: blur(var(--blur-pane));
-  backdrop-filter: blur(var(--blur-pane));
-}
-.is-deep {
-  -webkit-backdrop-filter: blur(var(--blur-deep));
-  backdrop-filter: blur(var(--blur-deep));
-}
-
-/* The edge sheen. The only place a pane picks up accent. */
-.pane:hover {
-  border-color: var(--accent-lift);
-}
-
-/* Free Lenis hook: suspending hover transitions during fast scroll removes a
-   real and commonly missed jank source. */
-:root.lenis-scrolling .pane {
-  transition: none;
-}
-
-/* Panes scrolled out of view drop the filter entirely rather than reducing it,
-   because an idle backdrop-filter still costs a compositor pass. */
-.pane[data-offscreen='true'] {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* ── availability chip: the only pill on the page, and the only status dot ── */
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  /* Solid, not blurred. It sits over flat --bg, where blur is cost with no
-     payoff, and dropping it keeps the hero inside the six-filter ceiling. */
-  background: var(--bg-raised);
-  border: 1px solid var(--pane-edge);
-  border-radius: var(--radius-pill);
-}
-
-.chip__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-pill);
-  background: var(--accent-lift);
-  flex: none;
-}
-
-/* ── primary CTA: accent as FILL, the only AA-passing accent use in dark ──── */
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.875rem 1.75rem;
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-radius: var(--radius);
-  font-weight: 600;
-  transition:
-    background 200ms var(--ease-snap),
-    transform 200ms var(--ease-snap);
-}
-
-.btn-primary:hover {
-  background: var(--accent-press);
-}
-
-.btn-primary:active {
-  transform: translateY(1px);
-}
-
-/* ── grain: one fixed document-level layer, above everything ─────────────── */
-
-.grain {
-  position: fixed;
-  /* Oversized so the stepped translate never exposes an edge. */
-  inset: -60px;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: overlay;
-  /* Own compositor layer, so the blend composites once rather than forcing a
-     whole-screen re-composite every scroll frame. Commit dde66e5 hit exactly
-     that bug on this page; see MASTER.md before removing this. */
-  transform: translateZ(0);
-  will-change: transform;
-  animation: grain-shift 1s steps(1, end) infinite;
-}
-
-/* Eight offsets at 8fps. Smoothly moving grain looks like a dirty screen.
-   Stepped grain looks like film. */
-@keyframes grain-shift {
-  0% {
-    transform: translate3d(0, 0, 0);
+  /* The edge sheen. The only place a pane picks up accent. */
+  &:hover {
+    border-color: var(--accent-lift);
   }
-  12.5% {
-    transform: translate3d(-14px, 8px, 0);
-  }
-  25% {
-    transform: translate3d(9px, -16px, 0);
-  }
-  37.5% {
-    transform: translate3d(-19px, -6px, 0);
-  }
-  50% {
-    transform: translate3d(16px, 11px, 0);
-  }
-  62.5% {
-    transform: translate3d(-7px, 18px, 0);
-  }
-  75% {
-    transform: translate3d(13px, -11px, 0);
-  }
-  87.5% {
-    transform: translate3d(-16px, -14px, 0);
+
+  /* Free Lenis hook: suspending hover transitions during fast scroll removes a
+     real and commonly missed jank source. */
+  :root.lenis-scrolling & {
+    transition: none;
   }
 }
 
-/* ── scroll progress hairline, driven by lenis.progress ──────────────────── */
+/* ── base ────────────────────────────────────────────────────────────────── */
 
-.progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9998;
-  height: 2px;
-  width: 100%;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  background: var(--accent-lift);
-  pointer-events: none;
-  opacity: 0;
-}
-
-/* ── custom cursor ───────────────────────────────────────────────────────── */
-
-.cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9997;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  border: 1px solid var(--accent-lift);
-  border-radius: var(--radius-pill);
-  pointer-events: none;
-  opacity: 0;
-  transition:
-    opacity 200ms var(--ease-snap),
-    scale 200ms var(--ease-snap);
-}
-
-.cursor[data-active='true'] {
-  opacity: 1;
-}
-
-/* Never the only affordance for anything, so it only ever scales. */
-.cursor[data-hovering='true'] {
-  scale: 2.2;
-}
-
-/* ── nav ─────────────────────────────────────────────────────────────────── */
-
-/*
- * Full bleed. No container, no pill, no rounded box, no shadow.
- *
- * At rest over the hero the header is completely transparent and carries NO
- * backdrop-filter, which keeps the most expensive viewport on the site at zero
- * blur elements from the nav. The Veil fill, the bottom hairline and the CTA
- * all arrive together on one 300ms transition once the hero scrolls out.
- *
- * Height is the whole header zone, not just an inner bar: 72px desktop, 64px
- * below 768. --nav-h is the single source of truth and the Lenis scroll offset
- * reads it, so anchors cannot drift from the rendered height.
- */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  /* Above .nav__overlay (150). The burger is the close control too, so it has
-     to stay visible and clickable while the overlay is open, and the bars must
-     animate into the X in place. */
-  z-index: 160;
-  height: var(--nav-h);
-  /* Permanent veil, per the client. The unprefixed property is written LAST
-     so the build does not collapse the pair down to -webkit- only. */
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
-  -webkit-backdrop-filter: blur(var(--blur-veil));
-  backdrop-filter: blur(var(--blur-veil));
-  /* Never animate height. Transform and opacity for movement, colour for the
-     state change.
-     backdrop-filter is deliberately NOT in this list: `none` and a blur
-     function are not interpolable, so including it made the browser reject the declaration
-     outright and the veil never applied at all. The fill and the hairline
-     carry the 300ms transition; the blur switches on with them and the change
-     is invisible underneath the fill. */
-  transition:
-    background-color 300ms var(--ease-snap),
-    border-color 300ms var(--ease-snap);
-}
-
-.nav__row {
-  display: flex;
-  align-items: center;
-  gap: clamp(1rem, 3vw, 2rem);
-  height: 100%;
-  max-width: var(--container);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
-
-/* Wordmark belongs to the display system, not the body system, so it reads as
-   an identity rather than a label. */
-.nav__wordmark {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.15rem;
-  font-variation-settings: 'wdth' 75;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  flex: none;
-}
-
-.nav__links {
-  position: relative;
-  flex: none;
-  margin-left: auto;
-}
-
-/* Nothing occupies the centre any more, so the row is wordmark left and the
-   link cluster plus CTA right, with the gap between them doing the work. */
-
-.nav__links ul {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  list-style: none;
-}
-
-.nav__links a {
-  position: relative;
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fg-dim);
-  padding-block: 0.35rem;
-  transition: color 200ms var(--ease-snap);
-}
-
-.nav__links a:hover,
-.nav__links a:focus-visible {
-  color: var(--fg);
-}
-
-/* Hover affordance only, with no active state. Travels between links via Flip
-   rather than fading out and in. Accent as a 1px hairline needs the lift value
-   on the dark base. */
-.nav__underline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: var(--accent-lift);
-  pointer-events: none;
-  opacity: 0;
-}
-
-/* Arrives with the veil. Above the fold the hero CTA is the only call to
-   action, which is what gives the nav a state change worth making. */
-.nav__cta {
-  flex: none;
-  padding: 0.6rem 1.1rem;
-  font-size: 0.85rem;
-}
-
-.nav__burger {
-  display: none;
-  flex: none;
-  /* 44x44 minimum tap target. */
-  width: 44px;
-  height: 44px;
-  margin-left: auto;
-  place-items: center;
-  align-content: center;
-  gap: 5px;
-}
-
-.nav__burger span {
-  display: block;
-  width: 22px;
-  height: 1.5px;
-  background: var(--fg);
-  border-radius: 2px;
-}
-
-/* ── skip link ───────────────────────────────────────────────────────────── */
-
-.skip-link {
-  position: fixed;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 200;
-  padding: 0.75rem 1.25rem;
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-radius: var(--radius);
-  transform: translateY(-200%);
-  transition: transform 200ms var(--ease-snap);
-}
-
-.skip-link:focus-visible {
-  transform: none;
-}
-
-/* ── mobile overlay ──────────────────────────────────────────────────────── */
-
-.nav__overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(2rem, 6vh, 4rem);
-  padding: calc(var(--nav-h) + 2rem) var(--gutter) 2rem;
-  /*
-   * The brief asked for --bg at full opacity AND for the page to read through
-   * faintly, which cannot both be true. This is 94% --bg over the deep blur:
-   * opaque enough to read against, translucent enough that the blur has
-   * something behind it. A blur over a fully opaque fill would be pure cost.
-   */
-  /* 96% --bg over the deep blur. The brief asked for full opacity AND for the
-     page to read through faintly, which cannot both be true; at 94% the hero
-     headline read straight through the menu links and the overlay was
-     unusable. This is opaque enough to read against, translucent enough that
-     the blur still has something to do.
-     Unprefixed LAST so the build does not collapse the pair to -webkit- only,
-     which is what stopped this blurring at all. */
-  background: color-mix(in srgb, var(--bg) 96%, transparent);
-  -webkit-backdrop-filter: blur(var(--blur-deep));
-  backdrop-filter: blur(var(--blur-deep));
-  overflow-y: auto;
-}
-
-.nav__overlay[data-open='true'] {
-  display: flex;
-}
-
-.nav__overlay-list {
-  display: grid;
-  gap: clamp(1rem, 3vh, 2rem);
-  list-style: none;
-}
-
-.nav__overlay-list a {
-  display: inline-block;
-  /* 44px minimum tap target. */
-  min-height: 44px;
-}
-
-.nav__overlay-cta {
-  width: 100%;
-  margin-top: auto;
-}
-
-/* ── nav: 768 to 1023 ────────────────────────────────────────────────────── */
-@media (max-width: 1023px) {
-  .nav__links ul {
-    gap: 24px;
-  }
-}
-
-/* ── nav: below 768 ──────────────────────────────────────────────────────── */
-@media (max-width: 767px) {
-  :root {
-    --nav-h: 64px;
-  }
-  .nav__links,
-  .nav__cta {
-    display: none;
-  }
-  .nav__burger {
-    display: grid;
-  }
-}
-
-/* ── hero ────────────────────────────────────────────────────────────────── */
-
-/*
- * Figure anchored bottom-right and cropped by both the right and bottom
- * viewport edges. Text left. No glass in this section.
- *
- * The separation field, the two rear panes and the crossing front pane were
- * all removed at the client's direction. What is left has to carry the section
- * on composition alone: scale contrast between the headline and everything
- * else, the figure occluding the tail of the final line, and the sliced word
- * along the bottom edge. There is nothing decorative to hide behind, so the
- * type and the spacing have to be right.
- *
- * WATCH THIS: the hoodie is dark green and --bg is a dark green-black. Nothing
- * separates them any more. If the shoulders ever start merging on a dimmer
- * screen, the fix is a lifted field behind the figure, not a brighter --bg.
- *
- * BLUR BUDGET in this viewport: the nav veil, and nothing else. 1 of 6.
- *
- * Z-ORDER, back to front:
- *   0 base -> 1 sliced back type -> 2 headline -> 3 portrait -> 4 subtext, CTA
- */
-.hero {
-  position: relative;
-  min-height: 100svh;
-  overflow: hidden;
-  isolation: isolate;
-  --col: calc((100% - (2 * var(--gutter))) / 12);
-}
-
-/* Layer 1: sliced back type. Runs along the bottom edge, cropped by it, and
-   passes behind the figure so the body interrupts the word. */
-.hero__backtype {
-  position: absolute;
-  z-index: 1;
-  /* Starts right of the text column so the letterforms never sit under the
-     subtext or the CTA. */
-  left: 30%;
-  bottom: -0.13em;
-  font-family: var(--font-display);
-  font-size: clamp(8rem, 23vw, 21rem);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 82;
-  letter-spacing: -0.05em;
-  line-height: 0.8;
-  white-space: nowrap;
-  color: var(--fg);
-  opacity: 0.09;
-  pointer-events: none;
-  user-select: none;
-  will-change: transform;
-}
-
-/* Layer 2: headline. Sits BELOW the portrait so its final line is occluded by
-   the near shoulder. That occlusion is the composition: without it this is
-   text left, image right, which is the most templated hero that exists. */
-.hero__headline {
-  position: absolute;
-  z-index: 2;
-  left: var(--gutter);
-  /*
-   * Sits at SHOULDER height, not head height.
-   *
-   * The source portrait is a tightly cropped square: at 46vh the only part of
-   * the figure beside the headline was the head, which is narrow, so the final
-   * line ended in empty space and the overlap never happened. Lower down the
-   * shoulders span the full width of the image and the occlusion actually
-   * lands. This also closes the dead band that used to sit between the
-   * headline and the subtext.
-   */
-  top: 58vh;
-  translate: 0 -58%;
-  max-width: none;
-  /* Uses the display-xl scale unchanged above 1280. Shrinking it here was what
-     kept the final line from ever reaching the figure. */
-}
-
-.hero__line {
-  display: block;
-  /* Guarantees exactly two lines at every desktop width. Without it the lines
-     re-wrap on the container and the count drifts to one or three. */
-  white-space: nowrap;
-}
-
-/* Layer 3: the figure. Bottom-right anchored, cropped by both edges. */
-.hero__portrait {
-  position: absolute;
-  z-index: 3;
-  right: 0;
-  bottom: 0;
-  top: 15vh;
-  /* Wide enough that the figure's opaque pixels reach back into the headline's
-     final line. Narrower than this and the boxes overlap only across the PNG's
-     transparent margin, so nothing is actually occluded. */
-  width: clamp(30rem, 62vw, 70rem);
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.hero__portrait img {
-  height: 100%;
-  width: auto;
-  object-fit: cover;
-  object-position: top center;
-  filter: saturate(0.92) contrast(1.04);
-  margin-right: -6%;
-}
-
-/* Layer 4: subtext and CTA. Never crosses the figure. */
-.hero__support {
-  position: absolute;
-  z-index: 4;
-  left: var(--gutter);
-  bottom: clamp(3rem, 9vh, 6rem);
-  display: grid;
-  gap: 1.75rem;
-  justify-items: start;
-  width: calc(6 * var(--col));
-}
-
-.hero__subtext {
-  color: var(--fg-dim);
-  /* 60 to 75 characters. */
-  max-width: 68ch;
-  text-wrap: pretty;
-}
-
-.hero__actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* ── hero: 1024 ──────────────────────────────────────────────────────────── */
-@media (max-width: 1279px) {
-  .hero__portrait {
-    width: clamp(22rem, 50vw, 46rem);
-    top: 17vh;
-  }
-}
-
-/* ── hero: 768 ───────────────────────────────────────────────────────────── */
-/* Figure still bottom-right anchored, text top-left, CTA above the shoulder
-   line so nothing overlaps a tap target. */
-@media (max-width: 1023px) {
-  .hero__headline {
-    translate: 0;
-    top: calc(var(--nav-h) + 4vh);
-    font-size: clamp(2.25rem, 7.6vw, 3.5rem);
-  }
-  .hero__portrait {
-    /* 45% put the figure's left edge beyond the headline's reach, so the
-       mandatory overlap silently became two clean columns. */
-    width: 55%;
-    top: auto;
-    height: 62svh;
-  }
-  .hero__support {
-    width: min(58%, 34rem);
-    bottom: auto;
-    top: calc(var(--nav-h) + 26vh);
-  }
-  .hero__backtype {
-    left: 22%;
-    font-size: clamp(6rem, 21vw, 12rem);
-  }
-}
-
-/* ── hero: 375 ───────────────────────────────────────────────────────────── */
-/*
- * The side-by-side split does not survive this width, so the idea changes
- * rather than shrinking. Text stacks first at full width; the figure becomes a
- * bottom-anchored full-width bleed in the lower 40vh, masked into --bg at its
- * top edge so the text above stays legible.
- */
-@media (max-width: 767px) {
-  .hero {
-    display: grid;
-    align-content: start;
-    padding-top: calc(var(--nav-h) + 4vh);
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Lenis owns scroll. Native smooth scrolling would fight it. */
+    scroll-behavior: auto;
+    /* `clip`, not `hidden`. overflow-x: hidden on body alone makes body a
+       scroll container whose scrollWidth still propagates up, so html kept a
+       horizontal scrollbar at 768 and 375. `clip` clips without creating a
+       scroll container and leaves vertical scrolling, and Lenis, untouched. */
+    overflow-x: clip;
   }
 
-  .hero__headline {
-    position: static;
-    translate: 0;
-    padding-inline: var(--gutter);
-    font-size: clamp(2.25rem, 10vw, 3.25rem);
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-x: clip;
+    transition:
+      background 320ms var(--ease-snap),
+      color 320ms var(--ease-snap);
   }
 
-  /* Wrapping is allowed again here: nowrap would push the headline off the
-     viewport, and there is no figure beside it to occlude the overrun. */
-  .hero__line {
-    white-space: normal;
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
   }
 
-  .hero__support {
-    position: static;
-    width: 100%;
-    padding-inline: var(--gutter);
-    margin-top: 1.75rem;
-    /* Keeps the CTA clear of where the mask begins. */
-    margin-bottom: 42vh;
+  a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
   }
 
-  .hero__portrait {
-    width: 100%;
-    height: 40vh;
-    top: auto;
-    inset-inline: 0;
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
 
-  .hero__portrait img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    margin-right: 0;
-    /* Fades the figure into --bg at its top edge. */
-    /* Only the alpha channel matters here; the keyword keeps the hex audit
-       at exactly ten literals. */
-    mask-image: linear-gradient(to bottom, transparent 0%, black 26%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 26%);
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
   }
 
-  .hero__backtype {
-    left: 8%;
-    font-size: clamp(4.5rem, 24vw, 8rem);
-    opacity: 0.08;
+  /* Accent as a hairline fails on the dark base, so focus rings use the lift
+     value in both themes. Never carry an affordance on --accent alone. */
+  :focus-visible {
+    outline: 2px solid var(--accent-lift);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
-}
 
-/* Short laptops: the figure yields before the CTA does, so the primary action
-   stays visible without scrolling at every breakpoint. */
-@media (min-width: 768px) and (max-height: 720px) {
-  .hero__portrait {
-    top: 20vh;
+  /* Hide the pointer only where the custom cursor actually replaces it. */
+  @media (hover: hover) and (pointer: fine) {
+    body[data-cursor='custom'] {
+      cursor: none;
+    }
   }
-  .hero__headline {
-    top: 52vh;
-    /* Was 5.6vw, which shrank the final line so far it no longer reached the
-       figure and the overlap quietly became two clean columns at 1280x720. */
-    font-size: clamp(2.25rem, 7.2vw, 5.5rem);
-  }
-  .hero__support {
-    bottom: 2.5rem;
-  }
-}
-
-/* ── marquee ─────────────────────────────────────────────────────────────── */
-
-.marquee {
-  position: relative;
-  overflow: hidden;
-  padding-block: clamp(1.5rem, 4vh, 3rem);
-  border-block: 1px solid var(--pane-edge);
-}
-
-.marquee__track {
-  display: flex;
-  width: max-content;
-}
-
-.marquee__run {
-  display: flex;
-  align-items: center;
-  gap: clamp(1.5rem, 3vw, 3rem);
-  padding-right: clamp(1.5rem, 3vw, 3rem);
-  white-space: nowrap;
-}
-
-.marquee__word {
-  font-family: var(--font-display);
-  font-size: clamp(2.25rem, 5.5vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--fg);
-}
-
-/* Alternating outline keeps the band from reading as one solid wall of type. */
-.marquee__word.is-outlined {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--fg-dim);
-}
-
-/* ── about ───────────────────────────────────────────────────────────────── */
-
-.about__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(3rem, 8vw, 7rem);
-}
-
-@media (min-width: 1024px) {
-  .about__grid {
-    /* Asymmetric on purpose: the text holds 40%, the artifacts take the rest. */
-    grid-template-columns: 40% 1fr;
-    align-items: start;
-  }
-}
-
-.about__column {
-  display: grid;
-  gap: 1.5rem;
-  align-content: start;
-}
-
-.about__para {
-  color: var(--fg-dim);
-  max-width: 42ch;
-}
-
-.about__artifacts {
-  display: grid;
-  gap: clamp(2rem, 6vh, 5rem);
-}
-
-.about__artifact {
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  display: grid;
-  gap: 0.65rem;
-  /* Staggered horizontally so the column reads as drifting rather than
-     as a second list. */
-  max-width: 32rem;
-}
-
-.about__artifact:nth-child(2) {
-  justify-self: end;
-}
-
-.about__artifact:nth-child(3) {
-  justify-self: center;
-}
-
-.about__artifact-detail {
-  color: var(--fg-dim);
-}
-
-/* ── proof ───────────────────────────────────────────────────────────────── */
-
-.proof__grid {
-  display: grid;
-  gap: 1.5rem;
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-}
-
-@media (min-width: 1024px) {
-  .proof__grid {
-    grid-template-columns: 7fr 3fr;
-    align-items: start;
-  }
-  /* Without assets the article runs the full width rather than sitting beside
-     an empty column. */
-  .proof__grid.is-solo {
-    grid-template-columns: 1fr;
-  }
-}
-
-.proof__article {
-  padding: clamp(1.75rem, 4vw, 3.25rem);
-  display: grid;
-  gap: 1.25rem;
-}
-
-.proof__title {
-  max-width: 24ch;
-}
-
-.proof__excerpt {
-  color: var(--fg-dim);
-  max-width: 62ch;
-}
-
-.proof__pending {
-  color: var(--fg-dim);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-}
-
-.proof__link {
-  justify-self: start;
-  color: var(--accent-lift);
-  border-bottom: 1px solid var(--accent-lift);
-  padding-bottom: 2px;
-  transition:
-    color 200ms var(--ease-snap),
-    border-color 200ms var(--ease-snap);
-}
-
-.proof__link:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-}
-
-.proof__assets {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.proof__asset {
-  overflow: hidden;
-  padding: 0;
-}
-
-.proof__asset figcaption {
-  padding: 1rem;
-}
-
-/* ── capabilities ────────────────────────────────────────────────────────── */
-
-.capabilities__list {
-  display: grid;
-  gap: clamp(2.5rem, 7vh, 5.5rem);
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-}
-
-.capabilities__row {
-  display: grid;
-  gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  /* Widths flip 60/40 to 40/60 down the column. Not three equal cards, and no
-     border-t plus border-b list. */
-  .capabilities__row {
-    grid-template-columns: 6fr 4fr;
-    align-items: center;
-    gap: clamp(2rem, 5vw, 4rem);
-  }
-  .capabilities__row.is-flipped {
-    grid-template-columns: 4fr 6fr;
-  }
-  .capabilities__row.is-flipped .capabilities__body {
-    order: 2;
-  }
-}
-
-.capabilities__body {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.capabilities__text {
-  color: var(--fg-dim);
-  max-width: 52ch;
-}
-
-.capabilities__evidence {
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  display: grid;
-  gap: 0.4rem;
-  align-content: center;
-}
-
-.capabilities__figure {
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.capabilities__evidence-label {
-  color: var(--fg-dim);
-}
-
-.capabilities__mechanism {
-  margin-top: 0.5rem;
-  /* The mechanism is the point, so it wraps rather than truncating. */
-  text-transform: none;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-}
-
-/* ── work ────────────────────────────────────────────────────────────────── */
-
-.work__head {
-  margin-bottom: clamp(2.5rem, 6vh, 4rem);
-}
-
-.work__pending {
-  padding: clamp(1.75rem, 4vw, 3rem);
-  display: grid;
-  gap: 1rem;
-  max-width: 60ch;
-}
-
-.work__track {
-  display: flex;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  padding-inline: var(--gutter);
-  width: max-content;
-  will-change: transform;
-}
-
-.work__card {
-  flex: none;
-  width: min(80vw, 30rem);
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
-
-.work__problem {
-  color: var(--fg-dim);
-}
-
-.work__stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-}
-
-.work__links {
-  display: flex;
-  gap: 1.25rem;
-  margin-top: 0.5rem;
-}
-
-.work__links a,
-.work__links button {
-  color: var(--accent-lift);
-  border-bottom: 1px solid transparent;
-  transition: border-color 200ms var(--ease-snap);
-}
-
-.work__links a:hover,
-.work__links button:hover {
-  border-color: var(--accent-lift);
-}
-
-.work__detail {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  /* Translucent, not solid: a deep blur over an opaque fill is cost with no
-     payoff, and the page behind should stay faintly legible through it. */
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  overflow-y: auto;
-  padding-block: clamp(4rem, 12vh, 8rem);
-  display: grid;
-  align-content: center;
-}
-
-.work__close {
-  position: absolute;
-  top: 1.5rem;
-  right: var(--gutter);
-}
-
-/* Mobile drops the pin entirely for a native snap carousel. Pinning fights
-   touch scroll and costs more than it returns on a small viewport. */
-@media (max-width: 767px) {
-  .work__track {
-    width: auto;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    will-change: auto;
-  }
-  .work__card {
-    scroll-snap-align: center;
-  }
-}
-
-/* ── experience ──────────────────────────────────────────────────────────── */
-
-.experience__timeline {
-  position: relative;
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-}
-
-.experience__spine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  overflow: visible;
-}
-
-@media (min-width: 768px) {
-  .experience__spine {
-    left: 50%;
-    translate: -50% 0;
-  }
-}
-
-.experience__list {
-  display: grid;
-  gap: clamp(2.5rem, 7vh, 5rem);
-  list-style: none;
-}
-
-.experience__entry {
-  padding-left: 2rem;
-}
-
-@media (min-width: 768px) {
-  .experience__entry {
-    width: 50%;
-    padding-left: 0;
-    padding-right: clamp(2rem, 4vw, 4rem);
-  }
-  .experience__entry.is-right {
-    margin-left: 50%;
-    padding-right: 0;
-    padding-left: clamp(2rem, 4vw, 4rem);
-  }
-}
-
-.experience__card {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.experience__role {
-  color: var(--fg-dim);
-}
-
-.experience__bullets {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-  padding-left: 1.1rem;
-  color: var(--fg-dim);
-}
-
-.experience__bullets li::marker {
-  color: var(--accent-lift);
-}
-
-/* ── numbers ─────────────────────────────────────────────────────────────── */
-
-.numbers__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(1rem, 3vw, 2rem);
-}
-
-@media (min-width: 1024px) {
-  .numbers__grid {
-    grid-template-columns: repeat(4, 1fr);
-    align-items: start;
-  }
-  /* Vertical offsets so the four never sit on one baseline, which is what lets
-     the parallax read as depth rather than as drift. */
-  .numbers__item:nth-child(2) {
-    margin-top: 4rem;
-  }
-  .numbers__item:nth-child(3) {
-    margin-top: 1.5rem;
-  }
-  .numbers__item:nth-child(4) {
-    margin-top: 5.5rem;
-  }
-}
-
-.numbers__item {
-  padding: clamp(1.25rem, 3vw, 2rem);
-  display: grid;
-  gap: 0.5rem;
-}
-
-.numbers__figure {
-  display: block;
-}
-
-/* ── contact ─────────────────────────────────────────────────────────────── */
-
-.contact {
-  padding-block: clamp(8rem, 18vh, 14rem);
-}
-
-.contact__mailto {
-  display: inline-block;
-  max-width: 100%;
-  /* The address is one 22-character token with no natural break opportunity,
-     so at display-xl it overran the viewport below 1024 and gave the whole
-     page a horizontal scrollbar. `word-break: break-word` does not reliably
-     break an unbroken token; `anywhere` does. */
-  overflow-wrap: anywhere;
-  /* The fill: a hard two-stop gradient slid into place on hover, clipped to
-     the glyphs. In dark mode this is the accent behaving as a fill, which is
-     its only AA-passing use against the base. */
-  background-image: linear-gradient(
-    90deg,
-    var(--accent) 0 50%,
-    var(--fg) 50% 100%
-  );
-  background-size: 200% 100%;
-  background-position: 100% 0;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  transition: background-position 300ms var(--ease-snap);
-}
-
-.contact__mailto:hover,
-.contact__mailto:focus-visible {
-  background-position: 0 0;
-}
-
-.contact__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-}
-
-.contact__link {
-  display: grid;
-  gap: 0.35rem;
-  transition: color 200ms var(--ease-snap);
-}
-
-.contact__link:hover {
-  color: var(--accent-lift);
-}
-
-/* ── education ───────────────────────────────────────────────────────────── */
-
-/* Deliberately unlike the Experience timeline directly above it: no spine, no
-   alternating sides. A single statement with its metadata pushed to the
-   opposite edge. */
-.education__grid {
-  display: grid;
-  gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-  .education__grid {
-    grid-template-columns: auto 1fr auto;
-    align-items: baseline;
-    column-gap: clamp(2rem, 6vw, 6rem);
-  }
-}
-
-.education__body {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.education__degree {
-  max-width: 20ch;
-}
-
-.education__institution {
-  color: var(--fg-dim);
-}
-
-.education__certs {
-  grid-column: 1 / -1;
-  display: grid;
-  gap: 1rem;
-  margin-top: clamp(2rem, 5vh, 3rem);
-  list-style: none;
-}
-
-.education__certs li {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.education__cert-name {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 500;
-}
-
-/* ── testimonials ────────────────────────────────────────────────────────── */
-
-/* Offset stack, not a row of equal cards. The lead quote runs at heading scale
-   across a wide measure; the rest sit smaller and staggered. */
-.testimonials__lead {
-  max-width: 46rem;
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-  display: grid;
-  gap: 1.5rem;
-}
-
-.testimonials__lead blockquote {
-  text-wrap: pretty;
-}
-
-.testimonials__rest {
-  display: grid;
-  gap: clamp(1.25rem, 3vw, 2rem);
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-}
-
-@media (min-width: 768px) {
-  .testimonials__rest {
-    grid-template-columns: repeat(2, 1fr);
-    align-items: start;
-  }
-  /* Broken alignment so the pair never reads as a two-card row. */
-  .testimonials__item:nth-child(even) {
-    margin-top: clamp(2rem, 5vh, 4rem);
-  }
-}
-
-.testimonials__item {
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  display: grid;
-  gap: 1.25rem;
-}
-
-.testimonials__item blockquote {
-  color: var(--fg-dim);
-  text-wrap: pretty;
-}
-
-.testimonials__name {
-  font-family: var(--font-display);
-  font-weight: 500;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-/* ── faq ─────────────────────────────────────────────────────────────────── */
-
-.faq__grid {
-  display: grid;
-  gap: clamp(2.5rem, 6vh, 4rem);
-}
-
-@media (min-width: 1024px) {
-  .faq__grid {
-    /* Heading held left against the list, so this does not repeat the
-       centred-heading-then-list shape used elsewhere on the page. */
-    grid-template-columns: 4fr 6fr;
-    align-items: start;
-    column-gap: clamp(2rem, 6vw, 6rem);
-  }
-}
-
-.faq__head {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
-
-.faq__list {
-  display: grid;
-}
-
-/* A single bottom hairline per row. The banned pattern is border-t AND
-   border-b on every row. */
-.faq__item {
-  border-bottom: 1px solid var(--pane-edge);
-}
-
-.faq__item summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  /* 44px minimum tap target. */
-  min-height: 44px;
-  padding-block: clamp(1.1rem, 2.5vh, 1.6rem);
-  cursor: pointer;
-  list-style: none;
-  transition: color 200ms var(--ease-snap);
-}
-
-/* Removes the native disclosure triangle in WebKit. */
-.faq__item summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq__item summary:hover .faq__question {
-  color: var(--accent-lift);
-}
-
-.faq__question {
-  transition: color 200ms var(--ease-snap);
-}
-
-.faq__icon {
-  flex: none;
-  color: var(--fg-dim);
-  transition: color 200ms var(--ease-snap), rotate 200ms var(--ease-snap);
-}
-
-.faq__item[open] .faq__icon {
-  color: var(--accent-lift);
-  rotate: 90deg;
-}
-
-/* The vertical bar collapses so the plus reads as a minus when open. */
-.faq__icon-bar {
-  transform-origin: 12px 12px;
-  transition: scale 200ms var(--ease-snap);
-}
-
-.faq__item[open] .faq__icon-bar {
-  scale: 1 0;
-}
-
-.faq__answer {
-  color: var(--fg-dim);
-  max-width: 62ch;
-  padding-bottom: clamp(1.1rem, 2.5vh, 1.6rem);
-  text-wrap: pretty;
-}
-
-/* ── closing statement, above the address ────────────────────────────────── */
-
-.contact__closing {
-  max-width: 16ch;
-  margin-bottom: clamp(2.5rem, 7vh, 5rem);
-  color: var(--fg-dim);
-}
-
-/* ── footer ──────────────────────────────────────────────────────────────── */
-
-.footer {
-  border-top: 1px solid var(--pane-edge);
-  padding-block: clamp(2rem, 5vh, 3rem);
-}
-
-.footer__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.footer__top {
-  color: var(--fg-dim);
-  transition: color 200ms var(--ease-snap);
-}
-
-.footer__top:hover {
-  color: var(--fg);
-}
-
-.theme-toggle {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--pane-edge);
-  border-radius: var(--radius);
-  color: var(--fg-dim);
-  transition:
-    color 200ms var(--ease-snap),
-    border-color 200ms var(--ease-snap);
-}
-
-.theme-toggle:hover {
-  color: var(--fg);
-  border-color: var(--accent-lift);
 }
 
 /* ── degradation ─────────────────────────────────────────────────────────── */
 
-/* Mobile drops each blur tier one step. Parallax and float are disabled in JS
-   via gsap.matchMedia so the motion tiers all live in one place. */
-@media (max-width: 767px) {
-  :root {
-    --blur-veil: 12px;
-    --blur-pane: 16px;
-    --blur-deep: 22px;
-  }
-}
-
+/*
+ * Reduced motion. The grain and cursor opt out through motion-reduce: utilities
+ * on their own elements; this is the global backstop for everything else.
+ * Blur tier degradation lives with the tokens at the top of this file.
+ */
 @media (prefers-reduced-motion: reduce) {
-  .grain {
-    animation: none;
-    will-change: auto;
-  }
-  .cursor {
-    display: none;
-  }
   *,
   *::before,
   *::after {

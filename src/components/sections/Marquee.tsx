@@ -79,14 +79,26 @@ export default function Marquee() {
   const runs = [0, 1];
 
   return (
-    <div ref={root} id="marquee" className="marquee" aria-hidden="true">
-      <div className="marquee__track">
+    <div
+      ref={root}
+      id="marquee"
+      aria-hidden="true"
+      className="relative overflow-hidden border-y border-pane-edge py-[clamp(1.5rem,4vh,3rem)]"
+    >
+      <div className="flex w-max">
         {runs.map((run) => (
-          <div key={run} data-marquee-item className="marquee__run">
+          <div key={run} data-marquee-item className="flex items-center gap-[clamp(1.5rem,3vw,3rem)] pr-[clamp(1.5rem,3vw,3rem)] whitespace-nowrap">
             {MARQUEE.map((item, i) => (
               <span
                 key={item}
-                className={i % 2 === 0 ? 'marquee__word' : 'marquee__word is-outlined'}
+                className={[
+                  'font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-semibold leading-none tracking-[-0.03em]',
+                  // Alternating outline keeps the band from reading as one
+                  // solid wall of type.
+                  i % 2 === 0
+                    ? 'text-fg'
+                    : 'text-transparent [-webkit-text-stroke:1px_var(--fg-dim)]',
+                ].join(' ')}
               >
                 {item}
               </span>

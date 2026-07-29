@@ -71,5 +71,15 @@ export default function SmoothScroll() {
     };
   }, []);
 
-  return <div ref={progressRef} className="progress" aria-hidden="true" />;
+  return (
+    <div
+      ref={progressRef}
+      aria-hidden="true"
+      /* scaleX is written every frame by quickSetter, so the element starts
+         collapsed via origin-left + scale-x-0 rather than hidden. It carried
+         `opacity: 0` in CSS and nothing ever set it back, so the hairline was
+         invisible on every page load. */
+      className="pointer-events-none fixed top-0 left-0 z-[9998] h-0.5 w-full origin-left scale-x-0 bg-accent-lift"
+    />
+  );
 }

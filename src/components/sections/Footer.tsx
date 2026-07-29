@@ -18,9 +18,9 @@ import MonoLabel from '@/components/ui/MonoLabel';
  */
 export default function Footer() {
   return (
-    <footer id="socials" className="footer">
-      <div className="container footer__inner">
-        <button type="button" className="footer__top" onClick={scrollToTop} data-magnetic>
+    <footer id="socials" className="border-t border-pane-edge py-[clamp(2rem,5vh,3rem)]">
+      <div className="container-page flex flex-wrap items-center justify-between gap-6">
+        <button type="button" className="tap-44 cursor-pointer text-fg-dim transition-colors duration-200 ease-snap hover:text-fg" onClick={scrollToTop} data-magnetic>
           {FOOTER.backToTop}
         </button>
 
