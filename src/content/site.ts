@@ -157,14 +157,24 @@ export const ABOUT = {
 
 export const PROOF = {
   article: {
+    /* Published as "BlurHash : An Alternative to Generic Image Placeholders."
+       The stray space before the colon and the trailing period are dropped
+       here, which is normalisation and not a rewrite. */
     title: 'BlurHash: An Alternative to Generic Image Placeholders',
+
+    url: 'https://medium.com/@jassimmkabir/blurhash-an-alternative-to-generic-image-placeholders-05731df38ad3',
+
     /**
-     * NEEDS INPUT: the published URL and 4 to 5 lines of the real opening.
-     * Do not paraphrase the post from its title. Ship the pane empty before
-     * shipping invented prose.
+     * The post's own first two paragraphs, verbatim and contiguous.
+     *
+     * Not a summary, and not the opening spliced together with the later
+     * paragraph that defines BlurHash, which would read better and would be a
+     * quote of something he did not write in that order. If this ever needs to
+     * be shorter, cut from the end. Do not stitch.
      */
-    url: null,
-    excerpt: null,
+    excerpt:
+      "Having too many images in your app or images that are very large and load slowly can negatively impact page speed and user experience. In fact, images are probably one of the most significant contributors to your app's speed. Instead of reducing the number of images in an app, we can use placeholders for some of them, thereby reducing the number of image files on initial load.",
+
     cta: 'Read the post',
   },
   /** NEEDS INPUT: screenshots, recordings, or a Lighthouse report. */
