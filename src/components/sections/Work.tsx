@@ -189,14 +189,15 @@ export default function Work() {
                 ))}
               </ul>
 
-              <MonoLabel>{project.metric}</MonoLabel>
+              {/* Omitted rather than stubbed while the outcome is unknown. */}
+              {project.metric ? <MonoLabel>{project.metric}</MonoLabel> : null}
 
               <div className="mt-2 flex gap-5 [&_a]:border-b [&_a]:border-transparent [&_a]:text-accent-lift [&_a]:transition-[border-color] [&_a]:duration-200 [&_a]:ease-snap hover:[&_a]:border-accent-lift [&_button]:min-h-11 [&_button]:cursor-pointer [&_button]:border-b [&_button]:border-transparent [&_button]:text-accent-lift [&_button]:transition-[border-color] [&_button]:duration-200 [&_button]:ease-snap hover:[&_button]:border-accent-lift">
                 <button type="button" onClick={() => openDetail(project)}>
                   View details
                 </button>
-                {project.liveUrl ? <a href={project.liveUrl}>Live</a> : null}
-                {project.repoUrl ? <a href={project.repoUrl}>Repo</a> : null}
+                {project.liveUrl ? <a href={project.liveUrl} target="_blank" rel="noreferrer">Live</a> : null}
+                {project.repoUrl ? <a href={project.repoUrl} target="_blank" rel="noreferrer">Repo</a> : null}
               </div>
             </article>
           ))}
@@ -222,10 +223,32 @@ export default function Work() {
           <button type="button" className="absolute top-6 right-[clamp(1.25rem,5vw,5rem)] cursor-pointer" onClick={closeDetail}>
             Close
           </button>
-          <div className="container-page">
+          <div className="container-page grid max-w-[52rem] gap-6">
             <h3 className="display-lg">{open.name}</h3>
-            <p className="body-lg">{open.problem}</p>
-            <MonoLabel>{open.metric}</MonoLabel>
+            <p className="body-lg max-w-[52ch] text-fg-dim">{open.problem}</p>
+
+            <ul className="flex list-none flex-wrap gap-2">
+              {open.stack.map((tech) => (
+                <li key={tech}>
+                  <MonoLabel>{tech}</MonoLabel>
+                </li>
+              ))}
+            </ul>
+
+            {open.metric ? <MonoLabel>{open.metric}</MonoLabel> : null}
+
+            {/* Without this the dialog was a dead end: with metric null it held
+                a name and one sentence, and the way out was the Close button. */}
+            {open.liveUrl ? (
+              <a
+                href={open.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="tap-44 justify-self-start border-b border-accent-lift pb-0.5 text-accent-lift transition-[color,border-color] duration-200 ease-snap hover:border-fg hover:text-fg"
+              >
+                Visit the site
+              </a>
+            ) : null}
           </div>
         </div>
       ) : null}
