@@ -1,1484 +1,503 @@
 @import 'tailwindcss';
 
-/* ──────────────────────────────────────────────────────────────────
-   Design system ported 1:1 from the reference. Fonts are wired to
-   next/font CSS variables (see layout.tsx).
-─────────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARKROOM token system, Tailwind v4
+
+   This file is deliberately small. It holds only what utilities cannot express:
+   runtime theme variables, the @theme token mapping, a handful of @utility
+   definitions for design-token-level abstractions, base element styles, and one
+   keyframe set. Everything else is utilities in the markup.
+
+   Full rationale, measured contrast tables and the locks live in
+   design-system/jassim/MASTER.md. Read that before changing anything here.
+
+   THREE HARD RULES THIS FILE ENFORCES
+   1. Eleven hex literals exist in the whole codebase. They are all below.
+      (Both themes share values, so 20 token slots resolve to 10 uniques.)
+   2. Exactly three blur values exist. They are all below.
+   3. One radius, plus TWO documented pill exceptions: the availability chip,
+      and the round icon buttons (theme toggle and socials), added at the
+      client's request. Nothing else is pill-shaped.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WHERE THE ACCENT GOES
+
+   One rule, so placement is a decision the system makes rather than a
+   judgement call per component:
+
+     ACCENT MARKS CHROME AND ACTION. IT NEVER MARKS CONTENT.
+
+   Chrome and action, in --accent as a FILL:
+     primary CTAs (hero, nav, resume), the marquee band, ::selection
+
+   Wayfinding and state, in --accent-lift as TEXT or a 1px RULE:
+     the contact address (the page's primary action), section eyebrows,
+     the scroll progress bar, focus rings, hover affordances
+     (link underlines, pane edges, icon-button borders), the open state of a
+     disclosure, the Experience spine and its list markers
+
+   Never:
+     headings, body copy, figures, metrics, dates, stack tags, handles. Data
+     stays monochrome. The moment a number turns red, the accent stops meaning
+     "act here or look here" and becomes decoration.
+
+   CONTRAST, NOT NEGOTIABLE
+   --accent is 2.68:1 on the dark base and fails AA as text, so it is a FILL
+   only. Anything accent-coloured uses --accent-lift, which clears 4.8:1 in
+   both themes. Grep for `text-accent"` and it should never match.
+
+   --accent-deep is the one exception, and it is narrow: large display text
+   only, at 3.03:1 against the dark base, which is the 3:1 large-text floor and
+   nothing more. Never put it on body copy.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── runtime theme variables ─────────────────────────────────────────────────
+   These stay hand-written rather than living in @theme, because they are
+   swapped at runtime by the theme toggle. @theme values are static. */
 
 :root {
-  /* shared, theme-independent tokens */
-  --line: rgba(var(--fg-rgb), 0.12);
-
-  --display: var(--font-display), 'Space Grotesk', sans-serif;
-  --serif: var(--font-serif), 'Instrument Serif', serif;
-  --body: var(--font-body), 'Inter', sans-serif;
-  --mono: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
-
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ── THEMES — names kept (--lime/--coral/--lilac) so every usage stays intact.
-   --fg-rgb = text rgb (drives lines/strokes), --glow = primary-accent rgb (pulses). */
-/* ── ICE BLUE · cool azure + cyan on deep navy ── */
-[data-theme='dark'] {
   color-scheme: dark;
-  --ink: #060912; /* deep navy base                  */
-  --surface: #0e1422; /* raised panels                   */
-  --cream: #eaf1ff; /* primary text (ice white)        */
-  --muted: #7e8aa6; /* secondary text                  */
-  --fg-rgb: 234, 241, 255;
 
-  --lime: #3b82f6; /* PRIMARY  · electric azure       */
-  --coral: #22d3ee; /* SECONDARY· cyan (duotone)       */
-  --lilac: #7dd3fc; /* TERTIARY · soft sky             */
-  --glow: 59, 130, 246;
+  --bg: #0a100d;
+  --bg-raised: #141b17;
+  /* Hairline, but legible. At lower alpha a pane over the flat base was a
+     smudge rather than a surface and the page read as unstyled. */
+  --pane: rgba(214, 213, 201, 0.07);
+  --pane-edge: rgba(214, 213, 201, 0.2);
+  --fg: #d6d5c9;
+  --fg-dim: #b9baa3;
+
+  /* Oxblood at three values. One hue, a tonal ramp, not three accents. */
+  --accent: #a22c29;
+  --accent-press: #902923;
+  --accent-lift: #d9605b;
+  --accent-fg: #d6d5c9;
+
+  /*
+   * Deep oxblood, for LARGE DISPLAY TEXT ONLY.
+   *
+   * --accent itself is 2.68:1 on this base and fails even the 3:1 large-text
+   * floor, so it can never be text here. This is the darkest point on the same
+   * ramp that clears it: 3.03:1, valid at 24px and above, never for body copy.
+   * Its only consumer is the contact address at display-xl.
+   */
+  --accent-deep: #ac3532;
+
+  /* Grain reads stronger on bone, so light needs less of it. */
+  --grain-opacity: 0.05;
+
+  --nav-h: 72px;
 }
+
 [data-theme='light'] {
   color-scheme: light;
-  --ink: #f3f6fc; /* cool off-white base             */
-  --surface: #ffffff; /* raised panels                   */
-  --cream: #0a1424; /* primary text (deep navy)        */
-  --muted: #566077; /* secondary text                  */
-  --fg-rgb: 10, 20, 36;
 
-  --lime: #2563eb; /* PRIMARY  · royal blue           */
-  --coral: #0e7490; /* SECONDARY· deep cyan            */
-  --lilac: #0284c7; /* TERTIARY · sky                  */
-  --glow: 37, 99, 235;
+  --bg: #d6d5c9;
+  --bg-raised: #e4e3da;
+  --pane: rgba(10, 16, 13, 0.05);
+  --pane-edge: rgba(10, 16, 13, 0.18);
+  --fg: #0a100d;
+
+  /*
+   * The value the brief proposed here measured 4.28:1 on the bone base and
+   * failed AA for normal text. This is the same supplied sage darkened
+   * further: 4.80:1 on --bg, 5.50:1 on --bg-raised. Do not lighten it.
+   */
+  --fg-dim: #59594e;
+
+  --accent: #902923;
+  --accent-press: #7a231e;
+  --accent-lift: #a22c29;
+  /* On the bone base the supplied deep oxblood clears 5.63:1 outright, so
+     light mode needs no compensation. */
+  --accent-deep: #902923;
+
+  --grain-opacity: 0.038;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Blur tiers are runtime variables too, because mobile drops each one a step
+   and @theme cannot be overridden inside a media query. Non-inline @theme below
+   makes the utilities reference these by var(), so the override propagates. */
+:root {
+  --blur-veil: 12px;
+  --blur-pane: 22px;
+  --blur-deep: 36px;
 }
-html {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  scroll-behavior: auto;
-}
-body {
-  background: var(--ink);
-  color: var(--cream);
-  font-family: var(--body);
-  line-height: 1.5;
-  overflow-x: hidden;
-  cursor: none;
-}
-@media (hover: none) {
-  body {
-    cursor: auto;
+
+@media (width < 48rem) {
+  :root {
+    /* Header zone shrinks with the breakpoint. The Lenis scroll offset reads
+       this same variable, so anchors cannot drift from the rendered height. */
+    --nav-h: 64px;
+    --blur-veil: 12px;
+    --blur-pane: 16px;
+    --blur-deep: 22px;
   }
 }
 
-::selection {
-  background: var(--lime);
-  color: var(--ink);
-}
-a {
-  color: inherit;
-  text-decoration: none;
-}
-img {
-  display: block;
-  max-width: 100%;
+/* ── theme ───────────────────────────────────────────────────────────────── */
+
+/* `inline` so the colour utilities emit var(--bg) directly and follow the
+   runtime theme swap instead of freezing a value at build time. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-pane: var(--pane);
+  --color-pane-edge: var(--pane-edge);
+  --color-fg: var(--fg);
+  --color-fg-dim: var(--fg-dim);
+  --color-accent: var(--accent);
+  --color-accent-press: var(--accent-press);
+  --color-accent-lift: var(--accent-lift);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-fg: var(--accent-fg);
 }
 
-/* grain overlay — static layer (NO mix-blend: blending a fixed full-screen
-   element forces a whole-screen re-composite every scroll frame = major jank) */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 9990;
-  pointer-events: none;
-  opacity: 0.045;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-/* drop the texture on touch devices to spare fill-rate */
-@media (pointer: coarse) {
-  .grain {
-    display: none;
+/* Not inline: these must resolve through var() so the mobile blur override and
+   the font variables set by next/font are picked up at runtime. */
+@theme {
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-pane: 20px;
+  --radius-chip: 9999px;
+
+  --blur-veil: 12px;
+  --blur-pane: 22px;
+  --blur-deep: 36px;
+
+  /* CSS mirrors of the two CustomEase curves in src/lib/gsap.ts. Change both
+     together or the page desyncs from its own motion. */
+  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --container-page: 1440px;
+
+  /* Eight offsets at 8fps. Smoothly moving grain looks like a dirty screen.
+     Stepped grain looks like film. */
+  --animate-grain: grain-shift 1s steps(1, end) infinite;
+
+  @keyframes grain-shift {
+    0% { transform: translate3d(0, 0, 0); }
+    12.5% { transform: translate3d(-14px, 8px, 0); }
+    25% { transform: translate3d(9px, -16px, 0); }
+    37.5% { transform: translate3d(-19px, -6px, 0); }
+    50% { transform: translate3d(16px, 11px, 0); }
+    62.5% { transform: translate3d(-7px, 18px, 0); }
+    75% { transform: translate3d(13px, -11px, 0); }
+    87.5% { transform: translate3d(-16px, -14px, 0); }
   }
 }
 
-/* ── custom cursor ── */
-.cursor-dot,
-.cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  pointer-events: none;
-  border-radius: 50%;
-  mix-blend-mode: difference;
-  transform: translate(-50%, -50%);
-}
-.cursor-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--cream);
-}
-.cursor-ring {
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--cream);
-  transition:
-    width 0.3s var(--ease),
-    height 0.3s var(--ease),
-    background 0.3s var(--ease),
-    opacity 0.3s;
-}
-.cursor-ring.is-hover {
-  width: 64px;
-  height: 64px;
-  background: rgba(var(--fg-rgb), 0.1);
-}
-.cursor-ring .label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--cream);
-  opacity: 0;
-  transition: opacity 0.25s;
-  mix-blend-mode: difference;
-}
-.cursor-ring.is-view {
-  width: 84px;
-  height: 84px;
-  background: rgba(var(--glow), 0.12);
-  border-color: transparent;
-}
-.cursor-ring.is-view .label {
-  opacity: 1;
-}
-@media (hover: none) {
-  .cursor-dot,
-  .cursor-ring {
-    display: none;
-  }
-}
+/* ── custom variants ─────────────────────────────────────────────────────── */
 
-/* ── preloader ── */
-#loader {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background: var(--ink);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: clamp(24px, 5vw, 60px);
-  overflow: hidden;
-}
-#loader .lname {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(40px, 9vw, 120px);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-}
-#loader .lname em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--lime);
-}
-#loader .lcount {
-  font-family: var(--display);
-  font-size: clamp(40px, 9vw, 120px);
-  line-height: 0.9;
-  color: var(--muted);
-}
-.loader-out {
-  transform: translateY(-101%);
-  transition: transform 1s var(--ease);
-}
+/* Free Lenis hook. Suspending hover transitions during fast scroll removes a
+   real and commonly missed jank source. Usage: `scrolling:transition-none`. */
+@custom-variant scrolling (&:where(:root.lenis-scrolling *));
 
-/* ── layout shell ── */
-.wrap {
-  width: 100%;
-  max-width: 1480px;
-  margin-inline: auto;
-  padding-inline: clamp(20px, 5vw, 72px);
-}
-section {
-  position: relative;
-}
+/* Short laptops: the figure yields before the CTA does, so the primary action
+   stays visible without scrolling at every breakpoint. */
+@custom-variant short (@media (width >= 48rem) and (height <= 45rem));
 
-/* eyebrow / section index */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--display);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.eyebrow::before {
-  content: '';
-  width: 28px;
-  height: 1px;
-  background: var(--coral);
-}
-.eyebrow b {
-  color: var(--lime);
-  font-weight: 500;
-}
+/* For the rare case a component needs to diverge by theme beyond a token. */
+@custom-variant light (&:where([data-theme='light'] *));
 
-/* reveal helpers — hidden ONLY when JS animation is ready */
-.anim-ready .reveal {
-  opacity: 0;
-}
-.anim-ready .reveal-line > span {
-  display: inline-block;
-}
+/*
+ * Tall tablets: 1024 wide and up, but in portrait orientation.
+ *
+ * The desktop hero pins the headline to 58vh, which is right on a 900px-tall
+ * laptop and wrong on a 1366px-tall iPad, where it leaves the entire upper left
+ * quadrant empty. Portrait screens get the stacked treatment instead: text at
+ * the top, figure anchored to the bottom.
+ *
+ * Declared last so its rules emit after max-xl and max-lg and win when both
+ * media queries match, since they have equal specificity.
+ */
+@custom-variant tall (@media (width >= 64rem) and (orientation: portrait));
 
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 8000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px clamp(20px, 5vw, 72px);
-  color: var(--cream);
-  transition: transform 0.5s var(--ease);
-}
-nav.hidden {
-  transform: translateY(-110%);
-}
-nav .logo {
-  font-family: var(--display);
+/* ── utilities ───────────────────────────────────────────────────────────── */
+
+/* The type scale. These are design tokens rather than one-off styling, so they
+   are @utility definitions and work with every variant. */
+
+@utility display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(3.25rem, 9vw, 8.5rem);
   font-weight: 700;
-  font-size: 19px;
-  letter-spacing: -0.02em;
-}
-nav .logo span {
-  color: var(--lime);
-}
-nav .links {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-}
-nav .links a {
-  font-family: var(--display);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  position: relative;
-  padding: 4px 0;
-}
-nav .links a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 1px;
-  width: 0;
-  background: currentColor;
-  transition: width 0.4s var(--ease);
-}
-nav .links a:hover::after {
-  width: 100%;
-}
-nav .menu-btn {
-  display: none;
-}
-@media (max-width: 760px) {
-  nav .links {
-    display: none;
-  }
-  nav .menu-btn {
-    display: block;
-    font-family: var(--display);
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.05em;
-    border: 1px solid var(--cream);
-    border-radius: 40px;
-    padding: 8px 18px;
-  }
-}
-
-/* ──────────── HERO ──────────── */
-.hero {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: 120px;
-  padding-bottom: 60px;
-}
-.hero .blobs {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.hero .blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(72px);
-  opacity: 0.5;
-  transform: translateZ(0);
-  will-change: transform;
-}
-/* amber is luminous — keep it small/dim and away from the nav so the
-   mix-blend nav links stay readable */
-.b1 {
-  width: 38vw;
-  height: 38vw;
-  background: var(--coral);
-  top: 2%;
-  right: -10%;
-  opacity: 0.26;
-}
-.b2 {
-  width: 42vw;
-  height: 42vw;
-  background: var(--lime);
-  bottom: -18%;
-  left: -8%;
-  opacity: 0.3;
-}
-.b3 {
-  width: 30vw;
-  height: 30vw;
-  background: var(--lilac);
-  top: 34%;
-  left: 42%;
-  opacity: 0.24;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 2;
-}
-.hero .standfirst {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: clamp(28px, 5vw, 54px);
-}
-.hero .standfirst p {
-  max-width: 34ch;
-  color: var(--muted);
-  font-size: clamp(14px, 1.4vw, 17px);
-}
-.hero .avail {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--display);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--cream);
-}
-.hero .avail .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--lime);
-  box-shadow: 0 0 0 0 var(--lime);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(var(--glow), 0.6);
-  }
-  70% {
-    box-shadow: 0 0 0 12px rgba(var(--glow), 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(var(--glow), 0);
-  }
-}
-
-.hero h1 {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(54px, 13.5vw, 230px);
-  line-height: 0.86;
+  font-variation-settings: 'wdth' 78;
   letter-spacing: -0.04em;
-  text-transform: uppercase;
-}
-.hero h1 .ln {
-  display: block;
-  overflow: hidden;
-}
-.hero h1 .lnInner {
-  display: block;
-}
-.hero h1 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: -0.01em;
-}
-.hero h1 .lime,
-.hero h1 i {
-  color: var(--lime);
-  font-style: normal;
-}
-.hero h1 .stroke {
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--cream);
-}
-@keyframes slide {
-  0% {
-    transform: translateX(-100%);
-  }
-  60%,
-  100% {
-    transform: translateX(100%);
-  }
+  line-height: 0.94;
 }
 
-/* ──────────── MARQUEE ──────────── */
-.marquee {
-  border-block: 1px solid var(--line);
-  padding: 22px 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.marquee .marq-skew {
-  display: block;
-  will-change: transform;
-}
-.marquee .track {
-  display: inline-flex;
-  gap: 46px;
-  align-items: center;
-  will-change: transform;
-  animation: marq 28s linear infinite;
-}
-.marquee:hover .track {
-  animation-play-state: paused;
-}
-/* when JS velocity-drives the marquee, it owns the transform */
-.marquee.js-marquee .track {
-  animation: none;
-}
-.marquee.js-marquee:hover .track {
-  animation: none;
-}
-.marquee .item {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(22px, 3vw, 40px);
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-}
-.marquee .item.dim {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--muted);
-}
-.marquee .star {
-  color: var(--coral);
-  font-size: clamp(18px, 2.4vw, 30px);
-}
-@keyframes marq {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-/* ──────────── shared section heading ──────────── */
-.sec-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: clamp(40px, 6vw, 80px);
-}
-.sec-head h2 {
-  font-family: var(--display);
+/*
+ * display-xl, but never wider than the line it has to fit on.
+ *
+ * Used by the contact address and nothing else. display-xl's 3.25rem floor is
+ * wider than a phone: the address is 7.72em of advance width, so 52px needs
+ * 401px of line and a 375px viewport offers 335px. It wrapped to two lines,
+ * which for the page's single primary action is wrong.
+ *
+ * The second term caps the size at whatever the container can actually hold,
+ * so the address stays on one line at every width instead of at the widths
+ * that happen to work. Above roughly 480px the clamp is the smaller of the two
+ * and this behaves exactly like display-xl.
+ *
+ * 7.78 is the address's own advance width in em, measured at 7.7273 with a
+ * little slack. IT IS SPECIFIC TO THE STRING: if CONTACT.email in
+ * content/site.ts changes, remeasure it, or the address wraps again.
+ *
+ * font-optical-sizing: none is what makes that one number valid at all.
+ * Bricolage Grotesque has an opsz axis, and left on auto the letterforms widen
+ * as the size drops: the same string measures 7.72em at 130px but 9.13em at
+ * 24px. A fixed divisor cannot describe that, and worse, it is a feedback
+ * loop, since shrinking the text to fit makes it proportionally wider. Pinning
+ * opsz flattens the ratio to 7.71 to 7.73 at every size.
+ *
+ * This costs nothing at display sizes: above about 80px auto and none measure
+ * identically (7.7154em at 130px either way), so the desktop rendering is
+ * untouched. It only changes the phone, where it also buys roughly 6px of type
+ * because the narrower cut fits at a larger size.
+ *
+ * cqw, not vw, so the divisor is the real container width and this does not
+ * have to duplicate gutter-x's clamp. Requires container-type on the wrapper.
+ */
+@utility display-address {
+  font-family: var(--font-display);
+  font-size: min(clamp(3.25rem, 9vw, 8.5rem), calc(100cqw / 7.78));
   font-weight: 700;
-  font-size: clamp(34px, 6vw, 86px);
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  max-width: 14ch;
-}
-.sec-head h2 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--lime);
-}
-.pad {
-  padding-block: clamp(80px, 12vw, 170px);
-}
-
-/* ──────────── ABOUT ──────────── */
-.about .big {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(26px, 4.6vw, 64px);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  max-width: 18ch;
-}
-.about .big em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--coral);
-}
-.about .big .w {
-  display: inline-block;
-}
-.about-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(40px, 5vw, 70px);
-  margin-top: clamp(50px, 7vw, 90px);
-}
-.about-grid .col p {
-  color: var(--muted);
-  font-size: clamp(15px, 1.4vw, 17px);
-  margin-bottom: 18px;
-}
-.about-grid .col p strong {
-  color: var(--cream);
-  font-weight: 600;
-}
-@media (min-width: 860px) {
-  .about-grid {
-    grid-template-columns: 1.1fr 1fr;
-  }
-}
-.about-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
-}
-.about-tags span {
-  font-family: var(--display);
-  font-size: 13px;
-  border: 1px solid var(--line);
-  border-radius: 40px;
-  padding: 8px 16px;
-  color: var(--cream);
-}
-
-/* ──────────── SERVICES ──────────── */
-.svc-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: clamp(16px, 4vw, 50px);
-  align-items: center;
-  padding: clamp(26px, 4vw, 48px) 0;
-  border-top: 1px solid var(--line);
-  cursor: none;
-  transition: padding-left 0.5s var(--ease);
-}
-.svc-list .svc-item:last-child {
-  border-bottom: 1px solid var(--line);
-}
-.svc-item .num {
-  font-family: var(--display);
-  font-size: 14px;
-  color: var(--muted);
-}
-.svc-item h3 {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(24px, 4.4vw, 56px);
-  letter-spacing: -0.02em;
-  transition:
-    color 0.4s,
-    transform 0.5s var(--ease);
-}
-.svc-item .desc {
-  max-width: 30ch;
-  color: var(--muted);
-  font-size: 14px;
-  justify-self: end;
-  text-align: right;
-}
-.svc-item:hover {
-  padding-left: clamp(8px, 2vw, 28px);
-}
-.svc-item:hover h3 {
-  color: var(--lime);
-}
-.svc-item:hover .num {
-  color: var(--coral);
-}
-@media (max-width: 720px) {
-  .svc-item {
-    grid-template-columns: auto 1fr;
-  }
-  .svc-item .desc {
-    display: none;
-  }
-}
-
-/* ──────────── WORK / PROJECTS ──────────── */
-.work-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(36px, 5vw, 64px);
-  perspective: 1400px;
-}
-@media (min-width: 780px) {
-  .work-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.proj {
-  position: relative;
-}
-.proj .frame {
-  transform-style: preserve-3d;
-  transition: transform 0.5s var(--ease);
-}
-.proj.tilting .frame {
-  transition: transform 0.08s linear;
-}
-.proj:nth-child(even) {
-  margin-top: 0;
-}
-@media (min-width: 780px) {
-  .proj:nth-child(even) {
-    margin-top: clamp(40px, 7vw, 90px);
-  }
-}
-.proj .frame {
-  position: relative;
-  overflow: hidden;
-  border-radius: 18px;
-  aspect-ratio: 4/3;
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-.proj .frame .ph {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(40px, 8vw, 90px);
-  letter-spacing: -0.03em;
-  color: transparent;
-  -webkit-text-stroke: 1.4px rgba(var(--fg-rgb), 0.18);
-  transition:
-    transform 0.9s var(--ease),
-    color 0.9s var(--ease);
-}
-.proj .frame .glow {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      circle at 30% 20%,
-      var(--c1, var(--coral)) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at 80% 90%,
-      var(--c2, var(--lime)) 0%,
-      transparent 55%
-    );
-  opacity: 0.5;
-  transition:
-    opacity 0.9s,
-    transform 0.9s var(--ease);
-}
-.proj:hover .frame .ph {
-  transform: scale(1.06);
-  color: rgba(var(--fg-rgb), 0.32);
-}
-.proj:hover .frame .glow {
-  opacity: 0.85;
-  transform: scale(1.1);
-}
-.proj .meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 14px;
-  margin-top: 20px;
-}
-.proj .meta h3 {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(22px, 3vw, 32px);
-  letter-spacing: -0.02em;
-}
-.proj .meta .yr {
-  font-family: var(--display);
-  font-size: 14px;
-  color: var(--muted);
-}
-.proj .tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-.proj .tags span {
-  font-family: var(--display);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  color: var(--lilac);
-  border: 1px solid var(--line);
-  border-radius: 30px;
-  padding: 5px 12px;
-}
-
-/* ──────────── EXPERIENCE · minimal rows ──────────── */
-.xp-list {
-  border-top: 1px solid var(--line);
-}
-.xp-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  padding: clamp(26px, 4vw, 44px) 0;
-  border-bottom: 1px solid var(--line);
-  transition: background 0.4s var(--ease);
-}
-.xp-row:hover {
-  background: rgba(var(--fg-rgb), 0.02);
-}
-@media (min-width: 760px) {
-  .xp-row {
-    grid-template-columns: 190px 1fr;
-    gap: clamp(24px, 5vw, 64px);
-    align-items: start;
-  }
-}
-/* date column */
-.xp-date {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  font-family: var(--mono);
-  padding-top: 6px;
-}
-.xp-period {
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--cream);
-}
-.xp-now {
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--lime);
-  border: 1px solid rgba(var(--glow), 0.4);
-  background: rgba(var(--glow), 0.08);
-  border-radius: 30px;
-  padding: 3px 10px;
-}
-.xp-loc {
-  font-size: 12.5px;
-  color: var(--muted);
-}
-/* content column */
-.xp-role {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(22px, 3vw, 38px);
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-}
-.xp-at {
-  color: var(--muted);
-  font-weight: 400;
-}
-.xp-company {
-  color: var(--coral);
-}
-.xp-blurb {
-  margin-top: 16px;
-  max-width: 60ch;
-  color: var(--muted);
-  font-size: clamp(15px, 1.4vw, 17px);
-}
-.xp-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-.xp-tags span {
-  font-family: var(--display);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  color: var(--lilac);
-  border: 1px solid var(--line);
-  border-radius: 30px;
-  padding: 5px 12px;
-}
-
-/* ──────────── STATS ──────────── */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(30px, 5vw, 40px) clamp(20px, 4vw, 60px);
-}
-@media (min-width: 760px) {
-  .stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.stat .n {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(48px, 9vw, 120px);
-  line-height: 0.9;
+  font-optical-sizing: none;
+  font-variation-settings: 'wdth' 78;
   letter-spacing: -0.04em;
-}
-.stat:nth-child(2) .n {
-  color: var(--lime);
-}
-.stat:nth-child(3) .n {
-  color: var(--coral);
-}
-.stat:nth-child(4) .n {
-  color: var(--lilac);
-}
-.stat .n .suf {
-  font-family: var(--serif);
-  font-style: italic;
-}
-.stat .lbl {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: 14px;
-  max-width: 20ch;
+  line-height: 0.94;
 }
 
-/* ──────────── CONTACT ──────────── */
-.contact {
-  text-align: center;
-}
-.contact .eyebrow {
-  justify-content: center;
-}
-.contact .pre {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(22px, 3vw, 38px);
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.contact .mail {
-  display: inline-block;
-  font-family: var(--display);
-  font-weight: 700;
-  /* fallback size; JS fits it precisely to one line (see Effects) */
-  font-size: clamp(18px, 5vw, 120px);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-  margin: 10px 0 clamp(40px, 6vw, 70px);
-  position: relative;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.contact .mail span {
-  display: inline-block;
-  transition:
-    transform 0.4s var(--ease),
-    color 0.4s;
-}
-.contact .mail:hover span {
-  color: var(--lime);
-}
-.contact .socials {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: center;
-}
-.contact .socials a {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  border: 1px solid var(--line);
-  border-radius: 40px;
-  padding: 13px 26px;
-  transition:
-    background 0.4s,
-    color 0.4s,
-    border-color 0.4s;
-}
-.contact .socials a:hover {
-  background: var(--cream);
-  color: var(--ink);
-  border-color: var(--cream);
-}
-
-/* ──────────── FOOTER ──────────── */
-footer {
-  border-top: 1px solid var(--line);
-  padding-block: 40px;
-}
-footer .row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-footer .row p {
-  font-family: var(--display);
-  font-size: 13px;
-  letter-spacing: 0.03em;
-  color: var(--muted);
-}
-footer .row p b {
-  color: var(--cream);
+@utility display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5.5vw, 4.5rem);
   font-weight: 600;
-}
-footer .totop {
-  font-family: var(--display);
-  font-size: 13px;
-  letter-spacing: 0.05em;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-footer .totop:hover {
-  color: var(--lime);
-}
-
-/* ──────────── TERMINAL ──────────── */
-.term {
-  position: relative;
-  max-width: 940px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--surface);
-  box-shadow:
-    0 40px 90px -40px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 rgba(var(--fg-rgb), 0.05);
-}
-.term::after {
-  /* subtle accent glow */
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  background: radial-gradient(
-    120% 80% at 100% 0%,
-    rgba(var(--glow), 0.1),
-    transparent 55%
-  );
-}
-.term-bar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 18px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(var(--fg-rgb), 0.02);
-}
-.term-dots {
-  display: inline-flex;
-  gap: 8px;
-}
-.term-dots i {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: block;
-}
-.term-dots i:nth-child(1) {
-  background: #ff5f57;
-}
-.term-dots i:nth-child(2) {
-  background: #febc2e;
-}
-.term-dots i:nth-child(3) {
-  background: #28c840;
-}
-.term-title {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--muted);
-  letter-spacing: 0.02em;
-}
-.term-body {
-  position: relative;
-  z-index: 1;
-  padding: clamp(18px, 3vw, 32px);
-  font-family: var(--mono);
-  font-size: clamp(13px, 1.5vw, 16px);
-  line-height: 1.85;
-}
-.term-line {
-  margin-bottom: 6px;
-}
-.term-prompt {
-  display: block;
-  word-break: break-word;
-}
-.term-user {
-  color: var(--lime);
-}
-.term-path {
-  color: var(--lilac);
-}
-.term-dollar {
-  color: var(--coral);
-  margin: 0 9px 0 1px;
-}
-.term-cmd {
-  color: var(--cream);
-  white-space: pre-wrap;
-}
-.term-cmd.typing {
-  border-right: 2px solid var(--lime);
-  animation: blink 1.05s steps(1) infinite;
-}
-.term-out {
-  color: var(--muted);
-  margin: 3px 0 16px;
-  padding-left: 2px;
-  white-space: pre-wrap;
-}
-.term-out::before {
-  content: '→ ';
-  color: var(--lime);
-}
-.term-tail {
-  margin-top: 2px;
-}
-.term-blink {
-  color: var(--lime);
-  animation: blink 1.05s steps(1) infinite;
-  margin-left: 2px;
-}
-@keyframes blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-@media (max-width: 520px) {
-  .term-body {
-    line-height: 1.7;
-  }
-}
-
-/* ──────────── THEME SWITCHER ──────────── */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 2.4vw, 28px);
-}
-.theme-toggle {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  flex: none;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(var(--fg-rgb), 0.28);
-  background: rgba(var(--fg-rgb), 0.05);
-  color: var(--cream);
-  cursor: none;
-  transition:
-    border-color 0.35s var(--ease),
-    background 0.35s var(--ease),
-    transform 0.35s var(--ease);
-}
-.theme-toggle:hover {
-  border-color: var(--lime);
-  background: rgba(var(--glow), 0.12);
-  transform: scale(1.06);
-}
-@media (hover: none) {
-  .theme-toggle {
-    cursor: pointer;
-  }
-}
-.theme-toggle svg {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition:
-    opacity 0.4s var(--ease),
-    transform 0.5s var(--ease);
-}
-.theme-toggle .i-sun {
-  opacity: 0;
-  transform: rotate(-90deg) scale(0.4);
-}
-.theme-toggle .i-moon {
-  opacity: 1;
-  transform: none;
-}
-[data-theme='light'] .theme-toggle .i-sun {
-  opacity: 1;
-  transform: none;
-}
-[data-theme='light'] .theme-toggle .i-moon {
-  opacity: 0;
-  transform: rotate(90deg) scale(0.4);
-}
-
-/* ── per-theme tweaks ── */
-/* the custom cursor uses difference (great on dark); on light, blend normally */
-[data-theme='light'] .cursor-dot,
-[data-theme='light'] .cursor-ring {
-  mix-blend-mode: normal;
-}
-[data-theme='light'] .cursor-ring .label {
-  mix-blend-mode: normal;
-}
-/* keep the glow blobs gentle on white, and glyphs readable */
-[data-theme='light'] .hero .blob {
-  opacity: 0.16;
-  filter: blur(84px);
-}
-[data-theme='light'] .anim-ready .glyph {
-  opacity: calc(var(--o) * 1.7);
-}
-[data-theme='light'] .grain {
-  opacity: 0.03;
-}
-
-/* ──────────── VIEW-TRANSITION (theme cross-fade) ──────────── */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.55s;
-  animation-timing-function: var(--ease);
-  mix-blend-mode: normal;
-}
-/* let the incoming theme simply dissolve over the old one */
-::view-transition-old(root) {
-  z-index: 1;
-}
-::view-transition-new(root) {
-  z-index: 2;
-}
-
-/* ──────────── EASTER EGGS ──────────── */
-/* konami: rainbow sweep across the glyph layer */
-.glyphs.party {
-  animation: eggHue 1.3s linear;
-}
-@keyframes eggHue {
-  from {
-    filter: hue-rotate(0);
-  }
-  to {
-    filter: hue-rotate(360deg);
-  }
-}
-/* konami toast */
-.egg-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 28px;
-  z-index: 9996;
-  transform: translate(-50%, 150%);
-  opacity: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  color: var(--cream);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 40px;
-  padding: 12px 20px;
-  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
-  transition:
-    transform 0.65s var(--ease),
-    opacity 0.5s var(--ease);
-  pointer-events: none;
-  max-width: calc(100vw - 32px);
-}
-.egg-toast.show {
-  transform: translate(-50%, 0);
-  opacity: 1;
-}
-.egg-toast .egg-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--lime);
-  flex: none;
-  box-shadow: 0 0 0 0 var(--lime);
-  animation: pulse 2s infinite;
-}
-
-/* magnetic helper */
-.mag {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* ──────────── FLOATING CODE GLYPHS (3D, lenis-driven) ──────────── */
-.glyphs {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-.glyph {
-  position: absolute;
-  font-family: var(--mono);
-  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1;
-  white-space: nowrap;
-  user-select: none;
-  will-change: transform;
-  opacity: 0;
-  letter-spacing: -0.02em;
-  transition: opacity 1.4s var(--ease);
 }
-.anim-ready .glyph {
-  opacity: var(--o, 0.14);
+
+@utility heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
 }
-/* on touch the glyphs are static decoration — don't keep them on the GPU */
-@media (pointer: coarse) {
-  .glyph {
-    will-change: auto;
+
+@utility body-lg {
+  font-size: clamp(1.05rem, 1.25vw, 1.3rem);
+  line-height: 1.55;
+}
+
+/* Mono is for real data only: stack tags, dates, metrics. Never texture. */
+@utility label {
+  font-family: var(--font-mono);
+  /* 0.72rem is 11.5px, which is below a comfortable floor on anything held in
+     the hand. Mono at this tracking is the hardest text on the page to read
+     small, so it steps up on phones AND tablets and only drops to the desktop
+     token at 1024, where the viewing distance is longer. */
+  font-size: 0.8rem;
+  @media (width >= 64rem) {
+    font-size: 0.72rem;
   }
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
 }
-@media (max-width: 760px) {
-  .glyph.hide-sm {
-    display: none;
+
+/* Eyebrow variant of the label. A separate utility rather than `label` plus a
+   text colour, because both are utilities and which one wins depends on
+   emit order rather than on intent. */
+@utility label-accent {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  @media (width >= 64rem) {
+    font-size: 0.72rem;
   }
-  .glyph {
-    font-size: clamp(18px, 7vw, 40px) !important;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+}
+
+/* Page shell and section rhythm. Repeated on every section, so a utility
+   rather than the same four utilities copied fourteen times. */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 5rem);
+}
+
+@utility gutter-x {
+  padding-inline: clamp(1.25rem, 5vw, 5rem);
+}
+
+@utility section-y {
+  /* Mobile gets a tighter rhythm. The desktop value is generous by design, but
+     on a phone it stacks into hundreds of pixels of dead scroll between every
+     section and makes the page feel empty rather than spacious. */
+  padding-block: clamp(4rem, 9vh, 6rem);
+  @media (width >= 48rem) {
+    padding-block: clamp(7rem, 13vh, 11rem);
   }
 }
 
-/* ──────────── HERO 3D PARALLAX CONTEXT ──────────── */
-.hero-inner {
-  perspective: 1100px;
-}
-.hero h1 {
-  transform-style: preserve-3d;
-  will-change: transform;
+/*
+ * Expands an element's hit area to the 44px minimum without changing its
+ * layout box. Used on small inline controls whose visual size is correct but
+ * whose touch area is not: padding them would move the things around them.
+ */
+@utility tap-44 {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 44px;
+    translate: 0 -50%;
+  }
 }
 
-/* ──────────── MOBILE MENU OVERLAY ──────────── */
-.menu-btn {
-  -webkit-tap-highlight-color: transparent;
-  background: none;
-  color: inherit;
-  cursor: none;
+/*
+ * Round icon button. The theme toggle and the social links share it, so they
+ * read as one control family.
+ *
+ * SECOND documented exception to the 20px radius lock, after the availability
+ * chip. Added at the client's request; do not extend it to anything else.
+ * 44px is the tap-target minimum, so these need no tap-44 helper.
+ */
+@utility icon-round {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 1px solid var(--pane-edge);
+  border-radius: var(--radius-chip);
+  color: var(--fg-dim);
+  cursor: pointer;
+  transition:
+    color 200ms var(--ease-snap),
+    border-color 200ms var(--ease-snap);
+
+  &:hover {
+    color: var(--fg);
+    border-color: var(--accent-lift);
+  }
 }
-@media (hover: none) {
-  .menu-btn {
+
+/* The glass pane. Fill, hairline and radius together, because they are one
+   material rather than three independent choices. Blur is NOT included: it is
+   opt-in per instance via backdrop-blur-*, which keeps the six-per-viewport
+   ceiling countable by grepping the markup. */
+@utility pane {
+  background: var(--pane);
+  border: 1px solid var(--pane-edge);
+  border-radius: var(--radius-pane);
+  transition: border-color 220ms var(--ease-snap);
+
+  /* The edge sheen. The only place a pane picks up accent. */
+  &:hover {
+    border-color: var(--accent-lift);
+  }
+
+  /* Free Lenis hook: suspending hover transitions during fast scroll removes a
+     real and commonly missed jank source. */
+  :root.lenis-scrolling & {
+    transition: none;
+  }
+}
+
+/* ── base ────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Lenis owns scroll. Native smooth scrolling would fight it. */
+    scroll-behavior: auto;
+    /* `clip`, not `hidden`. overflow-x: hidden on body alone makes body a
+       scroll container whose scrollWidth still propagates up, so html kept a
+       horizontal scrollbar at 768 and 375. `clip` clips without creating a
+       scroll container and leaves vertical scrolling, and Lenis, untouched. */
+    overflow-x: clip;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-x: clip;
+    transition:
+      background 320ms var(--ease-snap),
+      color 320ms var(--ease-snap);
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
     cursor: pointer;
   }
-}
-.mobile-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 8500;
-  background: var(--ink);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  padding: clamp(28px, 8vw, 72px);
-  transform: translateY(-100%);
-  transition: transform 0.7s var(--ease);
-  pointer-events: none;
-}
-.mobile-menu.open {
-  transform: translateY(0);
-  pointer-events: auto;
-}
-.mobile-menu .mm-top {
-  position: absolute;
-  top: 22px;
-  left: clamp(20px, 5vw, 72px);
-  right: clamp(20px, 5vw, 72px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.mobile-menu .mm-logo {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 19px;
-}
-.mobile-menu .mm-logo span {
-  color: var(--lime);
-}
-.mobile-menu .mm-close {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--cream);
-  border-radius: 40px;
-  padding: 8px 18px;
-}
-.mobile-menu nav,
-.mobile-menu .links {
-  all: unset;
-}
-.mobile-menu a.mm-link {
-  font-family: var(--display);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: clamp(38px, 12vw, 72px);
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  color: var(--cream);
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: color 0.3s;
-}
-.mobile-menu.open a.mm-link {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.6s var(--ease),
-    transform 0.6s var(--ease);
-}
-.mobile-menu.open a.mm-link:nth-child(1) {
-  transition-delay: 0.12s;
-}
-.mobile-menu.open a.mm-link:nth-child(2) {
-  transition-delay: 0.18s;
-}
-.mobile-menu.open a.mm-link:nth-child(3) {
-  transition-delay: 0.24s;
-}
-.mobile-menu.open a.mm-link:nth-child(4) {
-  transition-delay: 0.3s;
-}
-.mobile-menu a.mm-link .mm-i {
-  font-family: var(--mono);
-  font-size: 0.32em;
-  color: var(--coral);
-  font-weight: 500;
-}
-.mobile-menu a.mm-link:active {
-  color: var(--lime);
-}
-.mobile-menu .mm-foot {
-  position: absolute;
-  bottom: clamp(24px, 7vw, 48px);
-  left: clamp(20px, 5vw, 72px);
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--muted);
-}
-.mobile-menu .mm-foot a {
-  color: var(--lime);
-}
-body.menu-open {
-  overflow: hidden;
-}
 
-/* ──────────── RESPONSIVE POLISH ──────────── */
-@media (max-width: 980px) {
-  .hero .standfirst {
-    flex-direction: column;
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
-  .hero .standfirst p {
-    max-width: 46ch;
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
   }
-}
-@media (max-width: 760px) {
-  .hero {
-    padding-top: 104px;
+
+  /* Accent as a hairline fails on the dark base, so focus rings use the lift
+     value in both themes. Never carry an affordance on --accent alone. */
+  :focus-visible {
+    outline: 2px solid var(--accent-lift);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
-  .sec-head {
-    align-items: flex-start;
-  }
-  .sec-head .eyebrow {
-    order: -1;
-  }
-  .proj:nth-child(even) {
-    margin-top: 0;
-  }
-  .footer .row,
-  footer .row {
-    justify-content: flex-start;
-  }
-  footer .totop {
-    margin-left: auto;
-  }
-}
-@media (max-width: 420px) {
-  .about-tags span {
-    font-size: 12px;
-    padding: 7px 13px;
-  }
-  .stat .lbl {
-    font-size: 13px;
-  }
-}
-/* tame heavy blur on small / low-power screens */
-@media (max-width: 760px) {
-  .hero .blob {
-    filter: blur(60px);
-  }
-  .b3 {
-    display: none;
+
+  /* Hide the pointer only where the custom cursor actually replaces it. */
+  @media (hover: hover) and (pointer: fine) {
+    body[data-cursor='custom'] {
+      cursor: none;
+    }
   }
 }
 
-/* reduced motion */
+/* ── degradation ─────────────────────────────────────────────────────────── */
+
+/*
+ * Reduced motion. The grain and cursor opt out through motion-reduce: utilities
+ * on their own elements; this is the global backstop for everything else.
+ * Blur tier degradation lives with the tokens at the top of this file.
+ */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-  .anim-ready .reveal {
-    opacity: 1 !important;
   }
 }

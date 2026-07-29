@@ -1,63 +1,60 @@
-import { ImageResponse } from "next/og";
-import { CONTENT } from "@/content/site";
+import { ImageResponse } from 'next/og';
+import { IDENTITY } from '@/content/site';
 
-export const alt = `${CONTENT.name} — ${CONTENT.role}`;
+export const alt = 'Waleed Jassim M K, front-end engineer';
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = 'image/png';
 
-export default function OgImage() {
+/*
+ * Dark-theme tokens, inlined because ImageResponse renders outside the
+ * document and cannot read CSS variables. These four values must stay in sync
+ * with globals.css.
+ *
+ * Bricolage is not loaded here: ImageResponse cannot use next/font, and
+ * fetching the woff2 would make the build depend on the network. The card
+ * leans on scale and colour instead.
+ */
+const BG = '#0a100d';
+const FG = '#d6d5c9';
+const FG_DIM = '#b9baa3';
+const ACCENT = '#a22c29';
+
+export default function Image() {
   return new ImageResponse(
     (
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: 80,
-          background: "#060912",
-          color: "#eaf1ff",
-          fontFamily: "sans-serif",
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          background: BG,
+          color: FG,
+          padding: '80px',
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-            fontSize: 28,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: "#7e8aa6",
-          }}
-        >
-          <div style={{ width: 48, height: 2, background: "#3b82f6" }} />
-          {CONTENT.role}
+        <div style={{ display: 'flex', fontSize: 26, letterSpacing: 6, color: FG_DIM, textTransform: 'uppercase' }}>
+          {IDENTITY.title}
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            fontSize: 132,
-            fontWeight: 700,
-            lineHeight: 0.95,
-            letterSpacing: "-0.04em",
-          }}
-        >
-          <span>{CONTENT.name.split(" ").slice(0, -1).join(" ") || CONTENT.name}</span>
-          <span style={{ color: "#3b82f6" }}>
-            {CONTENT.name.split(" ").slice(-1).join(" ")}
-          </span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ fontSize: 128, fontWeight: 700, letterSpacing: -5, lineHeight: 1 }}>
+            {IDENTITY.fullName}
+          </div>
+          {/* Accent as a fill, never as text on this base. */}
+          <div style={{ display: 'flex', marginTop: 40 }}>
+            <div style={{ display: 'flex', background: ACCENT, color: FG, fontSize: 30, padding: '16px 32px', borderRadius: 20 }}>
+              React, Next.js, TypeScript
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 30 }}>
-          <span style={{ color: "#22d3ee" }}>{CONTENT.contact.email}</span>
-          <span style={{ color: "#7e8aa6" }}>Building digital experiences that move</span>
+        <div style={{ display: 'flex', fontSize: 26, color: FG_DIM }}>
+          {IDENTITY.location}
         </div>
       </div>
     ),
-    { ...size },
+    size,
   );
 }
