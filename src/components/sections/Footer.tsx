@@ -79,12 +79,15 @@ export default function Footer({ year }: { year: number }) {
             stack on a phone. */}
         <div className="grid gap-[clamp(2.5rem,6vh,4rem)] md:grid-cols-[1fr_auto] md:items-start md:gap-x-[clamp(2rem,6vw,6rem)]">
           <div className="grid gap-3">
-            {/* text-balance, not a ch measure. max-w-[12ch] forced a wrap that
-                landed after "M" and left "K" alone on its own line, the same
-                orphan the credit had. Balancing splits the name evenly instead,
-                and it only engages when the name genuinely does not fit. */}
-            <SplitHeading as="p" variant="display-lg" className="text-balance">
-              {IDENTITY.fullName}
+            {/* shortName, not fullName. The full name still signs the
+                copyright in the bottom bar, where a legal attribution wants
+                it; here it is a sign-off and reads better short.
+
+                This also retires the wrap problem entirely: one word cannot
+                orphan a trailing initial the way "Waleed Jassim M K" did, so
+                no balancing or measure is needed. */}
+            <SplitHeading as="p" variant="display-lg">
+              {IDENTITY.shortName}
             </SplitHeading>
 
             <MonoLabel data-footer-reveal>
