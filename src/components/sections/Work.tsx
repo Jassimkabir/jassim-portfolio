@@ -120,35 +120,42 @@ export default function Work() {
       mm.add('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
         const cards = gsap.utils.toArray<HTMLElement>('[data-work-card]');
         const offs = cards.map((card) => {
-          /* quickTo into custom properties, not a tween per pointermove. One
-             tween per axis is reused and retargeted, which is the difference
-             between a follower that costs nothing and one that allocates on
-             every mouse event.
+          const glow = card.querySelector<HTMLElement>('[data-work-glow]');
+          if (!glow) return () => {};
 
-             THESE ARE PERCENTAGES, NOT PIXELS, and the reason is not style.
-             quickTo writes a bare number with no unit, which is not a valid
-             gradient position on its own, so the CSS multiplies it back up
-             with calc(). Percent rather than px means the seeded 50/50 below
-             is genuinely the card's centre without needing to measure it,
-             which is what the keyboard focus state renders against. */
-          const xTo = gsap.quickTo(card, '--glow-x', { duration: 0.5, ease: 'power3' });
-          const yTo = gsap.quickTo(card, '--glow-y', { duration: 0.5, ease: 'power3' });
+          /*
+           * THE GLOW MOVES, THE GRADIENT DOES NOT. This used to animate the
+           * gradient's position through two CSS custom properties, which is a
+           * paint operation: custom properties are not compositor animatable,
+           * so every frame repainted a 288px radial gradient across the card
+           * and the text sitting on it. That was half the jitter.
+           *
+           * Now the gradient is fixed inside a element that is translated
+           * instead. Same picture, but it rides the compositor and paints once.
+           *
+           * quickTo, not a tween per pointermove: one tween per axis is reused
+           * and retargeted rather than allocating on every mouse event.
+           */
+          gsap.set(glow, {
+            xPercent: -50,
+            yPercent: -50,
+            x: card.offsetWidth / 2,
+            y: card.offsetHeight / 2,
+          });
 
-          const pct = (e: PointerEvent) => {
-            const r = card.getBoundingClientRect();
-            return [((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100];
-          };
+          const xTo = gsap.quickTo(glow, 'x', { duration: 0.5, ease: 'power3' });
+          const yTo = gsap.quickTo(glow, 'y', { duration: 0.5, ease: 'power3' });
 
           const move = (e: PointerEvent) => {
-            const [x, y] = pct(e);
-            xTo(x);
-            yTo(y);
+            const r = card.getBoundingClientRect();
+            xTo(e.clientX - r.left);
+            yTo(e.clientY - r.top);
           };
           /* Seeded at the entry point so the glow does not sweep in from
              wherever the last hover left it. */
           const enter = (e: PointerEvent) => {
-            const [x, y] = pct(e);
-            gsap.set(card, { '--glow-x': x, '--glow-y': y });
+            const r = card.getBoundingClientRect();
+            gsap.set(glow, { x: e.clientX - r.left, y: e.clientY - r.top });
           };
 
           card.addEventListener('pointerenter', enter);
@@ -207,22 +214,29 @@ export default function Work() {
               className={[
                 'pane group relative isolate flex flex-col gap-4 overflow-hidden',
                 'p-[clamp(1.5rem,3vw,2.5rem)]',
+                /* The other half of the jitter. The drift translates the card
+                   by fractional pixels every frame, and without its own layer
+                   the browser re-rasterises all of this card's text at each
+                   sub-pixel offset, which shimmers. Promoted, it rasterises
+                   once and the compositor moves it. */
+                'will-change-transform',
                 'transition-[border-color] duration-300 ease-snap hover:border-accent-lift',
               ].join(' ')}
-              /* Seeded so the gradient is centred before the first pointermove,
-                 which matters for the keyboard focus state below. */
-              style={{ ['--glow-x' as string]: 50, ['--glow-y' as string]: 50 }}
             >
-              {/* The glow. Its own layer under the content, so it never tints
-                  the type. Accent as a fill, which is its only AA-passing use
-                  against the dark base. */}
+              {/* The glow. Under the content so it never tints the type, and
+                  clipped by the card's overflow-hidden. Accent as a fill, its
+                  only AA-passing use against the dark base.
+
+                  Fixed size and fixed gradient: it is positioned by transform
+                  alone, which is what keeps it off the paint path. */}
               <span
                 aria-hidden="true"
+                data-work-glow
                 className={[
-                  'pointer-events-none absolute inset-0 -z-10 opacity-0',
-                  'transition-opacity duration-500 ease-snap',
+                  'pointer-events-none absolute top-0 left-0 -z-10 h-[32rem] w-[32rem] rounded-full',
+                  'opacity-0 transition-opacity duration-500 ease-snap will-change-transform',
                   'group-hover:opacity-100 group-focus-visible:opacity-100',
-                  'bg-[radial-gradient(18rem_18rem_at_calc(var(--glow-x)*1%)_calc(var(--glow-y)*1%),color-mix(in_srgb,var(--accent)_22%,transparent),transparent_70%)]',
+                  'bg-[radial-gradient(circle,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_70%)]',
                 ].join(' ')}
               />
 
