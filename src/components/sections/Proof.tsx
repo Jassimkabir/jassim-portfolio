@@ -114,7 +114,11 @@ export default function Proof() {
             )}
 
             {PROOF.article.url ? (
-              <a href={PROOF.article.url} className="tap-44 justify-self-start border-b border-accent-lift pb-0.5 text-accent-lift transition-[color,border-color] duration-200 ease-snap hover:border-fg hover:text-fg" data-magnetic>
+              /* Offsite, so it opens in a new tab and carries rel, matching
+                 every other external link on the page. This only became
+                 reachable when the URL was supplied; until then the anchor
+                 never rendered. */
+              <a href={PROOF.article.url} target="_blank" rel="noreferrer" className="tap-44 justify-self-start border-b border-accent-lift pb-0.5 text-accent-lift transition-[color,border-color] duration-200 ease-snap hover:border-fg hover:text-fg" data-magnetic>
                 {PROOF.article.cta}
               </a>
             ) : null}

@@ -157,14 +157,24 @@ export const ABOUT = {
 
 export const PROOF = {
   article: {
+    /* Published as "BlurHash : An Alternative to Generic Image Placeholders."
+       The stray space before the colon and the trailing period are dropped
+       here, which is normalisation and not a rewrite. */
     title: 'BlurHash: An Alternative to Generic Image Placeholders',
+
+    url: 'https://medium.com/@jassimmkabir/blurhash-an-alternative-to-generic-image-placeholders-05731df38ad3',
+
     /**
-     * NEEDS INPUT: the published URL and 4 to 5 lines of the real opening.
-     * Do not paraphrase the post from its title. Ship the pane empty before
-     * shipping invented prose.
+     * The post's own first two paragraphs, verbatim and contiguous.
+     *
+     * Not a summary, and not the opening spliced together with the later
+     * paragraph that defines BlurHash, which would read better and would be a
+     * quote of something he did not write in that order. If this ever needs to
+     * be shorter, cut from the end. Do not stitch.
      */
-    url: null,
-    excerpt: null,
+    excerpt:
+      "Having too many images in your app or images that are very large and load slowly can negatively impact page speed and user experience. In fact, images are probably one of the most significant contributors to your app's speed. Instead of reducing the number of images in an app, we can use placeholders for some of them, thereby reducing the number of image files on initial load.",
+
     cta: 'Read the post',
   },
   /** NEEDS INPUT: screenshots, recordings, or a Lighthouse report. */
@@ -374,17 +384,39 @@ export const FAQ: ReadonlyArray<{ question: string; answer: string | null }> = [
     answer:
       'React, Next.js and TypeScript day to day, with Tailwind and shadcn/ui for interfaces, Redux Toolkit or Zustand for state, and Node, Express, PostgreSQL and Supabase on the backend when a project needs it.',
   },
+  /*
+   * The three below were written for Jassim rather than supplied by him, at
+   * his request. The first two are commitments a reader can hold him to, so
+   * they are deliberately conservative: they promise less than he can
+   * probably deliver, because the failure mode of a portfolio FAQ is a
+   * promise that gets broken on the first enquiry.
+   *
+   * If either becomes untrue, change it here.
+   */
   {
     question: 'Are you available for freelance or contract work?',
-    answer: null,
+    /* Kept consistent with EXPERIENCE, which has him at Innsof from Nov 2025
+       to Present. Claiming open availability would contradict the page
+       directly above it. This says yes to the right enquiry without
+       promising capacity he may not have. */
+    answer:
+      'I am in a full time role, so I take on a small amount of contract work and only where I can commit properly to it. If you have something specific in mind, send me the details and I will tell you honestly whether I can do it justice.',
   },
   {
     question: 'How soon do you reply?',
-    answer: null,
+    /* Two working days, not "within 24 hours". He has a day job, and this is
+       a floor he can hold on a bad week rather than a best case. */
+    answer:
+      'Within two working days, usually sooner. If you have not heard back after that, the message went astray somewhere, so it is worth sending again.',
   },
   {
     question: 'Can I see your resume?',
-    answer: null,
+    /* The only one of the three that is a fact rather than a commitment. It
+       is true because the PDF is in /public and both buttons render off its
+       presence; if the file is ever removed both buttons disappear and this
+       answer becomes a lie. */
+    answer:
+      'Yes. There is a download button in the About section and another next to my email at the bottom of this page. It covers the same ground in more detail, including the roles and dates.',
   },
 ];
 
