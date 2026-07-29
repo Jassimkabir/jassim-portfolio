@@ -1,6 +1,16 @@
 'use client';
 
 /**
+ * ScrambleTextPlugin was removed with the Work cards it scrambled. Its one job
+ * was the stack tags on hover, and in the index layout that replaced them the
+ * hovered row already raises a screenshot preview. A second effect competing
+ * with that is noise, and the tags are bordered chips now, so scrambling their
+ * text would jitter the chip width while it ran.
+ *
+ * Draggable and InertiaPlugin were removed with the Work section's pinned
+ * horizontal pan. They existed to drag that track and there is no track now.
+ * Their only other candidate use, the cursor, runs on Observer.
+ *
  * CustomWiggle was removed. Its only assigned job was the Numbers counter
  * overshoot, and that job is impossible: a wiggle ease ends at 0 by
  * construction, so it drove every counter to zero instead of to its value.
@@ -26,10 +36,7 @@ import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import { Flip } from 'gsap/Flip';
 import { Observer } from 'gsap/Observer';
-import { Draggable } from 'gsap/Draggable';
-import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
 /*
  * Browser only. 'use client' modules still execute during prerender, and GSAP
@@ -42,12 +49,9 @@ if (typeof window !== 'undefined') {
     ScrollTrigger,      // every scroll-driven moment
     SplitText,          // every display heading
     CustomEase,         // the two project eases
-    Flip,               // Work card to detail, theme-toggle layout settle
-    Observer,           // cursor magnetism, unified input on the Work track
-    Draggable,          // drag-to-pan the Work track
-    InertiaPlugin,      // hands that drag back to ScrollTrigger
+    Flip,               // theme-toggle layout settle, nav
+    Observer,           // cursor magnetism
     DrawSVGPlugin,      // the Experience connector line
-    ScrambleTextPlugin, // stack tags on hover
   );
 
   /* Two eases for the whole page. Nothing uses a stock ease except
@@ -88,8 +92,5 @@ export {
   CustomEase,
   Flip,
   Observer,
-  Draggable,
-  InertiaPlugin,
   DrawSVGPlugin,
-  ScrambleTextPlugin,
 };
