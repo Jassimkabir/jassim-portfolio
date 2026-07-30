@@ -28,6 +28,8 @@ export const FG_DIM = '#b9baa3';
 export const ACCENT = '#a22c29';
 /** Bone on oxblood, 4.86:1. The accent's only AA-passing use. */
 export const ACCENT_FG = '#d6d5c9';
+/** The darker end of the accent ramp, for the app icon's gradient. */
+export const ACCENT_PRESS = '#7a231e';
 
 /*
  * THE TYPEFACE IS VENDORED, and it has to be.
