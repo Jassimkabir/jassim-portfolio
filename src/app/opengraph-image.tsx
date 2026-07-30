@@ -3,12 +3,26 @@ import { ImageResponse } from 'next/og';
 import { HERO, IDENTITY, SEO } from '@/content/site';
 import { ACCENT, BG, FG, FG_DIM, fonts, portraitSrc } from '@/lib/og-card';
 
-export const alt = `${IDENTITY.fullName}, ${IDENTITY.title} in ${IDENTITY.location}`;
-export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
-
 /** Origin without the scheme. The card shows where it lives, not a full URL. */
 const domain = SEO.url.replace(/^https?:\/\//, '');
+
+/*
+ * og:image:alt, and the second half of it is load bearing.
+ *
+ * Nothing that reads this page can see inside a PNG. Auditors and previews
+ * have no OCR, so the call to action rendered on the card is invisible to
+ * them; the only text about the image they can parse is this string. It read
+ * as pure description, which is why a card that does carry a call to action
+ * was still reported as missing one.
+ *
+ * It is not marketing copy bolted onto an alt attribute. The card literally
+ * renders this sentence, so describing it here is accurate, which is the only
+ * thing alt text owes anyone. Both halves are built from the same values the
+ * card draws from, so the description cannot drift from the image.
+ */
+export const alt = `${IDENTITY.fullName}, ${IDENTITY.title} in ${IDENTITY.location}. See the work at ${domain}`;
+export const size = { width: 1200, height: 630 };
+export const contentType = 'image/png';
 
 /**
  * The share card.
