@@ -28,8 +28,13 @@ export const FG_DIM = '#b9baa3';
 export const ACCENT = '#a22c29';
 /** Bone on oxblood, 4.86:1. The accent's only AA-passing use. */
 export const ACCENT_FG = '#d6d5c9';
-/** The darker end of the accent ramp, for the app icon's gradient. */
+/** The darker end of the accent ramp. */
 export const ACCENT_PRESS = '#7a231e';
+/* Bone, and the lighter tint above it. Both are already in the palette; the
+   app icon needs a light ground because his hair is close to black and would
+   vanish into the dark base. */
+export const BONE = '#d6d5c9';
+export const BONE_LIFT = '#e4e3da';
 
 /*
  * THE TYPEFACE IS VENDORED, and it has to be.

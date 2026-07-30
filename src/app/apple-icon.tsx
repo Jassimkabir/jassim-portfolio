@@ -1,61 +1,60 @@
 import { ImageResponse } from 'next/og';
 
-import { ACCENT, ACCENT_FG, ACCENT_PRESS, fonts } from '@/lib/og-card';
+import { BONE, BONE_LIFT, fonts, portraitSrc } from '@/lib/og-card';
 
 /**
- * The iOS home screen icon.
+ * The iOS home screen icon: the portrait, cropped to head and shoulders.
  *
- * There was none, so saving the site to a home screen produced a screenshot of
- * the page shrunk to 180px. favicon.ico does not cover this: iOS ignores it and
- * looks for apple-touch-icon by name.
+ * There was none before, so saving the site to a home screen produced a
+ * screenshot of the page shrunk to 180px. favicon.ico does not cover this; iOS
+ * ignores it and looks for apple-touch-icon by name.
  *
- * WHY A LETTERFORM AND NOT THE FAVICON'S PHOTOGRAPH. The favicon is a circular
- * headshot, and matching it here was the obvious move, but it loses at this
- * job. iOS asks for 180px and then downsamples the same file to roughly 120,
- * 87 and 60 for its smaller slots, and a face at 60px is mush. A letterform
- * survives every one of those reductions intact. The two marks stay different
- * on purpose: tabs keep the photograph, tiles get the letter.
+ * THE BACKGROUND IS LIGHT, and that is not a style preference. His hair is
+ * close to black, so a cut-out on the dark base loses its silhouette entirely:
+ * the head dissolves into the tile. The existing favicon solves the same
+ * problem the same way, with a light circle, so this matches it rather than
+ * inventing a second answer to it.
  *
- * OPAQUE ON PURPOSE. iOS does not support transparency here and composites
- * anything transparent onto black, so a cut-out would sit in a black square on
- * every device. This is also why the favicon cannot simply be reused: its
- * corners are transparent, so it would arrive framed in black.
+ * OPAQUE. iOS does not support transparency here and composites anything
+ * transparent onto black. That is also why the favicon cannot simply be reused
+ * as this file: its corners are transparent, so it would arrive framed in
+ * black.
  *
  * NO CORNER RADIUS. iOS applies its own superellipse mask and clips whatever
- * it is given. A radius here would be masked again and read as a rounded tile
- * floating inside a rounded tile.
+ * it is handed, so a radius here would be masked twice and read as a rounded
+ * tile floating inside a rounded tile.
  *
- * THE NUMBERS BELOW WERE MEASURED, not chosen. See the note on GLYPH.
+ * `fonts` is still passed although nothing here sets type: ImageResponse
+ * requires at least one font and throws without one.
  */
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
 /**
- * Optical geometry for the J, measured off a render rather than judged.
+ * The crop, derived from the source rather than judged by eye.
  *
- * `size` sets the cap height to roughly 53% of the tile, which is where a
- * single letterform stops looking lost in its own square and starts filling it
- * without crowding the corners iOS masks away.
+ * portrait.png is 759px square. Measured from its alpha channel, the head
+ * occupies x 219 to 528 and y 68 to 352, where the silhouette narrows to the
+ * neck.
  *
- * `lift` corrects the baseline. Text centred by its line box sits low, because
- * the box reserves descender space this glyph does not use, so centring on the
- * box leaves the ink low by about half that descent. This raises it back onto
- * the optical centre.
+ * Showing a 440px window of that source, centred on the head horizontally and
+ * starting 30px above the hair, puts the head at 65% of the tile height with
+ * its centre exactly on the tile's vertical axis. A small head marooned in a
+ * large square is what makes photographic icons look weak; filling the frame
+ * is what stops it.
  *
- * Both were tuned against a render. The first pass used 132 with a lift of 7
- * and letter-spacing of -2, which measured out at a 48.9% cap height sitting
- * 2.5px above and 2.5px left of centre: the lift overshot, and trailing
- * letter-spacing on a single glyph pulls the centred box off axis for no
- * benefit, so the tracking is gone.
+ * The head sits a little above the tile's centre on purpose. Portraits want
+ * headroom, and centring the head's bounding box instead leaves the face
+ * looking like it is sliding off the bottom.
  *
- * `nudgeX` is not a fudge. This J carries more left side bearing than right,
- * so its advance box centres while its ink does not; measured, the ink sat 4px
- * left of the tile centre. Centring what you can see rather than what the font
- * reserves is the whole point of doing this optically.
- *
- * If this glyph ever changes, re-measure the ink bounds. Do not adjust by eye.
+ * If the portrait is ever replaced, re-measure these. Do not nudge them.
  */
-const GLYPH = { size: 143, lift: 3, nudgeX: 4 };
+const CROP = {
+  /** 759 * (180 / 440): the source scaled so a 440px window fills the tile. */
+  rendered: 310.5,
+  left: -62.8,
+  top: -12.3,
+};
 
 export default function AppleIcon() {
   return new ImageResponse(
@@ -65,29 +64,28 @@ export default function AppleIcon() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          /* Accent into accent-press, both existing tokens. A flat fill reads
-             cheap at tile size; the gradient gives it depth without
-             introducing a colour the palette does not already have. */
-          backgroundImage: `linear-gradient(145deg, ${ACCENT} 0%, ${ACCENT_PRESS} 100%)`,
-          backgroundColor: ACCENT,
-          color: ACCENT_FG,
-          fontFamily: 'Bricolage',
+          overflow: 'hidden',
+          /* Bone, with the lighter tint at the top. Both are already in the
+             palette. A flat fill reads cheap at tile size, and putting the
+             lighter end above matches where the light falls on him in the
+             photograph. */
+          backgroundImage: `linear-gradient(180deg, ${BONE_LIFT} 0%, ${BONE} 100%)`,
+          backgroundColor: BONE,
         }}
       >
-        <div
+        <img
+          src={portraitSrc}
+          width={CROP.rendered}
+          height={CROP.rendered}
+          alt=""
           style={{
-            display: 'flex',
-            fontSize: GLYPH.size,
-            fontWeight: 700,
-            lineHeight: 1,
-            marginTop: -GLYPH.lift,
-            marginLeft: GLYPH.nudgeX,
+            position: 'absolute',
+            left: CROP.left,
+            top: CROP.top,
+            width: CROP.rendered,
+            height: CROP.rendered,
           }}
-        >
-          J
-        </div>
+        />
       </div>
     ),
     { ...size, fonts },
