@@ -59,10 +59,28 @@ export const SOCIALS = [
 ] as const;
 
 export const SEO = {
-  title: 'Jassim, Front-End Engineer',
-  /* 131 characters. Under the 155 limit, no dashes. */
+  /*
+   * 57 characters. Was 'Jassim, Front-End Engineer' at 26, which won searches
+   * for his name and competed for nothing else while leaving half the space
+   * Google renders unused. The full name is what someone types when looking
+   * for him specifically, and the role and city are what someone types when
+   * they do not know his name yet.
+   *
+   * Google truncates around 60 on desktop, so this is close to the limit
+   * without crossing it. Anything longer gets an ellipsis, which costs the
+   * city, which is the part doing the local work.
+   */
+  title: 'Waleed Jassim M K, Front-End Engineer in Palakkad, Kerala',
+
+  /*
+   * 115 characters. Was 133, which fits the roughly 155 Google allows on
+   * desktop but overran the roughly 120 to 130 it allows on mobile and the
+   * shorter budget social previews use, so the end was being cut on the
+   * surfaces that matter most. Nothing was dropped except a repetition of the
+   * city, which the title already carries.
+   */
   description:
-    'Waleed Jassim M K, front-end engineer in Palakkad, Kerala. Over 4 years building scalable React, Next.js and TypeScript applications.',
+    'Waleed Jassim M K, front-end engineer in Kerala. Over 4 years building scalable React, Next.js and TypeScript apps.',
   /* The live origin, and it is load bearing. Everything canonical is derived
      from it: alternates.canonical, metadataBase, the OG and Twitter urls, the
      sitemap entry, robots' host, and every @id in the structured data graph.

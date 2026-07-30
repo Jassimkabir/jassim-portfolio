@@ -168,19 +168,22 @@ export default function Image() {
               fontWeight: 500,
             }}
           >
-            <div style={{ display: 'flex' }}>{domain}</div>
-            <div
-              style={{
-                display: 'flex',
-                width: 5,
-                height: 5,
-                borderRadius: 3,
-                background: FG_DIM,
-                marginLeft: 18,
-                marginRight: 18,
-              }}
-            />
-            <div style={{ display: 'flex' }}>{IDENTITY.location}</div>
+            {/*
+              The call to action, as a sentence rather than a button.
+
+              A share card is a still image; nothing on it is clickable, so a
+              filled pill reads as a control that does not work. The first
+              version of this card shipped exactly that and it was removed.
+              Naming the action in words and pointing at the address does the
+              same job without pretending to be UI.
+
+              Brighter than the line under it on purpose: FG for the action,
+              FG_DIM for the context.
+            */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', color: FG }}>See the work at {domain}</div>
+              <div style={{ display: 'flex', marginTop: 10 }}>{IDENTITY.location}</div>
+            </div>
           </div>
         </div>
       </div>

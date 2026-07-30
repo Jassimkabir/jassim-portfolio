@@ -180,7 +180,10 @@ export function GET() {
             fontWeight: 500,
           }}
         >
-          <div style={{ display: 'flex' }}>{domain}</div>
+          {/* The call to action, as a sentence rather than a button; a still
+              image has nothing clickable on it. Same reasoning as the
+              landscape card. */}
+          <div style={{ display: 'flex', color: FG }}>See the work at {domain}</div>
           <div style={{ display: 'flex', marginTop: 12 }}>{IDENTITY.location}</div>
         </div>
       </div>
