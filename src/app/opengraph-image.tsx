@@ -91,22 +91,32 @@ export default function Image() {
       >
         {/*
           Portrait, bleeding off the right and bottom edges.
-          
-          Oversized and pushed down on purpose. The source is square and the
-          subject fills it to the chest, where the hoodie carries a coffee
-          shop's logo. Scaling to 820 and running the bottom 190px off the card
-          frames it as a head and shoulders crop and takes that mark with it,
-          which keeps another business's branding off his share card.
 
-          No scrim: the cut-out is transparent, so it sits on the base
-          directly. The overflow container is what clips it.
+          THE CLIP CONTAINER IS THE WHOLE CARD, and it has to be. It was 520px
+          wide, which put its left boundary straight through his shoulder and
+          sliced it off on a hard vertical line. Only the bottom needs clipping
+          here; nothing wants a left edge.
+
+          Every number below comes from the source's own alpha bounds rather
+          than from eyeballing it. In portrait.png the head occupies x 0.289 to
+          0.696, the shoulders 0.094 to 0.939, and the hoodie logo sits in the
+          band below y 0.80. At 780px placed at right -190 and bottom -175:
+
+            head        x 835 to 1153, clear of the 1200 card edge by 47px
+            shoulder    starts at x 683, clear of the text column by 51px
+            logo        starts at y 649, below the 630 card edge, so it is gone
+
+          The right shoulder still runs off the card edge. That is the bleed,
+          and it is deliberate; the slice this replaced was not.
+
+          No scrim: the cut-out is transparent, so it sits on the base directly.
         */}
         <div
           style={{
             position: 'absolute',
             top: 0,
-            right: 0,
-            width: 520,
+            left: 0,
+            width: 1200,
             height: 630,
             display: 'flex',
             overflow: 'hidden',
@@ -114,10 +124,10 @@ export default function Image() {
         >
           <img
             src={portraitSrc}
-            width={820}
-            height={820}
+            width={780}
+            height={780}
             alt=""
-            style={{ position: 'absolute', right: -150, bottom: -190, width: 820, height: 820 }}
+            style={{ position: 'absolute', right: -190, bottom: -175, width: 780, height: 780 }}
           />
         </div>
 
