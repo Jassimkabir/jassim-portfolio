@@ -32,6 +32,27 @@ import {
  * them stable across pages if this ever stops being a single page.
  */
 
+/*
+ * The image slot, in two aspect ratios.
+ *
+ * Google's rich results guidance asks for the same image supplied at several
+ * aspect ratios so it can choose per surface, and the structured data array is
+ * the one place multiple shapes are a documented input rather than a guess.
+ * 1.91:1 is the landscape share card; 1:1 is the square one.
+ *
+ * This replaces a single reference to /portrait.png, which was wrong twice
+ * over: 759x759 is under Google's 1200px recommendation, so it risked being
+ * dropped from image eligible results, and it is the bare transparent cut-out,
+ * which composited onto another surface is a floating head with no name and no
+ * context.
+ *
+ * NOTE FOR WHATSAPP AND EVERY OTHER CHAT APP: none of this reaches them. They
+ * read Open Graph and nothing else, so they get the landscape card from
+ * og:image. The square exists for search surfaces only.
+ */
+const CARD_LANDSCAPE = `${SEO.url}/opengraph-image`;
+const CARD_SQUARE = `${SEO.url}/share-square`;
+
 const PERSON_ID = `${SEO.url}/#person`;
 const SITE_ID = `${SEO.url}/#website`;
 const PAGE_ID = `${SEO.url}/#webpage`;
@@ -88,7 +109,7 @@ const person = {
   name: IDENTITY.fullName,
   alternateName: IDENTITY.shortName,
   url: SEO.url,
-  image: `${SEO.url}/portrait.png`,
+  image: [CARD_LANDSCAPE, CARD_SQUARE],
   jobTitle: IDENTITY.title,
   email: `mailto:${IDENTITY.email}`,
   description: SEO.description,
@@ -147,7 +168,7 @@ const profilePage = {
   isPartOf: { '@id': SITE_ID },
   about: { '@id': PERSON_ID },
   mainEntity: { '@id': PERSON_ID },
-  primaryImageOfPage: `${SEO.url}/portrait.png`,
+  primaryImageOfPage: CARD_LANDSCAPE,
 };
 
 /**

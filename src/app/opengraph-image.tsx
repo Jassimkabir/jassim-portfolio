@@ -1,58 +1,11 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-
 import { ImageResponse } from 'next/og';
 
 import { HERO, IDENTITY, SEO } from '@/content/site';
+import { ACCENT, BG, FG, FG_DIM, fonts, portraitSrc } from '@/lib/og-card';
 
 export const alt = `${IDENTITY.fullName}, ${IDENTITY.title} in ${IDENTITY.location}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-
-/*
- * Dark-theme tokens, inlined because ImageResponse renders outside the
- * document and cannot read CSS variables. These must stay in sync with the
- * dark block in globals.css.
- */
-const BG = '#0a100d';
-const FG = '#d6d5c9';
-const FG_DIM = '#b9baa3';
-const ACCENT = '#a22c29';
-
-/*
- * THE TYPEFACE IS VENDORED, and it has to be.
- *
- * ImageResponse renders through Satori, which cannot use next/font and cannot
- * read woff2 at all, so the built font assets under .next are useless here
- * even though they exist. With no font passed explicitly Satori falls back to
- * a generic sans, which is exactly what the previous card shipped: a portfolio
- * card for a front-end engineer, set in a typeface that was not his.
- *
- * So Bricolage Grotesque ships as TTF in src/lib/og-assets. Two static
- * instances at 82KB each rather than the variable font, because Satori
- * resolves one weight per run and gains nothing from the axes. OFL-1.1
- * licensed, which permits redistribution; mind the reserved font name terms if
- * these files are ever modified rather than embedded as they are.
- *
- * Read at module scope so it happens once during the static prerender rather
- * than per request.
- */
-const fontDir = path.join(process.cwd(), 'src', 'lib', 'og-assets');
-const bold = readFileSync(path.join(fontDir, 'bricolage-700.ttf'));
-const medium = readFileSync(path.join(fontDir, 'bricolage-500.ttf'));
-
-/*
- * The portrait, inlined as a data URI. Satori will not resolve a relative
- * path, and pointing it at the deployed URL would make the build depend on
- * the deployment it is part of.
- *
- * portrait.png, NOT Jassim.png. Jassim.png is the same photograph on a white
- * background, which on this base needs a scrim to hide and still leaves a pale
- * band down the right edge. portrait.png is cut out with real transparency, so
- * it composites straight onto the dark base with no scrim and no seam.
- */
-const portrait = readFileSync(path.join(process.cwd(), 'public', 'portrait.png'));
-const portraitSrc = `data:image/png;base64,${portrait.toString('base64')}`;
 
 /** Origin without the scheme. The card shows where it lives, not a full URL. */
 const domain = SEO.url.replace(/^https?:\/\//, '');
@@ -234,10 +187,7 @@ export default function Image() {
     ),
     {
       ...size,
-      fonts: [
-        { name: 'Bricolage', data: bold, weight: 700, style: 'normal' },
-        { name: 'Bricolage', data: medium, weight: 500, style: 'normal' },
-      ],
+      fonts,
     },
   );
 }
