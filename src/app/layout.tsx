@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Bricolage_Grotesque, Geist, Geist_Mono } from 'next/font/google';
 
 import { IDENTITY, SEO } from '@/content/site';
+import { structuredData } from '@/lib/structured-data';
 import SmoothScroll from '@/components/SmoothScroll';
 import Grain from '@/components/ui/Grain';
 import Cursor from '@/components/ui/Cursor';
@@ -41,8 +42,19 @@ export const metadata: Metadata = {
     template: `%s, ${IDENTITY.shortName}`,
   },
   description: SEO.description,
+  applicationName: `${IDENTITY.shortName}, ${IDENTITY.title}`,
   authors: [{ name: IDENTITY.fullName, url: SEO.url }],
   creator: IDENTITY.fullName,
+  publisher: IDENTITY.fullName,
+  category: 'technology',
+  /* Send the full URL on same-origin navigations and only the origin when
+     leaving, which is the default most analytics expect without leaking the
+     visitor's path to the four social profiles this page links out to. */
+  referrer: 'origin-when-cross-origin',
+  /* Safari turns bare digit strings into tel: links on its own. The page has
+     one phone number and it is behind a real tel: anchor already, so every
+     other number here is a metric and must be left alone. */
+  formatDetection: { telephone: false, address: false, email: false },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -60,7 +72,16 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+    googleBot: {
+      index: true,
+      follow: true,
+      /* Large image previews, unlimited snippet length. The defaults truncate
+         both, and for a single page whose whole job is to be read in a result
+         there is nothing here worth withholding. */
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
 };
 
@@ -70,27 +91,13 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: dark)', color: '#0a100d' },
     { media: '(prefers-color-scheme: light)', color: '#d6d5c9' },
   ],
+  /* Both themes are real and switchable, so the UA is told so rather than
+     being left to guess from the background colour. */
+  colorScheme: 'dark light',
   width: 'device-width',
   initialScale: 1,
 };
 
-const personJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: IDENTITY.fullName,
-  alternateName: IDENTITY.shortName,
-  url: SEO.url,
-  jobTitle: IDENTITY.title,
-  email: `mailto:${IDENTITY.email}`,
-  address: { '@type': 'PostalAddress', addressLocality: 'Palakkad', addressRegion: 'Kerala', addressCountry: 'IN' },
-  sameAs: [
-    IDENTITY.github.url,
-    IDENTITY.linkedin.url,
-    IDENTITY.instagram.url,
-    IDENTITY.facebook.url,
-  ],
-  description: SEO.description,
-};
 
 /**
  * Resolves the theme before first paint so there is no flash of the wrong one.
@@ -117,7 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Grain />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </body>
     </html>

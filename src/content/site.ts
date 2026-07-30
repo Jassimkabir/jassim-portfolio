@@ -63,7 +63,13 @@ export const SEO = {
   /* 131 characters. Under the 155 limit, no dashes. */
   description:
     'Waleed Jassim M K, front-end engineer in Palakkad, Kerala. Over 4 years building scalable React, Next.js and TypeScript applications.',
-  url: 'https://jassim-m-kabir.vercel.app',
+  /* The live origin, and it is load bearing. Everything canonical is derived
+     from it: alternates.canonical, metadataBase, the OG and Twitter urls, the
+     sitemap entry, robots' host, and every @id in the structured data graph.
+     It was https://jassim-m-kabir.vercel.app, which 404s, so the page was
+     telling search engines its canonical URL was a dead one. Verify a change
+     here resolves before shipping it. */
+  url: 'https://jassimmkabir.vercel.app',
   locale: 'en_US',
 } as const;
 
