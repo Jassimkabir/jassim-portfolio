@@ -1,24 +1,80 @@
-import { ImageResponse } from 'next/og';
-import { IDENTITY } from '@/content/site';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
-export const alt = 'Waleed Jassim M K, front-end engineer';
+import { ImageResponse } from 'next/og';
+
+import { HERO, IDENTITY, SEO } from '@/content/site';
+
+export const alt = `${IDENTITY.fullName}, ${IDENTITY.title} in ${IDENTITY.location}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 /*
  * Dark-theme tokens, inlined because ImageResponse renders outside the
- * document and cannot read CSS variables. These four values must stay in sync
- * with globals.css.
- *
- * Bricolage is not loaded here: ImageResponse cannot use next/font, and
- * fetching the woff2 would make the build depend on the network. The card
- * leans on scale and colour instead.
+ * document and cannot read CSS variables. These must stay in sync with the
+ * dark block in globals.css.
  */
 const BG = '#0a100d';
 const FG = '#d6d5c9';
 const FG_DIM = '#b9baa3';
 const ACCENT = '#a22c29';
 
+/*
+ * THE TYPEFACE IS VENDORED, and it has to be.
+ *
+ * ImageResponse renders through Satori, which cannot use next/font and cannot
+ * read woff2 at all, so the built font assets under .next are useless here
+ * even though they exist. With no font passed explicitly Satori falls back to
+ * a generic sans, which is exactly what the previous card shipped: a portfolio
+ * card for a front-end engineer, set in a typeface that was not his.
+ *
+ * So Bricolage Grotesque ships as TTF in src/lib/og-assets. Two static
+ * instances at 82KB each rather than the variable font, because Satori
+ * resolves one weight per run and gains nothing from the axes. OFL-1.1
+ * licensed, which permits redistribution; mind the reserved font name terms if
+ * these files are ever modified rather than embedded as they are.
+ *
+ * Read at module scope so it happens once during the static prerender rather
+ * than per request.
+ */
+const fontDir = path.join(process.cwd(), 'src', 'lib', 'og-assets');
+const bold = readFileSync(path.join(fontDir, 'bricolage-700.ttf'));
+const medium = readFileSync(path.join(fontDir, 'bricolage-500.ttf'));
+
+/*
+ * The portrait, inlined as a data URI. Satori will not resolve a relative
+ * path, and pointing it at the deployed URL would make the build depend on
+ * the deployment it is part of.
+ *
+ * portrait.png, NOT Jassim.png. Jassim.png is the same photograph on a white
+ * background, which on this base needs a scrim to hide and still leaves a pale
+ * band down the right edge. portrait.png is cut out with real transparency, so
+ * it composites straight onto the dark base with no scrim and no seam.
+ */
+const portrait = readFileSync(path.join(process.cwd(), 'public', 'portrait.png'));
+const portraitSrc = `data:image/png;base64,${portrait.toString('base64')}`;
+
+/** Origin without the scheme. The card shows where it lives, not a full URL. */
+const domain = SEO.url.replace(/^https?:\/\//, '');
+
+/**
+ * The share card.
+ *
+ * WHAT WAS WRONG WITH THE OLD ONE. The full name at 128px overran the measure
+ * and wrapped, orphaning "K" onto a line by itself, which is the same defect
+ * the footer sign-off and the copyright line both had. The right half of the
+ * card was empty. The stack sat in a filled pill that read as a button nobody
+ * could press. And it carried no portrait, on a card whose whole job is to put
+ * a face beside a name in a feed.
+ *
+ * Two columns now: everything readable on the left, the portrait bleeding off
+ * the right and bottom edges. It needs no scrim because the source is cut out
+ * with real transparency, so it composites onto the base with no seam.
+ *
+ * The display line is the short name. One word cannot wrap, which retires the
+ * orphan outright instead of tuning a font size until it happens to fit, and
+ * it matches the sign-off the footer already uses.
+ */
 export default function Image() {
   return new ImageResponse(
     (
@@ -27,34 +83,151 @@ export default function Image() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
           background: BG,
           color: FG,
-          padding: '80px',
+          fontFamily: 'Bricolage',
+          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', fontSize: 26, letterSpacing: 6, color: FG_DIM, textTransform: 'uppercase' }}>
-          {IDENTITY.title}
+        {/*
+          Portrait, bleeding off the right and bottom edges.
+          
+          Oversized and pushed down on purpose. The source is square and the
+          subject fills it to the chest, where the hoodie carries a coffee
+          shop's logo. Scaling to 820 and running the bottom 190px off the card
+          frames it as a head and shoulders crop and takes that mark with it,
+          which keeps another business's branding off his share card.
+
+          No scrim: the cut-out is transparent, so it sits on the base
+          directly. The overflow container is what clips it.
+        */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: 520,
+            height: 630,
+            display: 'flex',
+            overflow: 'hidden',
+          }}
+        >
+          <img
+            src={portraitSrc}
+            width={820}
+            height={820}
+            alt=""
+            style={{ position: 'absolute', right: -150, bottom: -190, width: 820, height: 820 }}
+          />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 128, fontWeight: 700, letterSpacing: -5, lineHeight: 1 }}>
-            {IDENTITY.fullName}
+        {/* ── accent spine, the one filled use of accent on this card ──── */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: 14,
+            height: 630,
+            background: ACCENT,
+            display: 'flex',
+          }}
+        />
+
+        {/* ── text column ──────────────────────────────────────────────── */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '70px 60px 70px 92px',
+            width: 760,
+            height: 630,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 23,
+              letterSpacing: 7,
+              color: ACCENT,
+              fontWeight: 500,
+            }}
+          >
+            {IDENTITY.title.toUpperCase()}
           </div>
-          {/* Accent as a fill, never as text on this base. */}
-          <div style={{ display: 'flex', marginTop: 40 }}>
-            <div style={{ display: 'flex', background: ACCENT, color: FG, fontSize: 30, padding: '16px 32px', borderRadius: 20 }}>
-              React, Next.js, TypeScript
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Short name: one word, so it can never wrap. */}
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 152,
+                fontWeight: 700,
+                letterSpacing: -6,
+                lineHeight: 1,
+              }}
+            >
+              {IDENTITY.shortName}
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                width: 120,
+                height: 3,
+                background: FG,
+                marginTop: 30,
+                marginBottom: 30,
+              }}
+            />
+
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 29,
+                lineHeight: 1.34,
+                color: FG_DIM,
+                fontWeight: 500,
+                width: 540,
+              }}
+            >
+              {HERO.subtext}
             </div>
           </div>
-        </div>
 
-        <div style={{ display: 'flex', fontSize: 26, color: FG_DIM }}>
-          {IDENTITY.location}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: 22,
+              color: FG_DIM,
+              fontWeight: 500,
+            }}
+          >
+            <div style={{ display: 'flex' }}>{domain}</div>
+            <div
+              style={{
+                display: 'flex',
+                width: 5,
+                height: 5,
+                borderRadius: 3,
+                background: FG_DIM,
+                marginLeft: 18,
+                marginRight: 18,
+              }}
+            />
+            <div style={{ display: 'flex' }}>{IDENTITY.location}</div>
+          </div>
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: [
+        { name: 'Bricolage', data: bold, weight: 700, style: 'normal' },
+        { name: 'Bricolage', data: medium, weight: 500, style: 'normal' },
+      ],
+    },
   );
 }
