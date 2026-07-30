@@ -1,24 +1,33 @@
 import { ImageResponse } from 'next/og';
-import { IDENTITY } from '@/content/site';
 
-export const alt = 'Waleed Jassim M K, front-end engineer';
+import { HERO, IDENTITY, SEO } from '@/content/site';
+import { ACCENT, BG, FG, FG_DIM, fonts, portraitSrc } from '@/lib/og-card';
+
+export const alt = `${IDENTITY.fullName}, ${IDENTITY.title} in ${IDENTITY.location}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-/*
- * Dark-theme tokens, inlined because ImageResponse renders outside the
- * document and cannot read CSS variables. These four values must stay in sync
- * with globals.css.
- *
- * Bricolage is not loaded here: ImageResponse cannot use next/font, and
- * fetching the woff2 would make the build depend on the network. The card
- * leans on scale and colour instead.
- */
-const BG = '#0a100d';
-const FG = '#d6d5c9';
-const FG_DIM = '#b9baa3';
-const ACCENT = '#a22c29';
+/** Origin without the scheme. The card shows where it lives, not a full URL. */
+const domain = SEO.url.replace(/^https?:\/\//, '');
 
+/**
+ * The share card.
+ *
+ * WHAT WAS WRONG WITH THE OLD ONE. The full name at 128px overran the measure
+ * and wrapped, orphaning "K" onto a line by itself, which is the same defect
+ * the footer sign-off and the copyright line both had. The right half of the
+ * card was empty. The stack sat in a filled pill that read as a button nobody
+ * could press. And it carried no portrait, on a card whose whole job is to put
+ * a face beside a name in a feed.
+ *
+ * Two columns now: everything readable on the left, the portrait bleeding off
+ * the right and bottom edges. It needs no scrim because the source is cut out
+ * with real transparency, so it composites onto the base with no seam.
+ *
+ * The display line is the short name. One word cannot wrap, which retires the
+ * orphan outright instead of tuning a font size until it happens to fit, and
+ * it matches the sign-off the footer already uses.
+ */
 export default function Image() {
   return new ImageResponse(
     (
@@ -27,34 +36,158 @@ export default function Image() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
           background: BG,
           color: FG,
-          padding: '80px',
+          fontFamily: 'Bricolage',
+          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', fontSize: 26, letterSpacing: 6, color: FG_DIM, textTransform: 'uppercase' }}>
-          {IDENTITY.title}
+        {/*
+          Portrait, bleeding off the right and bottom edges.
+
+          THE CLIP CONTAINER IS THE WHOLE CARD, and it has to be. It was 520px
+          wide, which put its left boundary straight through his shoulder and
+          sliced it off on a hard vertical line. Only the bottom needs clipping
+          here; nothing wants a left edge.
+
+          Every number below comes from the source's own alpha bounds rather
+          than from eyeballing it. In portrait.png the head occupies x 0.289 to
+          0.696, the shoulders 0.094 to 0.939, and the hoodie logo sits in the
+          band below y 0.80. At 780px placed at right -190 and bottom -175:
+
+            head        x 835 to 1153, clear of the 1200 card edge by 47px
+            shoulder    starts at x 683, clear of the text column by 51px
+            logo        starts at y 649, below the 630 card edge, so it is gone
+
+          The right shoulder still runs off the card edge. That is the bleed,
+          and it is deliberate; the slice this replaced was not.
+
+          No scrim: the cut-out is transparent, so it sits on the base directly.
+        */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: 1200,
+            height: 630,
+            display: 'flex',
+            overflow: 'hidden',
+          }}
+        >
+          <img
+            src={portraitSrc}
+            width={780}
+            height={780}
+            alt=""
+            style={{ position: 'absolute', right: -190, bottom: -175, width: 780, height: 780 }}
+          />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 128, fontWeight: 700, letterSpacing: -5, lineHeight: 1 }}>
-            {IDENTITY.fullName}
+        {/* ── accent spine, the one filled use of accent on this card ──── */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: 14,
+            height: 630,
+            background: ACCENT,
+            display: 'flex',
+          }}
+        />
+
+        {/* ── text column ──────────────────────────────────────────────── */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '70px 60px 70px 92px',
+            width: 760,
+            height: 630,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 23,
+              letterSpacing: 7,
+              color: ACCENT,
+              fontWeight: 500,
+            }}
+          >
+            {IDENTITY.title.toUpperCase()}
           </div>
-          {/* Accent as a fill, never as text on this base. */}
-          <div style={{ display: 'flex', marginTop: 40 }}>
-            <div style={{ display: 'flex', background: ACCENT, color: FG, fontSize: 30, padding: '16px 32px', borderRadius: 20 }}>
-              React, Next.js, TypeScript
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Short name: one word, so it can never wrap. */}
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 152,
+                fontWeight: 700,
+                letterSpacing: -6,
+                lineHeight: 1,
+              }}
+            >
+              {IDENTITY.shortName}
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                width: 120,
+                height: 3,
+                background: FG,
+                marginTop: 30,
+                marginBottom: 30,
+              }}
+            />
+
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 29,
+                lineHeight: 1.34,
+                color: FG_DIM,
+                fontWeight: 500,
+                width: 540,
+              }}
+            >
+              {HERO.subtext}
             </div>
           </div>
-        </div>
 
-        <div style={{ display: 'flex', fontSize: 26, color: FG_DIM }}>
-          {IDENTITY.location}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: 22,
+              color: FG_DIM,
+              fontWeight: 500,
+            }}
+          >
+            <div style={{ display: 'flex' }}>{domain}</div>
+            <div
+              style={{
+                display: 'flex',
+                width: 5,
+                height: 5,
+                borderRadius: 3,
+                background: FG_DIM,
+                marginLeft: 18,
+                marginRight: 18,
+              }}
+            />
+            <div style={{ display: 'flex' }}>{IDENTITY.location}</div>
+          </div>
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts,
+    },
   );
 }
